@@ -7,43 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PontoColeta {
-  id         String   @id @default(uuid()) @map("id")
-  nome       String   @map("nome")
-  descricao  String?  @map("descricao")
-  endereco   String   @map("endereco")
-  cidade     String   @map("cidade")
-  estado     String   @map("estado")
-  latitude   Float?   @map("latitude")
-  longitude  Float?   @map("longitude")
-  telefone   String?  @map("telefone")
-  whatsapp   String?  @map("whatsapp")
-  criadoEm   DateTime @default(now()) @map("criado_em")
+model User {
+  id            String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome          String?
+  email         String?       @unique
+  password      String?
+  image         String?
+  criado_em     DateTime      @default(now()) @db.Timestamptz(6)
+  atualizado_em DateTime?     @updatedAt @db.Timestamptz(6)
+  pontos        PontoColeta[]
 
-  categorias PontoCategoria[] 
-
-  @@map("pontos_coleta")
-  @@index([latitude, longitude])
-  @@index([cidade])
+  @@map("users")
 }
 
 model TipoDoacao {
-  id     String @id @default(uuid()) @map("id")
-  nome   String @unique @map("nome")
-  icone  String? @map("icone")
-
-  pontos PontoCategoria[]
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome             String           @unique(map: "categorias_nome_unique")
+  icone            String?
+  ponto_categorias PontoCategoria[]
 
   @@map("categorias")
 }
 
+model PontoColeta {
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome             String
+  descricao        String?
+  endereco         String
+  cidade           String
+  estado           String
+  latitude         Float?
+  longitude        Float?
+  telefone         String?
+  whatsapp         String?
+  criado_em        DateTime?        @default(now()) @db.Timestamptz(6)
+  user_id          String?          @db.Uuid
+  ponto_categorias PontoCategoria[]
+  user             User?            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("pontos_coleta")
+}
+
 model PontoCategoria {
-  pontoId     String   @map("ponto_id")
-  categoriaId String   @map("categoria_id")
+  ponto_id      String      @db.Uuid
+  categoria_id  String      @db.Uuid
+  categorias    TipoDoacao  @relation(fields: [categoria_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pontos_coleta PontoColeta @relation(fields: [ponto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  ponto     PontoColeta @relation(fields: [pontoId], references: [id])
-  categoria TipoDoacao  @relation(fields: [categoriaId], references: [id])
-
-  @@id([pontoId, categoriaId])
+  @@id([ponto_id, categoria_id])
   @@map("ponto_categorias")
 }

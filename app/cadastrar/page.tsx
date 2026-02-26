@@ -1,0 +1,230 @@
+import React from "react";
+import Link from "next/link";
+import prisma from "@/lib/prisma";
+import { cadastrarPonto } from "@/app/actions/pontos";
+import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+
+interface PageProps {
+  searchParams?: {
+    error?: string;
+  };
+}
+
+export default async function CadastrarPontoPage({ searchParams }: PageProps) {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login?error=auth_required");
+  }
+  const categorias = await prisma.tipoDoacao.findMany({
+    orderBy: { nome: "asc" },
+  });
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Flash Message de Erro */}
+        {searchParams?.error === "1" && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-bold">⚠</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-red-800">Erro no cadastro</h3>
+                <p className="text-sm text-red-700">
+                  Houve um problema ao salvar. Verifique os dados e tente
+                  novamente.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Card Principal */}
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white">
+            <h1 className="text-3xl font-bold mb-2 tracking-tight">
+              Cadastrar Ponto de Coleta
+            </h1>
+            <p className="text-blue-100 leading-relaxed">
+              Ajude a conectar quem quer doar com quem precisa receber. Todos os
+              dados são públicos e ajudam a comunidade.
+            </p>
+          </div>
+
+          {/* Formulário */}
+          <form action={cadastrarPonto} className="p-8 space-y-8">
+            {/* Informações Básicas */}
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
+                Informações da Instituição
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Nome do Ponto / ONG <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="nome"
+                    required
+                    type="text"
+                    placeholder="Ex: Centro de Apoio Esperança"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Telefone/WhatsApp
+                  </label>
+                  <input
+                    name="telefone"
+                    type="tel"
+                    placeholder="(11) 99999-9999"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Endereço Completo <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="endereco"
+                  required
+                  type="text"
+                  placeholder="Rua das Flores, 123, Bairro Centro"
+                  className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Cidade <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="cidade"
+                    required
+                    type="text"
+                    placeholder="São Paulo"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Estado (UF) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="estado"
+                    required
+                    maxLength={2}
+                    type="text"
+                    placeholder="SP"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm uppercase tracking-wider"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    CEP (opcional)
+                  </label>
+                  <input
+                    name="cep"
+                    type="text"
+                    placeholder="01234-567"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Categorias */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
+                O que este ponto aceita?
+              </h2>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {categorias.map((categoria) => (
+                  <label
+                    key={categoria.id}
+                    className="flex items-center p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                  >
+                    <input
+                      type="checkbox"
+                      name="categorias"
+                      value={categoria.id}
+                      className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 mr-3"
+                    />
+                    <span className="font-medium text-slate-700 group-hover:text-blue-700">
+                      {categoria.nome}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Horário e Observações */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
+                Informações Adicionais
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Horário de Funcionamento
+                  </label>
+                  <input
+                    name="horario"
+                    type="text"
+                    placeholder="Seg-Sex 9h às 17h"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Site ou Redes Sociais
+                  </label>
+                  <input
+                    name="website"
+                    type="url"
+                    placeholder="https://instagram.com/suaong"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-8">
+              <button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-[0.98] text-lg"
+              >
+                📍 Cadastrar Ponto
+              </button>
+              <Link
+                href="/"
+                className="flex-1 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-2xl shadow-sm hover:shadow-md transition-all text-lg flex items-center justify-center"
+              >
+                ← Voltar
+              </Link>
+            </div>
+
+            <div className="text-center text-xs text-slate-500 pt-4 border-t border-slate-100">
+              <p>
+                Os dados cadastrados ficam públicos para ajudar quem quer doar.
+                <h3>Eduardo Developer</h3>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
