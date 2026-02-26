@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PontoColeta {
+  id         String   @id @default(uuid()) @map("id")
+  nome       String   @map("nome")
+  descricao  String?  @map("descricao")
+  endereco   String   @map("endereco")
+  cidade     String   @map("cidade")
+  estado     String   @map("estado")
+  latitude   Float?   @map("latitude")
+  longitude  Float?   @map("longitude")
+  telefone   String?  @map("telefone")
+  whatsapp   String?  @map("whatsapp")
+  criadoEm   DateTime @default(now()) @map("criado_em")
+
+  categorias PontoCategoria[] 
+
+  @@map("pontos_coleta")
+  @@index([latitude, longitude])
+  @@index([cidade])
+}
+
+model TipoDoacao {
+  id     String @id @default(uuid()) @map("id")
+  nome   String @unique @map("nome")
+  icone  String? @map("icone")
+
+  pontos PontoCategoria[]
+
+  @@map("categorias")
+}
+
+model PontoCategoria {
+  pontoId     String   @map("ponto_id")
+  categoriaId String   @map("categoria_id")
+
+  ponto     PontoColeta @relation(fields: [pontoId], references: [id])
+  categoria TipoDoacao  @relation(fields: [categoriaId], references: [id])
+
+  @@id([pontoId, categoriaId])
+  @@map("ponto_categorias")
+}
