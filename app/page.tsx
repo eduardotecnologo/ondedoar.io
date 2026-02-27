@@ -247,6 +247,8 @@ export default async function Home(props: HomeProps) {
       <footer className="bg-white border-t border-slate-200 py-10 text-center">
         <p className="text-slate-400 text-sm">
           © 2026 ondedoar.io - Conectando solidariedade.
+          <br />
+          Com <span className="text-blue-600">❤</span> por <span className="text-blue-600">Eduardo Developer</span>
         </p>
       </footer>
     </main>
