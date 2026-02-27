@@ -4,10 +4,12 @@ import { registerUser } from "@/app/actions/register";
 
 // O "export default" é obrigatório para o Next.js reconhecer a página
 export default async function RegisterPage(props: {
-  searchParams?: Promise<{ error?: string }>;
+  searchParams?: Promise<{ error?: string }> | { error?: string };
 }) {
-  // No Next.js 15+, searchParams deve ser aguardado (unwrapped)
-  const searchParams = await (props.searchParams ?? {});
+  // No Next.js 15+, searchParams pode vir como objeto ou Promise; normalizamos e tipamos
+  const searchParams = (await (props.searchParams ?? {})) as {
+    error?: string;
+  };
 
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
