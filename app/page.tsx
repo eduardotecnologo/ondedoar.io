@@ -79,6 +79,15 @@ export default async function Home(props: HomeProps) {
     orderBy: { nome: "asc" },
   });
 
+  const buildWhatsAppUrl = (
+    phone: string | null | undefined,
+  ): string | null => {
+    if (!phone) return null;
+    const sanitizedPhone = phone.replace(/\D/g, "");
+    if (!sanitizedPhone) return null;
+    return `https://wa.me/${sanitizedPhone}`;
+  };
+
   return (
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
@@ -190,56 +199,66 @@ export default async function Home(props: HomeProps) {
 
         {pontos.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-            {pontos.map((ponto) => (
-              <div
-                key={ponto.id}
-                className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
-              >
-                <div className="p-6 flex-1">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-slate-800 leading-tight">
-                      {ponto.nome}
-                    </h3>
-                    <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
-                      Ativo
-                    </span>
-                  </div>
+            {pontos.map((ponto) => {
+              const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
 
-                  <p className="text-slate-500 text-sm mb-4 flex items-start">
-                    <span className="mr-2">📍</span>
-                    {ponto.endereco}
-                    {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade} -{" "}
-                    {ponto.estado}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-auto">
-                    {ponto.categorias?.map((pc) => (
-                      <span
-                        key={pc.categoriaId}
-                        className="text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full uppercase tracking-tight"
-                      >
-                        {pc.categoria.nome}
+              return (
+                <div
+                  key={ponto.id}
+                  className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
+                >
+                  <div className="p-6 flex-1">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold text-slate-800 leading-tight">
+                        {ponto.nome}
+                      </h3>
+                      <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
+                        Ativo
                       </span>
-                    ))}
+                    </div>
+
+                    <p className="text-slate-500 text-sm mb-4 flex items-start">
+                      <span className="mr-2">📍</span>
+                      {ponto.endereco}
+                      {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade}{" "}
+                      - {ponto.estado}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-auto">
+                      {ponto.categorias?.map((pc) => (
+                        <span
+                          key={pc.categoriaId}
+                          className="text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full uppercase tracking-tight"
+                        >
+                          {pc.categoria.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+                    {whatsappUrl ? (
+                      <a
+                        href={whatsappUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-xl font-bold text-sm transition-all"
+                      >
+                        WhatsApp
+                      </a>
+                    ) : (
+                      <span className="flex-1 bg-slate-200 text-slate-500 text-center py-3 rounded-xl font-bold text-sm cursor-not-allowed">
+                        Sem WhatsApp
+                      </span>
+                    )}
+                    <PontoDetalhesButton
+                      titulo={ponto.nome}
+                      detalhes={ponto.detalhes}
+                    />
                   </div>
                 </div>
-
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-                  <a
-                    href={`https://wa.me/${ponto.whatsapp?.replace(/\D/g, "")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-xl font-bold text-sm transition-all"
-                  >
-                    WhatsApp
-                  </a>
-                  <PontoDetalhesButton
-                    titulo={ponto.nome}
-                    detalhes={ponto.detalhes}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">

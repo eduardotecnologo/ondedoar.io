@@ -45,6 +45,15 @@ export default function MapaHome({ pontos }: Props) {
 
   const zoom = pontosValidos.length > 0 ? 12 : 4;
 
+  const buildWhatsAppUrl = (
+    phone: string | null | undefined,
+  ): string | null => {
+    if (!phone) return null;
+    const sanitizedPhone = phone.replace(/\D/g, "");
+    if (!sanitizedPhone) return null;
+    return `https://wa.me/${sanitizedPhone}`;
+  };
+
   return (
     <div className="h-[400px] w-full rounded-3xl overflow-hidden shadow-inner border-4 border-white">
       <MapContainer
@@ -57,34 +66,35 @@ export default function MapaHome({ pontos }: Props) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {pontosValidos.map((ponto) => (
-          <Marker
-            key={ponto.id}
-            position={[ponto.latitude, ponto.longitude]}
-          >
-            <Popup>
-              <div className="font-sans">
-                <h3 className="font-bold text-blue-600">{ponto.nome}</h3>
-                <p className="text-xs text-slate-600">
-                  {ponto.endereco}
-                  {ponto.numero ? `, ${ponto.numero}` : ""}
-                </p>
-                {ponto.whatsapp && (
-                  <p className="text-xs mt-1">
-                    <a
-                      href={`https://wa.me/${ponto.whatsapp.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-green-600 underline"
-                    >
-                      Abrir WhatsApp
-                    </a>
+        {pontosValidos.map((ponto) => {
+          const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
+
+          return (
+            <Marker key={ponto.id} position={[ponto.latitude, ponto.longitude]}>
+              <Popup>
+                <div className="font-sans">
+                  <h3 className="font-bold text-blue-600">{ponto.nome}</h3>
+                  <p className="text-xs text-slate-600">
+                    {ponto.endereco}
+                    {ponto.numero ? `, ${ponto.numero}` : ""}
                   </p>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+                  {whatsappUrl && (
+                    <p className="text-xs mt-1">
+                      <a
+                        href={whatsappUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-green-600 underline"
+                      >
+                        Abrir WhatsApp
+                      </a>
+                    </p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
   );
