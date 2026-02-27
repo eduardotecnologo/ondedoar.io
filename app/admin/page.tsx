@@ -23,23 +23,42 @@ function isAdminEmail(email: string | null | undefined): boolean {
 }
 
 interface AdminPageProps {
-  searchParams?: {
-    cidade?: string;
-    categoria?: string;
-    usuario?: string;
-  };
+  searchParams?:
+    | Promise<{
+        cidade?: string | string[];
+        categoria?: string | string[];
+        usuario?: string | string[];
+      }>
+    | {
+        cidade?: string | string[];
+        categoria?: string | string[];
+        usuario?: string | string[];
+      };
 }
 
-export default async function AdminPage({ searchParams }: AdminPageProps) {
+function normalizeParam(
+  value: string | string[] | undefined,
+): string | undefined {
+  if (!value) return undefined;
+  const v = Array.isArray(value) ? value[0] : value;
+  return v.trim() || undefined;
+}
+
+export default async function AdminPage(props: AdminPageProps) {
+  const rawSearchParams = (await (props.searchParams ?? {})) as {
+    cidade?: string | string[];
+    categoria?: string | string[];
+    usuario?: string | string[];
+  };
   const session = await getServerSession();
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     redirect("/");
   }
 
-  const cidadeFiltro = searchParams?.cidade?.trim() || undefined;
-  const categoriaFiltro = searchParams?.categoria?.trim() || undefined;
-  const usuarioFiltro = searchParams?.usuario?.trim() || undefined;
+  const cidadeFiltro = normalizeParam(rawSearchParams.cidade);
+  const categoriaFiltro = normalizeParam(rawSearchParams.categoria);
+  const usuarioFiltro = normalizeParam(rawSearchParams.usuario);
 
   const wherePonto: Prisma.PontoColetaWhereInput = {
     ...(cidadeFiltro && {
