@@ -89,11 +89,15 @@ export default async function DashboardPage() {
                   >
                     Editar
                   </Link>
-                  <form action={/* sua action de deletar */} method="POST">
+                  <form action="/api/pontos/delete" method="POST">
                     <input type="hidden" name="id" value={ponto.id} />
                     <button
                       type="submit"
-                      className="flex-1 md:flex-none bg-red-50 hover:bg-red-100 text-red-600 px-6 py-3 rounded-xl font-bold text-sm transition-all"
+                      className="text-red-600 hover:text-red-800 font-bold text-sm"
+                      onClick={() =>
+                        !confirm("Tem certeza que deseja excluir?") &&
+                        event?.preventDefault()
+                      }
                     >
                       Excluir
                     </button>

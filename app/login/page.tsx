@@ -1,11 +1,40 @@
-import React from "react";
-import Link from "next/link";
+"use client";
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; success?: string };
-}) {
+import React, { useState } from "react";
+import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    // O signIn do lado do cliente resolve o erro de POST e CSRF automaticamente
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (res?.error) {
+      setError("E-mail ou senha incorretos.");
+      setLoading(false);
+    } else {
+      router.push("/dashboard");
+      router.refresh();
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
@@ -18,20 +47,10 @@ export default function LoginPage({
           </p>
         </div>
 
-        <form
-          action="/api/auth/callback/credentials"
-          method="POST"
-          className="p-8 space-y-6"
-        >
-          {searchParams.success === "registered" && (
-            <div className="bg-green-50 text-green-600 p-4 rounded-xl text-sm font-medium border border-green-100">
-              Conta criada com sucesso! Faça login abaixo.
-            </div>
-          )}
-
-          {searchParams.error && (
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100">
-              E-mail ou senha incorretos.
+              {error}
             </div>
           )}
 
@@ -61,9 +80,10 @@ export default function LoginPage({
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-200"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
           >
-            Entrar
+            {loading ? "Entrando..." : "Entrar"}
           </button>
 
           <p className="text-center text-slate-500 text-sm">

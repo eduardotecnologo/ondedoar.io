@@ -1,15 +1,16 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
 
-  if (status === "loading")
+  if (status === "loading") {
     return (
       <div className="w-20 h-8 bg-slate-200 animate-pulse rounded-xl"></div>
     );
+  }
 
   if (session) {
     return (

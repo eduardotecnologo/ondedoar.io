@@ -77,3 +77,4 @@ const handler = NextAuth(authOptions);
 
 // App Router exige exports nomeados por método HTTP (GET, POST)
 export { handler as GET, handler as POST };
+

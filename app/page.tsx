@@ -71,7 +71,16 @@ export default async function Home(props: HomeProps) {
             ondedoar<span className="text-slate-400">.io</span>
           </Link>
 
-          <AuthButton />
+          {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
+          <div className="flex items-center gap-3">
+            <AuthButton />
+            <Link
+              href="/cadastrar"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-bold transition-all shadow-md text-sm"
+            >
+              + Cadastrar Ponto
+            </Link>
+          </div>
         </div>
       </nav>
       {searchParams?.success === "1" && (
