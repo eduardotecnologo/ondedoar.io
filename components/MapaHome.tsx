@@ -58,7 +58,10 @@ export default function MapaHome({ pontos }: Props) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {pontosValidos.map((ponto) => (
-          <Marker key={ponto.id} position={[ponto.latitude, ponto.longitude]}>
+          <Marker
+            key={ponto.id}
+            position={[ponto.latitude, ponto.longitude]}
+          >
             <Popup>
               <div className="font-sans">
                 <h3 className="font-bold text-blue-600">{ponto.nome}</h3>
@@ -75,14 +78,14 @@ export default function MapaHome({ pontos }: Props) {
                       className="text-green-600 underline"
                     >
                       Abrir WhatsApp
-                    </a>
-                  </p>
+                    </a >
+                  </p >
                 )}
-              </div>
-            </Popup>
-          </Marker>
+              </div >
+            </Popup >
+          </Marker >
         ))}
-      </MapContainer>
-    </div>
+      </MapContainer >
+    </div >
   );
 }

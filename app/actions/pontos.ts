@@ -2,12 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { Prisma } from "@prisma/client";
 
 export async function cadastrarPonto(formData: FormData): Promise<void> {
-  // Verifica sessão
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
     redirect("/login?error=auth_required");
   }
@@ -17,6 +19,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const descricao = (formData.get("descricao") as string) || "";
   const endereco = (formData.get("endereco") as string) || "";
   const numero = (formData.get("numero") as string) || "";
+
 
   if (!numero) {
     redirect("/cadastrar?error=1");
@@ -100,6 +103,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     revalidatePath("/");
     redirect("/?success=1");
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     console.error("Erro ao cadastrar ponto:", error);
     redirect("/cadastrar?error=1");
   }

@@ -106,7 +106,7 @@ export default async function Home(props: HomeProps) {
           </h1>
           <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Encontre um ponto de coleta perto de você e faça parte dessa
-            corrente do bem. Se você precisa de ajuda, estamos aqui para acolher
+            corrente do bem. Mas se você precisa de ajuda, é só se dirigir ao ponto mais próximo a sua localidade.
             você. 💛
           </p>
 

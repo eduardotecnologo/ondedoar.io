@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
@@ -17,7 +18,7 @@ type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
 }>;
 
 export default async function DashboardPage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session || !session.user?.email) {
     redirect("/login?error=auth_required");
@@ -27,9 +28,12 @@ export default async function DashboardPage() {
     where: { email: session.user.email },
   });
 
-  // Anotamos o tipo explicitamente aqui
+  if (!user) {
+    redirect("/login?error=auth_required");
+  }
+
   const meusPontos = (await prisma.pontoColeta.findMany({
-    where: { user_id: user?.id },
+    where: { user_id: user.id },
     include: {
       ponto_categorias: {
         include: { categorias: true },
