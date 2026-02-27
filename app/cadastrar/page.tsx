@@ -44,7 +44,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
         {/* Card Principal */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white">
+          <div className="bg-linear-to-r from-blue-600 to-blue-700 p-8 text-white">
             <h1 className="text-3xl font-bold mb-2 tracking-tight">
               Cadastrar Ponto de Coleta
             </h1>
@@ -89,17 +89,31 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Endereço Completo <span className="text-red-500">*</span>
-                </label>
-                <input
-                  name="endereco"
-                  required
-                  type="text"
-                  placeholder="Rua das Flores, 123, Bairro Centro"
-                  className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Endereço Completo <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="endereco"
+                    required
+                    type="text"
+                    placeholder="Rua das Flores, Bairro Centro"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Número <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="numero"
+                    required
+                    type="text"
+                    placeholder="123"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -219,7 +233,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
             <div className="flex flex-col sm:flex-row gap-4 pt-8">
               <button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-[0.98] text-lg"
+                className="flex-1 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-[0.98] text-lg"
               >
                 📍 Cadastrar Ponto
               </button>
