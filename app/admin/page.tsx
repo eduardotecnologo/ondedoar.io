@@ -2,7 +2,12 @@ import React from "react";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { deletarPontoAdmin, deletarUsuarioAdmin } from "@/app/actions/admin";
+import {
+  criarCategoriaAdmin,
+  deletarCategoriaAdmin,
+  deletarPontoAdmin,
+  deletarUsuarioAdmin,
+} from "@/app/actions/admin";
 import type { Prisma } from "@prisma/client";
 import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
 
@@ -17,6 +22,10 @@ type UserWithCount = Prisma.UserGetPayload<{
   include: { _count: { select: { pontos: true } } };
 }>;
 
+type CategoriaWithCount = Prisma.TipoDoacaoGetPayload<{
+  include: { _count: { select: { ponto_categorias: true } } };
+}>;
+
 function isAdminEmail(email: string | null | undefined): boolean {
   const adminEmail = process.env.ADMIN_EMAIL;
   if (!adminEmail || !email) return false;
@@ -29,11 +38,15 @@ interface AdminPageProps {
         cidade?: string | string[];
         categoria?: string | string[];
         usuario?: string | string[];
+        cat_error?: string | string[];
+        cat_success?: string | string[];
       }>
     | {
         cidade?: string | string[];
         categoria?: string | string[];
         usuario?: string | string[];
+        cat_error?: string | string[];
+        cat_success?: string | string[];
       };
 }
 
@@ -50,6 +63,8 @@ export default async function AdminPage(props: AdminPageProps) {
     cidade?: string | string[];
     categoria?: string | string[];
     usuario?: string | string[];
+    cat_error?: string | string[];
+    cat_success?: string | string[];
   };
   const session = await getServerSession();
 
@@ -60,6 +75,8 @@ export default async function AdminPage(props: AdminPageProps) {
   const cidadeFiltro = normalizeParam(rawSearchParams.cidade);
   const categoriaFiltro = normalizeParam(rawSearchParams.categoria);
   const usuarioFiltro = normalizeParam(rawSearchParams.usuario);
+  const catError = normalizeParam(rawSearchParams.cat_error);
+  const catSuccess = normalizeParam(rawSearchParams.cat_success);
 
   const wherePonto: Prisma.PontoColetaWhereInput = {
     ...(cidadeFiltro && {
@@ -81,7 +98,7 @@ export default async function AdminPage(props: AdminPageProps) {
     }),
   };
 
-  const [pontos, usuarios] = await Promise.all([
+  const [pontos, usuarios, categorias] = await Promise.all([
     prisma.pontoColeta.findMany({
       where: wherePonto,
       include: {
@@ -96,6 +113,12 @@ export default async function AdminPage(props: AdminPageProps) {
       },
       orderBy: { criado_em: "desc" },
     }) as Promise<UserWithCount[]>,
+    prisma.tipoDoacao.findMany({
+      include: {
+        _count: { select: { ponto_categorias: true } },
+      },
+      orderBy: { nome: "asc" },
+    }) as Promise<CategoriaWithCount[]>,
   ]);
 
   return (
@@ -312,6 +335,116 @@ export default async function AdminPage(props: AdminPageProps) {
                 </table>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Gestão de categorias */}
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold text-slate-900 mb-3">
+            Categorias (tipos de doação)
+          </h2>
+
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+            <div className="flex flex-col md:flex-row gap-4 md:items-end md:justify-between">
+              <div>
+                <p className="text-sm text-slate-500">
+                  Cadastre novas categorias e remova categorias indevidas.
+                </p>
+                {catSuccess === "1" && (
+                  <div className="mt-3 text-sm font-semibold text-green-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3">
+                    Categoria cadastrada com sucesso.
+                  </div>
+                )}
+                {catError && (
+                  <div className="mt-3 text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                    Não foi possível cadastrar a categoria (verifique o nome ou se
+                    já existe).
+                  </div>
+                )}
+              </div>
+
+              <form
+                action={criarCategoriaAdmin}
+                className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full md:max-w-2xl"
+              >
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                    Nome (ex: ALIMENTOS)
+                  </label>
+                  <input
+                    name="nome"
+                    required
+                    placeholder="ALIMENTOS"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                    Ícone (opcional)
+                  </label>
+                  <input
+                    name="icone"
+                    placeholder="🍎"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                  />
+                </div>
+                <div className="md:col-span-3">
+                  <button
+                    type="submit"
+                    className="w-full md:w-auto px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold uppercase tracking-wide hover:bg-blue-700 transition-colors"
+                  >
+                    Cadastrar categoria
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="mt-6 overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Nome
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Ícone
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Vínculos
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-100">
+                  {categorias.map((cat) => (
+                    <tr key={cat.id} className="hover:bg-slate-50/80">
+                      <td className="px-4 py-4 text-sm font-semibold text-slate-900">
+                        {cat.nome}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-slate-700">
+                        {cat.icone || <span className="text-slate-300">—</span>}
+                      </td>
+                      <td className="px-4 py-4 text-center text-sm text-slate-700">
+                        {cat._count.ponto_categorias}
+                      </td>
+                      <td className="px-4 py-4 text-right text-sm">
+                        <ConfirmServerActionForm
+                          action={deletarCategoriaAdmin}
+                          className="inline-block"
+                          hiddenInputs={[{ name: "id", value: cat.id }]}
+                          confirmMessage={`Remover a categoria "${cat.nome}"? Isso vai remover ${cat._count.ponto_categorias} vínculo(s) com pontos.`}
+                          buttonText="Remover"
+                          pendingText="Removendo..."
+                          buttonClassName="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-100 transition-colors disabled:opacity-60"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
