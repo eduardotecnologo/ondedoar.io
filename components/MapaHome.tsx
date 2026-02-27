@@ -78,14 +78,14 @@ export default function MapaHome({ pontos }: Props) {
                       className="text-green-600 underline"
                     >
                       Abrir WhatsApp
-                    </a >
-                  </p >
+                    </a>
+                  </p>
                 )}
-              </div >
-            </Popup >
-          </Marker >
+              </div>
+            </Popup>
+          </Marker>
         ))}
-      </MapContainer >
-    </div >
+      </MapContainer>
+    </div>
   );
 }
