@@ -115,7 +115,7 @@ export default async function Home(props: HomeProps) {
               href="/cadastrar"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-full font-bold transition-all shadow-md text-xs sm:text-sm whitespace-nowrap"
             >
-              + Cadastrar Ponto
+              + Cadastrar Ponto de Ajuda!
             </Link>
           </div>
         </div>
@@ -178,6 +178,9 @@ export default async function Home(props: HomeProps) {
               MOVEIS: "🗄️",
               MÓVEIS: "🗄️",
               "ABRIGO ANIMAIS": "🐶🐱",
+              "ABRIDO ANIMAIS": "🐶🐱",
+              ABRIGO: "🏠",
+              ABRIDO: "🏠",
               HIGIENE: "🧼",
               DORMITORIO: "💤",
             };
