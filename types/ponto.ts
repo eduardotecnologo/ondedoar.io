@@ -10,6 +10,7 @@ export type CategoriaRelacionada = {
 export type Ponto = {
   id: string;
   nome: string;
+  detalhes?: string | null;
   endereco: string;
   cidade?: string | null;
   estado?: string | null;

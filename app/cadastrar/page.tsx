@@ -174,6 +174,21 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 Informações Adicionais
               </h2>
 
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Detalhes (opcional)
+                </label>
+                <textarea
+                  name="descricao"
+                  rows={4}
+                  placeholder="Ex: Recebemos doações apenas de segunda a sexta. Levar na portaria. Preferência por roupas infantis."
+                  className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm resize-y"
+                />
+                <p className="mt-2 text-xs text-slate-500">
+                  Esse texto aparece no botão “Ver Detalhes” na página inicial.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">

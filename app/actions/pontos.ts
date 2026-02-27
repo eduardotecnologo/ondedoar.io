@@ -14,6 +14,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
 
   // Extrai campos do form
   const nome = (formData.get("nome") as string) || "";
+  const descricao = (formData.get("descricao") as string) || "";
   const endereco = (formData.get("endereco") as string) || "";
   const cidade = (formData.get("cidade") as string) || "";
   const estado = (formData.get("estado") as string) || "";
@@ -62,6 +63,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     // Monta payload de criação
     const createData: any = {
       nome,
+      descricao: descricao || null,
       endereco,
       cidade,
       estado,

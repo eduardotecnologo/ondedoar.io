@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import FlashMessage from "@/components/FlashMessage";
 import MapaWrapper from "@/components/MapaWrapper";
 import AuthButton from "@/components/AuthButton";
+import PontoDetalhesButton from "@/components/PontoDetalhesButton";
 import type { Ponto } from "@/types/ponto";
 
 interface HomeProps {
@@ -46,6 +47,7 @@ export default async function Home(props: HomeProps) {
   const pontos: Ponto[] = pontosRaw.map((p) => ({
     id: p.id,
     nome: p.nome,
+    detalhes: p.descricao ?? null,
     endereco: p.endereco,
     cidade: p.cidade ?? null,
     estado: p.estado ?? null,
@@ -218,9 +220,10 @@ export default async function Home(props: HomeProps) {
                   >
                     WhatsApp
                   </a>
-                  <button className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-bold text-sm hover:bg-slate-100 transition-all">
-                    Ver Detalhes
-                  </button>
+                  <PontoDetalhesButton
+                    titulo={ponto.nome}
+                    detalhes={ponto.detalhes}
+                  />
                 </div>
               </div>
             ))}
