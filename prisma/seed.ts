@@ -1,9 +1,9 @@
-import { PrismaClient, TipoDoacaoNome } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  const tipos: { nome: TipoDoacaoNome; icone: string }[] = [
+  const tipos: { nome: string; icone: string }[] = [
     { nome: 'ROUPAS', icone: '👕' },
     { nome: 'ALIMENTOS', icone: '🍎' },
     { nome: 'COLCHOES', icone: '🛏️' },
