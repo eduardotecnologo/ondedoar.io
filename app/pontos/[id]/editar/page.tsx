@@ -15,7 +15,7 @@ export default async function EditarPontoPage({
   searchParams,
 }: EditarPontoPageProps) {
   const { id } = await params;
-  const query = await (searchParams ?? {});
+  const query = (await (searchParams ?? {})) as { error?: string };
 
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -60,7 +60,8 @@ export default async function EditarPontoPage({
       <div className="max-w-3xl mx-auto">
         {showError && (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            Não foi possível atualizar o ponto. Verifique os dados e tente novamente.
+            Não foi possível atualizar o ponto. Verifique os dados e tente
+            novamente.
           </div>
         )}
 
@@ -141,7 +142,9 @@ export default async function EditarPontoPage({
             />
 
             <div>
-              <p className="text-sm font-semibold text-slate-700 mb-2">Categorias</p>
+              <p className="text-sm font-semibold text-slate-700 mb-2">
+                Categorias
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {categorias.map((categoria) => (
                   <label
