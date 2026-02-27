@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Garante texto escuro e legível em campos de formulário,
+   mesmo no modo escuro do sistema */
+input,
+textarea,
+select {
+  color: #0f172a; /* semelhante ao text-slate-900 */
+  background-color: #ffffff;
+}

@@ -120,7 +120,7 @@ export default async function Home(props: HomeProps) {
               type="submit"
               className="absolute right-3 top-3 md:right-4 md:top-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all shadow-lg"
             >
-              Buscar
+              Buscar Cidade
             </button>
           </form>
         </div>
