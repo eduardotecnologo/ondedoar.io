@@ -100,7 +100,7 @@ export default async function Home(props: HomeProps) {
   return (
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <div className="max-w-6xl mx-auto flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
           <Link
             href="/"
             className="text-xl font-black text-blue-600 tracking-tighter"
@@ -109,11 +109,11 @@ export default async function Home(props: HomeProps) {
           </Link>
 
           {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
-          <div className="flex items-center gap-3">
+          <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
             <AuthButton />
             <Link
               href="/cadastrar"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-bold transition-all shadow-md text-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-full font-bold transition-all shadow-md text-xs sm:text-sm whitespace-nowrap"
             >
               + Cadastrar Ponto
             </Link>
@@ -138,18 +138,22 @@ export default async function Home(props: HomeProps) {
             ponto mais próximo a sua localidade. você. 💛
           </p>
 
-          <form action="/" method="GET" className="max-w-3xl mx-auto relative">
+          <form
+            action="/"
+            method="GET"
+            className="max-w-3xl mx-auto flex flex-col gap-3 sm:block sm:relative"
+          >
             <input
               name="cidade"
               type="text"
               placeholder="Digite sua cidade (ex: Juiz de Fora)"
               defaultValue={searchParams?.cidade ?? ""}
-              className="w-full p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl text-slate-800 text-lg outline-none focus:ring-4
+              className="w-full p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl text-slate-800 text-base sm:text-lg outline-none focus:ring-4
                        focus:ring-blue-400 transition-all placeholder:text-white/70"
             />
             <button
               type="submit"
-              className="absolute right-3 top-3 md:right-4 md:top-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all shadow-lg"
+              className="w-full sm:w-auto sm:absolute sm:right-3 sm:top-3 md:right-4 md:top-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:px-8 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all shadow-lg"
             >
               Buscar Cidade
             </button>
@@ -169,9 +173,8 @@ export default async function Home(props: HomeProps) {
               ROUPAS: "👕",
               COLCHOES: "🛏️",
               COLCHÕES: "🛏️",
-              REMEDIOS: "💊",
-              MOVEIS: "🛏️",
               REMÉDIOS: "💊",
+              REMEDIOS: "💊",
               MOVEIS: "🗄️",
               MÓVEIS: "🗄️",
               "ABRIGO ANIMAIS": "🐶🐱",
@@ -196,7 +199,7 @@ export default async function Home(props: HomeProps) {
           })}
         </div>
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-3">
           <h2 className="text-2xl font-bold text-slate-800">
             {searchParams?.cidade
               ? `Pontos em ${searchParams.cidade}`

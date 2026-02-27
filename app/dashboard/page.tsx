@@ -187,12 +187,12 @@ export default async function DashboardPage(props: DashboardPageProps) {
                   </Link>
                   <ConfirmServerActionForm
                     action={deletarPontoFromForm}
-                    className="inline-block"
+                    className="flex-1 md:flex-none"
                     hiddenInputs={[{ name: "id", value: ponto.id }]}
                     confirmMessage="Tem certeza que deseja excluir?"
                     buttonText="Excluir"
                     pendingText="Excluindo..."
-                    buttonClassName="text-red-600 hover:text-red-800 font-bold text-sm disabled:opacity-60"
+                    buttonClassName="w-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 font-bold text-sm px-4 py-3 rounded-xl disabled:opacity-60"
                   />
                 </div>
               </div>

@@ -15,7 +15,7 @@ export default function AuthButton() {
 
   if (session) {
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
         {isAdmin && (
           <Link
             href="/admin"
@@ -26,7 +26,7 @@ export default function AuthButton() {
         )}
         <Link
           href="/dashboard"
-          className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-all"
+          className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-all px-2 py-1"
         >
           Meu Painel
         </Link>

@@ -175,7 +175,7 @@ export default async function AdminPage(props: AdminPageProps) {
               <label className="text-xs font-semibold text-slate-500 uppercase">
                 Usuário (e-mail)
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   name="usuario"
                   placeholder="admin@exemplo.com"
@@ -184,7 +184,7 @@ export default async function AdminPage(props: AdminPageProps) {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold uppercase tracking-wide hover:bg-blue-700 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold uppercase tracking-wide hover:bg-blue-700 transition-colors"
                 >
                   Filtrar
                 </button>
