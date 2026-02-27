@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import FlashMessage from "@/components/FlashMessage";
 import MapaWrapper from "@/components/MapaWrapper";
 import AuthButton from "@/components/AuthButton";
@@ -18,9 +19,14 @@ export default async function Home(props: HomeProps) {
 
   const cidadeFiltro = searchParams?.cidade?.trim() || undefined;
 
-  // Monta filtro condicional
-  const where = cidadeFiltro
-    ? { cidade: { contains: cidadeFiltro, mode: "insensitive" } }
+  // Monta filtro condicional com tipagem explícita do Prisma
+  const where: Prisma.PontoColetaWhereInput = cidadeFiltro
+    ? {
+        cidade: {
+          contains: cidadeFiltro,
+          mode: "insensitive",
+        },
+      }
     : {};
 
   // Busca os pontos (incluir a relação ponto_categorias -> categorias)
