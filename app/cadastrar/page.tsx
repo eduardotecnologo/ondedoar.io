@@ -89,17 +89,31 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Endereço Completo <span className="text-red-500">*</span>
-                </label>
-                <input
-                  name="endereco"
-                  required
-                  type="text"
-                  placeholder="Rua das Flores, 123, Bairro Centro"
-                  className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-3">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Endereço <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="endereco"
+                    required
+                    type="text"
+                    placeholder="Rua das Flores"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Número <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="numero"
+                    required
+                    type="text"
+                    placeholder="123"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -181,7 +195,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 <textarea
                   name="descricao"
                   rows={4}
-                  placeholder="Ex: Recebemos doações apenas de segunda a sexta. Levar na portaria. Preferência por roupas infantis."
+                  placeholder="Ex: Recebemos doações apenas de segunda a sexta. Levar na portaria. Preferência por roupas infantis!"
                   className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm resize-y"
                 />
                 <p className="mt-2 text-xs text-slate-500">

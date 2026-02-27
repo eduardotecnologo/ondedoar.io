@@ -62,7 +62,10 @@ export default function MapaHome({ pontos }: Props) {
             <Popup>
               <div className="font-sans">
                 <h3 className="font-bold text-blue-600">{ponto.nome}</h3>
-                <p className="text-xs text-slate-600">{ponto.endereco}</p>
+                <p className="text-xs text-slate-600">
+                  {ponto.endereco}
+                  {ponto.numero ? `, ${ponto.numero}` : ""}
+                </p>
                 {ponto.whatsapp && (
                   <p className="text-xs mt-1">
                     <a

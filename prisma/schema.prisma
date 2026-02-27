@@ -34,6 +34,7 @@ model PontoColeta {
   nome             String
   descricao        String?
   endereco         String
+  numero           String
   cidade           String
   estado           String
   latitude         Float?

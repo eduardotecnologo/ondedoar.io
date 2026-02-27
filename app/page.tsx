@@ -10,8 +10,8 @@ import type { Ponto } from "@/types/ponto";
 
 interface HomeProps {
   searchParams?:
-    | Promise<{ cidade?: string; success?: string }>
-    | { cidade?: string; success?: string };
+  | Promise<{ cidade?: string; success?: string }>
+  | { cidade?: string; success?: string };
 }
 
 export default async function Home(props: HomeProps) {
@@ -23,11 +23,11 @@ export default async function Home(props: HomeProps) {
   // Monta filtro condicional com tipagem explícita do Prisma
   const where: Prisma.PontoColetaWhereInput = cidadeFiltro
     ? {
-        cidade: {
-          contains: cidadeFiltro,
-          mode: "insensitive",
-        },
-      }
+      cidade: {
+        contains: cidadeFiltro,
+        mode: "insensitive",
+      },
+    }
     : {};
 
   // Busca os pontos (incluir a relação ponto_categorias -> categorias)
@@ -49,6 +49,7 @@ export default async function Home(props: HomeProps) {
     nome: p.nome,
     detalhes: p.descricao ?? null,
     endereco: p.endereco,
+    numero: p.numero,
     cidade: p.cidade ?? null,
     estado: p.estado ?? null,
     whatsapp: p.whatsapp ?? null,
@@ -196,7 +197,8 @@ export default async function Home(props: HomeProps) {
 
                   <p className="text-slate-500 text-sm mb-4 flex items-start">
                     <span className="mr-2">📍</span>
-                    {ponto.endereco}, {ponto.cidade} - {ponto.estado}
+                    {ponto.endereco}
+                    {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade} - {ponto.estado}
                   </p>
 
                   <div className="flex flex-wrap gap-2 mt-auto">

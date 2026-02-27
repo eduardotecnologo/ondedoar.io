@@ -16,6 +16,12 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const nome = (formData.get("nome") as string) || "";
   const descricao = (formData.get("descricao") as string) || "";
   const endereco = (formData.get("endereco") as string) || "";
+  const numero = (formData.get("numero") as string) || "";
+
+  if (!numero) {
+    redirect("/cadastrar?error=1");
+  }
+
   const cidade = (formData.get("cidade") as string) || "";
   const estado = (formData.get("estado") as string) || "";
   const telefone = (formData.get("telefone") as string) || "";
@@ -33,8 +39,9 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
 
   try {
     if (endereco || cidade || estado) {
+      const queryEndereco = numero ? `${endereco}, ${numero}` : endereco;
       const query = encodeURIComponent(
-        `${endereco}, ${cidade}, ${estado}, Brasil`,
+        `${queryEndereco}, ${cidade}, ${estado}, Brasil`,
       );
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
@@ -65,6 +72,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       nome,
       descricao: descricao || null,
       endereco,
+      numero: numero,
       cidade,
       estado,
       telefone: telefone || null,
