@@ -28,3 +28,11 @@ export async function deletarPonto(pontoId: string) {
   revalidatePath("/dashboard");
   revalidatePath("/");
 }
+
+export async function deletarPontoFromForm(formData: FormData): Promise<void> {
+  const id = formData.get("id");
+  if (!id || typeof id !== "string") {
+    throw new Error("ID de ponto inválido");
+  }
+  await deletarPonto(id);
+}

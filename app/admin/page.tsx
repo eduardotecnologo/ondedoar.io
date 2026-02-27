@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { deletarPontoAdmin, deletarUsuarioAdmin } from "@/app/actions/admin";
 import type { Prisma } from "@prisma/client";
+import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
 
 type PontoWithRelations = Prisma.PontoColetaGetPayload<{
   include: {
@@ -228,27 +229,15 @@ export default async function AdminPage(props: AdminPageProps) {
                         )}
                       </td>
                       <td className="px-4 py-4 align-top text-right text-sm">
-                        <form
+                        <ConfirmServerActionForm
                           action={deletarPontoAdmin}
-                          onSubmit={(e) => {
-                            if (
-                              !confirm(
-                                "Tem certeza que deseja excluir este ponto? Esta ação não pode ser desfeita.",
-                              )
-                            ) {
-                              e.preventDefault();
-                            }
-                          }}
                           className="inline-block"
-                        >
-                          <input type="hidden" name="id" value={ponto.id} />
-                          <button
-                            type="submit"
-                            className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-100 transition-colors"
-                          >
-                            Remover
-                          </button>
-                        </form>
+                          hiddenInputs={[{ name: "id", value: ponto.id }]}
+                          confirmMessage="Tem certeza que deseja excluir este ponto? Esta ação não pode ser desfeita."
+                          buttonText="Remover"
+                          pendingText="Removendo..."
+                          buttonClassName="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-100 transition-colors disabled:opacity-60"
+                        />
                       </td>
                     </tr>
                   ))}
@@ -307,27 +296,15 @@ export default async function AdminPage(props: AdminPageProps) {
                           {user._count.pontos}
                         </td>
                         <td className="px-4 py-4 text-right text-sm">
-                          <form
+                          <ConfirmServerActionForm
                             action={deletarUsuarioAdmin}
-                            onSubmit={(e) => {
-                              if (
-                                !confirm(
-                                  "Tem certeza que deseja remover este usuário e todos os pontos cadastrados por ele?",
-                                )
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}
                             className="inline-block"
-                          >
-                            <input type="hidden" name="id" value={user.id} />
-                            <button
-                              type="submit"
-                              className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-100 transition-colors"
-                            >
-                              Remover usuário
-                            </button>
-                          </form>
+                            hiddenInputs={[{ name: "id", value: user.id }]}
+                            confirmMessage="Tem certeza que deseja remover este usuário e todos os pontos cadastrados por ele?"
+                            buttonText="Remover usuário"
+                            pendingText="Removendo..."
+                            buttonClassName="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-100 transition-colors disabled:opacity-60"
+                          />
                         </td>
                       </tr>
                     ))}

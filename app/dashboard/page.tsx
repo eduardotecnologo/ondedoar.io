@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
+import { deletarPontoFromForm } from "@/app/actions/delete-ponto";
 
 // Define o tipo retornado com include correto
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
@@ -89,19 +91,15 @@ export default async function DashboardPage() {
                   >
                     Editar
                   </Link>
-                  <form action="/api/pontos/delete" method="POST">
-                    <input type="hidden" name="id" value={ponto.id} />
-                    <button
-                      type="submit"
-                      className="text-red-600 hover:text-red-800 font-bold text-sm"
-                      onClick={() =>
-                        !confirm("Tem certeza que deseja excluir?") &&
-                        event?.preventDefault()
-                      }
-                    >
-                      Excluir
-                    </button>
-                  </form>
+                  <ConfirmServerActionForm
+                    action={deletarPontoFromForm}
+                    className="inline-block"
+                    hiddenInputs={[{ name: "id", value: ponto.id }]}
+                    confirmMessage="Tem certeza que deseja excluir?"
+                    buttonText="Excluir"
+                    pendingText="Excluindo..."
+                    buttonClassName="text-red-600 hover:text-red-800 font-bold text-sm disabled:opacity-60"
+                  />
                 </div>
               </div>
             ))}
