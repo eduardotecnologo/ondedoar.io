@@ -33,12 +33,19 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) return null;
 
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const isAdmin =
+          !!adminEmail &&
+          !!user.email &&
+          user.email.toLowerCase() === adminEmail.toLowerCase();
+
         // Retorna os campos mínimos exigidos (NextAuth irá serializar)
         return {
           id: user.id,
           email: user.email,
-          name: (user as any).nome ?? undefined,
-        } as any;
+          name: user.nome ?? undefined,
+          isAdmin,
+        };
       },
     }),
   ],
@@ -56,21 +63,19 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       // user existe apenas no primeiro login/authorize
       if (user) {
-        (token as any).id = (user as any).id ?? (token as any).id;
-        const adminEmail = process.env.ADMIN_EMAIL;
-        if (adminEmail && (user as any).email) {
-          (token as any).isAdmin =
-            String((user as any).email).toLowerCase() ===
-            adminEmail.toLowerCase();
-        }
+        token.id = user.id ?? token.id;
+        token.isAdmin =
+          typeof user.isAdmin === "boolean"
+            ? user.isAdmin
+            : Boolean(token.isAdmin);
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = (token as any).id;
-        (session.user as any).isAdmin = (token as any).isAdmin ?? false;
+        session.user.id = token.id;
+        session.user.isAdmin = Boolean(token.isAdmin);
       }
       return session;
     },
@@ -84,4 +89,3 @@ const handler = NextAuth(authOptions);
 
 // App Router exige exports nomeados por método HTTP (GET, POST)
 export { handler as GET, handler as POST };
-

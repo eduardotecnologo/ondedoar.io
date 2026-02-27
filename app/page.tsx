@@ -8,6 +8,16 @@ import AuthButton from "@/components/AuthButton";
 import PontoDetalhesButton from "@/components/PontoDetalhesButton";
 import type { Ponto } from "@/types/ponto";
 
+type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
+  include: {
+    ponto_categorias: {
+      include: {
+        categorias: true;
+      };
+    };
+  };
+}>;
+
 interface HomeProps {
   searchParams?:
     | Promise<{ cidade?: string; success?: string }>
@@ -31,7 +41,7 @@ export default async function Home(props: HomeProps) {
     : {};
 
   // Busca os pontos (incluir a relação ponto_categorias -> categorias)
-  const pontosRaw = await prisma.pontoColeta.findMany({
+  const pontosRaw: PontoWithCategorias[] = await prisma.pontoColeta.findMany({
     where,
     include: {
       ponto_categorias: {
@@ -49,12 +59,13 @@ export default async function Home(props: HomeProps) {
     nome: p.nome,
     detalhes: p.descricao ?? null,
     endereco: p.endereco,
+    numero: p.numero,
     cidade: p.cidade ?? null,
     estado: p.estado ?? null,
     whatsapp: p.whatsapp ?? null,
     latitude: typeof p.latitude === "number" ? p.latitude : 0,
     longitude: typeof p.longitude === "number" ? p.longitude : 0,
-    categorias: (p.ponto_categorias ?? []).map((pc: any) => ({
+    categorias: (p.ponto_categorias ?? []).map((pc) => ({
       categoriaId: pc.categoria_id,
       categoria: {
         id: pc.categorias.id,
@@ -105,8 +116,8 @@ export default async function Home(props: HomeProps) {
           </h1>
           <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Encontre um ponto de coleta perto de você e faça parte dessa
-            corrente do bem. Se você precisa de ajuda, estamos aqui para acolher
-            você. 💛
+            corrente do bem. Mas se você precisa de ajuda, é só se dirigir ao
+            ponto mais próximo a sua localidade. você. 💛
           </p>
 
           <form action="/" method="GET" className="max-w-3xl mx-auto relative">
@@ -196,7 +207,9 @@ export default async function Home(props: HomeProps) {
 
                   <p className="text-slate-500 text-sm mb-4 flex items-start">
                     <span className="mr-2">📍</span>
-                    {ponto.endereco}, {ponto.cidade} - {ponto.estado}
+                    {ponto.endereco}
+                    {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade} -{" "}
+                    {ponto.estado}
                   </p>
 
                   <div className="flex flex-wrap gap-2 mt-auto">
@@ -251,7 +264,8 @@ export default async function Home(props: HomeProps) {
         <p className="text-slate-400 text-sm">
           © 2026 ondedoar.io - Conectando solidariedade.
           <br />
-          Com <span className="text-blue-600">❤</span> por <span className="text-blue-600">Eduardo Developer</span>
+          Com <span className="text-blue-600">❤</span> por{" "}
+          <span className="text-blue-600">Eduardo Developer</span>
         </p>
       </footer>
     </main>

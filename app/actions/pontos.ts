@@ -3,12 +3,13 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export async function cadastrarPonto(formData: FormData): Promise<void> {
-  // Verifica sessão
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
     redirect("/login?error=auth_required");
   }
@@ -35,8 +36,9 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
 
   try {
     if (endereco || cidade || estado) {
+      const queryEndereco = numero ? `${endereco}, ${numero}` : endereco;
       const query = encodeURIComponent(
-        `${endereco}, ${numero}, ${cidade}, ${estado}, Brasil`,
+        `${queryEndereco}, ${cidade}, ${estado}, Brasil`,
       );
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
@@ -95,6 +97,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     revalidatePath("/");
     redirect("/?success=1");
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     console.error("Erro ao cadastrar ponto:", error);
     redirect("/cadastrar?error=1");
   }

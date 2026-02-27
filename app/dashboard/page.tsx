@@ -1,11 +1,13 @@
 import React from "react";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
 import { deletarPontoFromForm } from "@/app/actions/delete-ponto";
+import { alterarSenha } from "@/app/actions/account";
 
 // Define o tipo retornado com include correto
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
@@ -16,8 +18,23 @@ type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
   };
 }>;
 
-export default async function DashboardPage() {
-  const session = await getServerSession();
+interface DashboardPageProps {
+  searchParams?:
+    | Promise<{ pwd_success?: string; pwd_error?: string }>
+    | { pwd_success?: string; pwd_error?: string };
+}
+
+const passwordErrorMessages: Record<string, string> = {
+  missing_fields: "Preencha todos os campos para alterar a senha.",
+  weak_password: "A nova senha deve ter pelo menos 8 caracteres.",
+  password_mismatch: "A confirmação da nova senha não confere.",
+  wrong_current_password: "A senha atual está incorreta.",
+  user_not_found: "Não foi possível validar seu usuário. Faça login novamente.",
+  unknown: "Não foi possível alterar a senha agora. Tente novamente.",
+};
+
+export default async function DashboardPage(props: DashboardPageProps) {
+  const session = await getServerSession(authOptions);
 
   if (!session || !session.user?.email) {
     redirect("/login?error=auth_required");
@@ -27,9 +44,20 @@ export default async function DashboardPage() {
     where: { email: session.user.email },
   });
 
-  // Anotamos o tipo explicitamente aqui
+  if (!user) {
+    redirect("/login?error=auth_required");
+  }
+
+  const searchParams = await (props.searchParams ?? {});
+  const pwdSuccess = searchParams?.pwd_success === "1";
+  const pwdError = searchParams?.pwd_error;
+  const pwdErrorMessage =
+    pwdError && passwordErrorMessages[pwdError]
+      ? passwordErrorMessages[pwdError]
+      : null;
+
   const meusPontos = (await prisma.pontoColeta.findMany({
-    where: { user_id: user?.id },
+    where: { user_id: user.id },
     include: {
       ponto_categorias: {
         include: { categorias: true },
@@ -41,6 +69,63 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
+        {pwdSuccess && (
+          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            Senha atualizada com sucesso.
+          </div>
+        )}
+
+        {pwdErrorMessage && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {pwdErrorMessage}
+          </div>
+        )}
+
+        <div className="mb-8 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            Editar Senha
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">
+            Atualize sua senha para manter sua conta segura.
+          </p>
+
+          <form
+            action={alterarSenha}
+            className="grid grid-cols-1 md:grid-cols-3 gap-3"
+          >
+            <input
+              name="senhaAtual"
+              type="password"
+              required
+              placeholder="Senha atual"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            />
+            <input
+              name="novaSenha"
+              type="password"
+              required
+              minLength={8}
+              placeholder="Nova senha (mín. 8 caracteres)"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            />
+            <input
+              name="confirmarNovaSenha"
+              type="password"
+              required
+              minLength={8}
+              placeholder="Confirmar nova senha"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            />
+
+            <button
+              type="submit"
+              className="md:col-span-3 w-full md:w-auto justify-self-start rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-blue-700"
+            >
+              Salvar nova senha
+            </button>
+          </form>
+        </div>
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">

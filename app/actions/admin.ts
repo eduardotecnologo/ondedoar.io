@@ -2,8 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 function isAdminEmail(email: string | null | undefined): boolean {
   const adminEmail = process.env.ADMIN_EMAIL;
@@ -12,7 +14,7 @@ function isAdminEmail(email: string | null | undefined): boolean {
 }
 
 export async function deletarPontoAdmin(formData: FormData): Promise<void> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     throw new Error("Não autorizado");
@@ -33,7 +35,7 @@ export async function deletarPontoAdmin(formData: FormData): Promise<void> {
 }
 
 export async function deletarUsuarioAdmin(formData: FormData): Promise<void> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     throw new Error("Não autorizado");
@@ -69,7 +71,7 @@ export async function deletarUsuarioAdmin(formData: FormData): Promise<void> {
 }
 
 export async function criarCategoriaAdmin(formData: FormData): Promise<void> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     throw new Error("Não autorizado");
@@ -98,6 +100,7 @@ export async function criarCategoriaAdmin(formData: FormData): Promise<void> {
     revalidatePath("/");
     redirect("/admin?cat_success=1");
   } catch (e) {
+    if (isRedirectError(e)) throw e;
     redirect("/admin?cat_error=exists_or_invalid");
   }
 }
@@ -105,7 +108,7 @@ export async function criarCategoriaAdmin(formData: FormData): Promise<void> {
 export async function deletarCategoriaAdmin(
   formData: FormData,
 ): Promise<void> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     throw new Error("Não autorizado");

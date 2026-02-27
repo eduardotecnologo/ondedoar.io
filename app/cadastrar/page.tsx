@@ -3,16 +3,17 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { cadastrarPonto } from "@/app/actions/pontos";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 
 interface PageProps {
-  searchParams?: {
+  searchParams?: Promise<{
     error?: string;
-  };
+  }>;
 }
 
 export default async function CadastrarPontoPage({ searchParams }: PageProps) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/login?error=auth_required");
   }
@@ -20,11 +21,13 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
     orderBy: { nome: "asc" },
   });
 
+  const resolvedParams = searchParams ? await searchParams : undefined;
+
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Flash Message de Erro */}
-        {searchParams?.error === "1" && (
+        {resolvedParams?.error === "1" && (
           <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center">
               <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3">
@@ -125,7 +128,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                     name="cidade"
                     required
                     type="text"
-                    placeholder="São Paulo"
+                    placeholder="Juiz de Fora"
                     className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
                   />
                 </div>
@@ -138,7 +141,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                     required
                     maxLength={2}
                     type="text"
-                    placeholder="SP"
+                    placeholder="MG"
                     className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm uppercase tracking-wider"
                   />
                 </div>
@@ -195,7 +198,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 <textarea
                   name="descricao"
                   rows={4}
-                  placeholder="Ex: Recebemos doações apenas de segunda a sexta. Levar na portaria. Preferência por roupas infantis."
+                  placeholder="Ex: Recebemos doações apenas de segunda a sexta. Levar na portaria. Preferência por roupas infantis!"
                   className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm resize-y"
                 />
                 <p className="mt-2 text-xs text-slate-500">
@@ -248,7 +251,6 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
             <div className="text-center text-xs text-slate-500 pt-4 border-t border-slate-100">
               <p>
                 Os dados cadastrados ficam públicos para ajudar quem quer doar.
-                <h3>Eduardo Developer</h3>
               </p>
             </div>
           </form>

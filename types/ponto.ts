@@ -12,6 +12,7 @@ export type Ponto = {
   nome: string;
   detalhes?: string | null;
   endereco: string;
+  numero: string;
   cidade?: string | null;
   estado?: string | null;
   whatsapp?: string | null;

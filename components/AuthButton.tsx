@@ -1,11 +1,11 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
-  const isAdmin = Boolean((session?.user as any)?.isAdmin);
+  const isAdmin = Boolean(session?.user?.isAdmin);
 
   if (status === "loading") {
     return (

@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export async function registerUser(formData: FormData): Promise<void> {
   const name = formData.get("name") as string;
@@ -36,6 +37,7 @@ export async function registerUser(formData: FormData): Promise<void> {
 
     redirect("/login?success=registered");
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     redirect("/register?error=unknown");
   }
 }

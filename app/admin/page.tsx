@@ -1,5 +1,6 @@
 import React from "react";
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import {
@@ -34,20 +35,20 @@ function isAdminEmail(email: string | null | undefined): boolean {
 
 interface AdminPageProps {
   searchParams?:
-    | Promise<{
-        cidade?: string | string[];
-        categoria?: string | string[];
-        usuario?: string | string[];
-        cat_error?: string | string[];
-        cat_success?: string | string[];
-      }>
-    | {
-        cidade?: string | string[];
-        categoria?: string | string[];
-        usuario?: string | string[];
-        cat_error?: string | string[];
-        cat_success?: string | string[];
-      };
+  | Promise<{
+    cidade?: string | string[];
+    categoria?: string | string[];
+    usuario?: string | string[];
+    cat_error?: string | string[];
+    cat_success?: string | string[];
+  }>
+  | {
+    cidade?: string | string[];
+    categoria?: string | string[];
+    usuario?: string | string[];
+    cat_error?: string | string[];
+    cat_success?: string | string[];
+  };
 }
 
 function normalizeParam(
@@ -66,7 +67,7 @@ export default async function AdminPage(props: AdminPageProps) {
     cat_error?: string | string[];
     cat_success?: string | string[];
   };
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     redirect("/");
@@ -144,7 +145,7 @@ export default async function AdminPage(props: AdminPageProps) {
               </label>
               <input
                 name="cidade"
-                placeholder="Ex: São Paulo"
+                placeholder="Ex: Juiz de Fora"
                 defaultValue={cidadeFiltro}
                 className="px-3 py-2 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               />
