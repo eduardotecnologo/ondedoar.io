@@ -86,6 +86,15 @@ export default async function RegisterPage(props: {
               Fazer Login
             </Link>
           </p>
+
+          <p className="text-center text-slate-500 text-sm">
+            <Link
+              href="/"
+              className="text-slate-600 font-semibold hover:underline"
+            >
+              ← Voltar para Home
+            </Link>
+          </p>
         </form>
       </div>
     </main>

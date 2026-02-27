@@ -69,6 +69,15 @@ export default async function DashboardPage(props: DashboardPageProps) {
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition-all"
+          >
+            ← Voltar para Home
+          </Link>
+        </div>
+
         {pwdSuccess && (
           <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
             Senha atualizada com sucesso.

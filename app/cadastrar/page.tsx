@@ -244,7 +244,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 href="/"
                 className="flex-1 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-2xl shadow-sm hover:shadow-md transition-all text-lg flex items-center justify-center"
               >
-                ← Voltar
+                ← Voltar para Home
               </Link>
             </div>
 

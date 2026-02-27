@@ -58,6 +58,15 @@ export default async function EditarPontoPage({
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition-all"
+          >
+            ← Voltar para Home
+          </Link>
+        </div>
+
         {showError && (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             Não foi possível atualizar o ponto. Verifique os dados e tente

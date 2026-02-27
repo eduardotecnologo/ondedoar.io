@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
@@ -35,20 +36,20 @@ function isAdminEmail(email: string | null | undefined): boolean {
 
 interface AdminPageProps {
   searchParams?:
-  | Promise<{
-    cidade?: string | string[];
-    categoria?: string | string[];
-    usuario?: string | string[];
-    cat_error?: string | string[];
-    cat_success?: string | string[];
-  }>
-  | {
-    cidade?: string | string[];
-    categoria?: string | string[];
-    usuario?: string | string[];
-    cat_error?: string | string[];
-    cat_success?: string | string[];
-  };
+    | Promise<{
+        cidade?: string | string[];
+        categoria?: string | string[];
+        usuario?: string | string[];
+        cat_error?: string | string[];
+        cat_success?: string | string[];
+      }>
+    | {
+        cidade?: string | string[];
+        categoria?: string | string[];
+        usuario?: string | string[];
+        cat_error?: string | string[];
+        cat_success?: string | string[];
+      };
 }
 
 function normalizeParam(
@@ -125,6 +126,15 @@ export default async function AdminPage(props: AdminPageProps) {
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition-all"
+          >
+            ← Voltar para Home
+          </Link>
+        </div>
+
         <header className="flex flex-col gap-4 mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -358,8 +368,8 @@ export default async function AdminPage(props: AdminPageProps) {
                 )}
                 {catError && (
                   <div className="mt-3 text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-                    Não foi possível cadastrar a categoria (verifique o nome ou se
-                    já existe).
+                    Não foi possível cadastrar a categoria (verifique o nome ou
+                    se já existe).
                   </div>
                 )}
               </div>
@@ -452,4 +462,3 @@ export default async function AdminPage(props: AdminPageProps) {
     </main>
   );
 }
-

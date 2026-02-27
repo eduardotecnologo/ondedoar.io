@@ -79,6 +79,15 @@ export default async function Home(props: HomeProps) {
     orderBy: { nome: "asc" },
   });
 
+  const categoriasAtalho = categorias.filter((categoria) => {
+    const normalized = categoria.nome
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+
+    return normalized !== "DORMITORIOS";
+  });
+
   const buildWhatsAppUrl = (
     phone: string | null | undefined,
   ): string | null => {
@@ -154,14 +163,18 @@ export default async function Home(props: HomeProps) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
-          {categorias.slice(0, 6).map((cat) => {
+          {categoriasAtalho.map((cat) => {
             const emojiMap: { [key: string]: string } = {
               ALIMENTOS: "🍎",
               ROUPAS: "👕",
               COLCHOES: "🛏️",
+              COLCHÕES: "🛏️",
               REMEDIOS: "💊",
-              MOVEIS: "🪑",
-              ABRIGO: "🏠",
+              MOVEIS: "🛏️",
+              REMÉDIOS: "💊",
+              MOVEIS: "🗄️",
+              MÓVEIS: "🗄️",
+              "ABRIGO ANIMAIS": "🐶🐱",
               HIGIENE: "🧼",
               DORMITORIO: "💤",
             };
