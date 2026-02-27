@@ -5,6 +5,7 @@ import Link from "next/link";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
+  const isAdmin = Boolean((session?.user as any)?.isAdmin);
 
   if (status === "loading") {
     return (
@@ -15,6 +16,14 @@ export default function AuthButton() {
   if (session) {
     return (
       <div className="flex items-center gap-4">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="text-xs font-extrabold text-red-600 hover:text-red-700 uppercase tracking-wide px-3 py-1.5 rounded-full border border-red-100 bg-red-50 hover:bg-red-100 transition-all"
+          >
+            Admin
+          </Link>
+        )}
         <Link
           href="/dashboard"
           className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-all"

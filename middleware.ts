@@ -7,5 +7,5 @@ export default withAuth({
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/cadastrar/:path*"], // NÃO inclui /api/auth
+  matcher: ["/dashboard/:path*", "/cadastrar/:path*", "/admin/:path*"], // NÃO inclui /api/auth
 };

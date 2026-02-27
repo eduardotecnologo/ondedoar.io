@@ -57,6 +57,12 @@ export const authOptions: NextAuthOptions = {
       // user existe apenas no primeiro login/authorize
       if (user) {
         (token as any).id = (user as any).id ?? (token as any).id;
+        const adminEmail = process.env.ADMIN_EMAIL;
+        if (adminEmail && (user as any).email) {
+          (token as any).isAdmin =
+            String((user as any).email).toLowerCase() ===
+            adminEmail.toLowerCase();
+        }
       }
       return token;
     },
@@ -64,6 +70,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = (token as any).id;
+        (session.user as any).isAdmin = (token as any).isAdmin ?? false;
       }
       return session;
     },
