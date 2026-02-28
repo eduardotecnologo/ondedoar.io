@@ -231,10 +231,13 @@ export default async function DashboardPage(props: DashboardPageProps) {
                 timerStatus?.statusAutoInativarEm &&
                 now >= timerStatus.statusAutoInativarEm
                   ? "INATIVO"
-                  : timerStatus?.statusAutoAtivarEm &&
-                      now >= timerStatus.statusAutoAtivarEm
+                  : timerStatus?.statusAutoInativarEm &&
+                      now < timerStatus.statusAutoInativarEm
                     ? "ATIVO"
-                    : statusBase;
+                    : timerStatus?.statusAutoAtivarEm &&
+                        now >= timerStatus.statusAutoAtivarEm
+                      ? "ATIVO"
+                      : statusBase;
 
               return (
                 <div

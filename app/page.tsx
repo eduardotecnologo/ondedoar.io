@@ -265,10 +265,13 @@ export default async function Home(props: HomeProps) {
       timerStatus?.statusAutoInativarEm &&
       now >= timerStatus.statusAutoInativarEm
         ? "INATIVO"
-        : timerStatus?.statusAutoAtivarEm &&
-            now >= timerStatus.statusAutoAtivarEm
+        : timerStatus?.statusAutoInativarEm &&
+            now < timerStatus.statusAutoInativarEm
           ? "ATIVO"
-          : null;
+          : timerStatus?.statusAutoAtivarEm &&
+              now >= timerStatus.statusAutoAtivarEm
+            ? "ATIVO"
+            : null;
 
     return {
       id: p.id,
