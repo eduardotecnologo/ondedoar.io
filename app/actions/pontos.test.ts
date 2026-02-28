@@ -59,6 +59,7 @@ function buildValidFormData(): FormData {
   formData.set("numero", "123");
   formData.set("cidade", "Juiz de Fora");
   formData.set("estado", "MG");
+  formData.set("cep", "36000-000");
   formData.set("telefone", "31999999999");
   formData.set("whatsapp", "31988888888");
   formData.append("categorias", "cat-1");

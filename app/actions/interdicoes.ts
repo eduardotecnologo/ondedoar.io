@@ -18,7 +18,8 @@ export async function cadastrarRuaInterditada(
   }
 
   const rua = String(formData.get("rua") || "").trim();
-  const numero = String(formData.get("numero") || "").trim();
+  const numeroInicio = String(formData.get("numeroInicio") || "").trim();
+  const numeroFim = String(formData.get("numeroFim") || "").trim();
   const cidade = String(formData.get("cidade") || "").trim();
   const estado = String(formData.get("estado") || "")
     .trim()
@@ -27,7 +28,7 @@ export async function cadastrarRuaInterditada(
   const motivo = String(formData.get("motivo") || "").trim();
   const foto = formData.get("foto");
 
-  if (!rua || !cidade || !estado) {
+  if (!rua || !numeroInicio || !numeroFim || !cidade || !estado) {
     redirect("/interdicoes?error=missing_fields");
   }
 
@@ -50,8 +51,13 @@ export async function cadastrarRuaInterditada(
   let latitude: number | null = null;
   let longitude: number | null = null;
 
+  const numeroFaixa =
+    numeroInicio && numeroFim
+      ? `${numeroInicio} ao ${numeroFim}`
+      : numeroInicio || numeroFim || "";
+
   try {
-    const queryNumero = numero ? `${rua}, ${numero}` : rua;
+    const queryNumero = numeroFaixa ? `${rua}, ${numeroFaixa}` : rua;
     const query = encodeURIComponent(
       `${queryNumero}, ${cidade}, ${estado}, Brasil`,
     );
@@ -82,7 +88,7 @@ export async function cadastrarRuaInterditada(
     await prisma.ruaInterditada.create({
       data: {
         rua,
-        numero: numero || null,
+        numero: numeroFaixa || null,
         cidade,
         estado,
         referencia: referencia || null,

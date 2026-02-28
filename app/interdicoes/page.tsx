@@ -18,7 +18,8 @@ type InterdicoesPageProps = {
 };
 
 const errorMap: Record<string, string> = {
-  missing_fields: "Preencha rua, cidade e estado para cadastrar a interdição.",
+  missing_fields:
+    "Preencha rua, número de início, número de fim, cidade e estado para cadastrar a interdição.",
   missing_photo: "A foto do motivo é obrigatória.",
   invalid_photo: "Envie um arquivo de imagem válido.",
   photo_too_large: "A foto deve ter no máximo 4MB.",
@@ -134,26 +135,65 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
                 name="rua"
                 required
                 placeholder="Rua / Avenida"
-                className="w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500"
+                className="md:col-span-2 w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500"
               />
-              <input
-                name="numero"
-                placeholder="Número (opcional)"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
-              />
+              <div className="md:col-span-2 grid grid-cols-2 gap-3">
+                <input
+                  name="numeroInicio"
+                  required
+                  placeholder="Início"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                />
+                <input
+                  name="numeroFim"
+                  required
+                  placeholder="Fim"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                />
+              </div>
               <input
                 name="cidade"
                 required
                 placeholder="Cidade"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               />
-              <input
+              <select
                 name="estado"
                 required
-                maxLength={2}
-                placeholder="UF"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm uppercase outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
-              />
+                defaultValue=""
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              >
+                <option value="" disabled>
+                  Selecione a UF
+                </option>
+                <option value="AC">Acre (AC)</option>
+                <option value="AL">Alagoas (AL)</option>
+                <option value="AP">Amapá (AP)</option>
+                <option value="AM">Amazonas (AM)</option>
+                <option value="BA">Bahia (BA)</option>
+                <option value="CE">Ceará (CE)</option>
+                <option value="DF">Distrito Federal (DF)</option>
+                <option value="ES">Espírito Santo (ES)</option>
+                <option value="GO">Goiás (GO)</option>
+                <option value="MA">Maranhão (MA)</option>
+                <option value="MT">Mato Grosso (MT)</option>
+                <option value="MS">Mato Grosso do Sul (MS)</option>
+                <option value="MG">Minas Gerais (MG)</option>
+                <option value="PA">Pará (PA)</option>
+                <option value="PB">Paraíba (PB)</option>
+                <option value="PR">Paraná (PR)</option>
+                <option value="PE">Pernambuco (PE)</option>
+                <option value="PI">Piauí (PI)</option>
+                <option value="RJ">Rio de Janeiro (RJ)</option>
+                <option value="RN">Rio Grande do Norte (RN)</option>
+                <option value="RS">Rio Grande do Sul (RS)</option>
+                <option value="RO">Rondônia (RO)</option>
+                <option value="RR">Roraima (RR)</option>
+                <option value="SC">Santa Catarina (SC)</option>
+                <option value="SP">São Paulo (SP)</option>
+                <option value="SE">Sergipe (SE)</option>
+                <option value="TO">Tocantins (TO)</option>
+              </select>
               <input
                 name="referencia"
                 placeholder="Referência (opcional)"

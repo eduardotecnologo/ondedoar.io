@@ -1,4 +1,5 @@
-- Leite
-- àgua
-- mostrar ruas interditadas
-- clima/tempo
+- Leite - OK
+- àgua - OK
+- mostrar ruas interditadas - OK
+- clima/tempo - OK
+- login com google
