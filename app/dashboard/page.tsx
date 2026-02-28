@@ -213,6 +213,12 @@ export default async function DashboardPage(props: DashboardPageProps) {
           <div className="grid gap-4">
             {meusPontos.map((ponto) => {
               const timerStatus = timerStatusById.get(ponto.id);
+              const encerramentoLabel = timerStatus?.statusAutoInativarEm
+                ? new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }).format(timerStatus.statusAutoInativarEm)
+                : null;
               const statusBase =
                 ponto.status_doacao === "INATIVO"
                   ? "INATIVO"
@@ -276,6 +282,14 @@ export default async function DashboardPage(props: DashboardPageProps) {
                     <p className="text-slate-500 text-sm mb-3">
                       📍 {ponto.endereco}, {ponto.cidade}
                     </p>
+                    {encerramentoLabel && (
+                      <p className="text-xs text-slate-500 mb-3">
+                        ⏱ Encerramento:{" "}
+                        <span className="font-semibold">
+                          {encerramentoLabel}
+                        </span>
+                      </p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       {ponto.ponto_categorias.map((pc) => (
                         <span

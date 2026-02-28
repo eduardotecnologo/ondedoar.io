@@ -699,6 +699,14 @@ export default async function Home(props: HomeProps) {
                 ponto.voluntarioContatoAgendamento,
               );
               const instagramUrl = extractInstagramUrl(ponto.detalhes);
+              const encerramentoEm =
+                timerStatusById.get(ponto.id)?.statusAutoInativarEm ?? null;
+              const encerramentoLabel = encerramentoEm
+                ? new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }).format(encerramentoEm)
+                : null;
 
               return (
                 <div
@@ -739,6 +747,15 @@ export default async function Home(props: HomeProps) {
                       {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade}{" "}
                       - {ponto.estado}
                     </p>
+
+                    {encerramentoLabel && (
+                      <p className="text-xs text-slate-500 mb-3">
+                        ⏱ Encerramento:{" "}
+                        <span className="font-semibold">
+                          {encerramentoLabel}
+                        </span>
+                      </p>
+                    )}
 
                     {instagramUrl && (
                       <a
