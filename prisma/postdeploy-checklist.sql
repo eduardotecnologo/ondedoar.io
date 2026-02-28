@@ -18,6 +18,7 @@ INSERT INTO categorias (nome, icone)
 VALUES
   ('ABRIGO', '🏠'),
   ('ABRIGO ANIMAIS', '🐶🐱'),
+  ('ALIMENTO ANIMAIS', '🐾'),
   ('VOLUNTARIO', '🤝'),
   ('FRAUDAS', '👶'),
   ('DOCUMENTOS', '📄')
@@ -28,6 +29,10 @@ SET icone = EXCLUDED.icone;
 UPDATE categorias
 SET nome = 'ABRIGO ANIMAIS', icone = '🐶🐱'
 WHERE nome IN ('ABRIDO ANIMAIS', 'ABRIGO_ANIMAIS');
+
+UPDATE categorias
+SET nome = 'ALIMENTO ANIMAIS', icone = '🐾'
+WHERE nome IN ('ALIMENTOS ANIMAIS', 'ALIMENTO_ANIMAIS');
 
 UPDATE categorias
 SET nome = 'FRAUDAS', icone = '👶'

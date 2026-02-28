@@ -6,6 +6,7 @@ async function main() {
   const tipos: { nome: string; icone: string }[] = [
     { nome: "ROUPAS", icone: "👕" },
     { nome: "ALIMENTOS", icone: "🍎" },
+    { nome: "ALIMENTO ANIMAIS", icone: "🐾" },
     { nome: "DOCUMENTOS", icone: "📄" },
     { nome: "COLCHOES", icone: "🛏️" },
     { nome: "REMEDIOS", icone: "💊" },

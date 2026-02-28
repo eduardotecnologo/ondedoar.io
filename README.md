@@ -6,9 +6,60 @@ Para deploys que envolvem novas categorias ou campos no banco, execute o script:
 
 Checklist rápido após execução:
 
-- validar categorias em `categorias` (`ABRIGO ANIMAIS`, `VOLUNTARIO`, `FRAUDAS`, `DOCUMENTOS`)
+- validar categorias em `categorias` (`ABRIGO ANIMAIS`, `ALIMENTO ANIMAIS`, `VOLUNTARIO`, `FRAUDAS`, `DOCUMENTOS`)
 - validar colunas em `pontos_coleta` (`voluntario_*`, `fraldas_publico`)
 - atualizar a Home e testar filtros de categoria
+
+## SQL já executados no projeto
+
+Resumo dos SQL usados até agora (local e produção), com finalidade e como rodar.
+
+- Timer de status automático (`ATIVO`/`INATIVO`)
+
+- Arquivo: `prisma/add-status-timer-columns.sql`
+- Objetivo: adicionar colunas `status_auto_ativar_em` e `status_auto_inativar_em` em `pontos_coleta`
+- Execução:
+
+```bash
+npx prisma db execute --schema prisma/schema.prisma --file prisma/add-status-timer-columns.sql
+```
+
+- Estrutura de pedidos de ajuda
+
+- Arquivo: `prisma/add-pedidos-ajuda-table.sql`
+- Objetivo: criar/garantir tabela `pedidos_ajuda`, índices e colunas de atendimento (`atendido_por_*`, `atendido_em`)
+- Execução:
+
+```bash
+npx prisma db execute --schema prisma/schema.prisma --file prisma/add-pedidos-ajuda-table.sql
+```
+
+- Checklist completo de produção
+
+- Arquivo: `prisma/postdeploy-checklist.sql`
+- Objetivo: consolidar alterações de pós-deploy (colunas em `pontos_coleta`, categorias padrão e estrutura de `pedidos_ajuda`)
+- Execução:
+
+```bash
+npx prisma db execute --schema prisma/schema.prisma --file prisma/postdeploy-checklist.sql
+```
+
+- Upsert pontual da categoria nova
+
+- Objetivo: garantir categoria `ALIMENTO ANIMAIS`
+- Execução usada:
+
+```bash
+$sql = @'
+INSERT INTO categorias (nome, icone)
+VALUES ('ALIMENTO ANIMAIS', '🐾')
+ON CONFLICT (nome) DO UPDATE SET icone = EXCLUDED.icone;
+'@; $sql | npx prisma db execute --schema prisma/schema.prisma --stdin
+```
+
+### Observação importante
+
+Os SQL acima são de criação/ajuste incremental (idempotentes) e não incluem `DELETE`, `TRUNCATE` ou `DROP`.
 
 ## Timer automático (Ativo/Inativo)
 

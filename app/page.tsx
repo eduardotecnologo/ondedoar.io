@@ -494,7 +494,7 @@ export default async function Home(props: HomeProps) {
           </div>
 
           {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
-          <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+          <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2 sm:gap-3">
             <AuthButton />
             <Link
               href="/pedido-ajuda"
@@ -670,6 +670,8 @@ export default async function Home(props: HomeProps) {
               MÓVEIS: "🗄️",
               "ABRIGO ANIMAIS": "🐶🐱",
               "ABRIDO ANIMAIS": "🐶🐱",
+              "ALIMENTO ANIMAIS": "🐾",
+              "ALIMENTOS ANIMAIS": "🐾",
               ABRIGO: "🏠",
               ABRIDO: "🏠",
               VOLUNTARIO: "🤝",
