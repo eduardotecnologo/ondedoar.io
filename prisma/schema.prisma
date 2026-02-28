@@ -104,3 +104,25 @@ model RuaInterditada {
   @@index([ativa])
   @@map("ruas_interditadas")
 }
+
+model PedidoAjuda {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome         String
+  contato      String
+  cidade       String
+  estado       String
+  categoria    String    @default("OUTRO")
+  descricao    String
+  urgencia     String    @default("MEDIA")
+  status       String    @default("ABERTO")
+  anonimo      Boolean   @default(false)
+  atendido_por_nome    String?
+  atendido_por_anonimo Boolean   @default(false)
+  atendido_em          DateTime? @db.Timestamptz(6)
+  criado_em    DateTime  @default(now()) @db.Timestamptz(6)
+  atualizado_em DateTime? @db.Timestamptz(6)
+
+  @@index([status])
+  @@index([cidade, estado])
+  @@map("pedidos_ajuda")
+}

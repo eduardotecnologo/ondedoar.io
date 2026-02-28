@@ -178,6 +178,12 @@ export default async function AdminPage(props: AdminPageProps) {
                 Gerencie todos os pontos e usuários da plataforma.
               </p>
             </div>
+            <Link
+              href="/admin/pedidos-ajuda"
+              className="inline-flex bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-colors"
+            >
+              Ver Pedidos de Ajuda
+            </Link>
           </div>
 
           {/* Filtros */}
@@ -277,7 +283,7 @@ export default async function AdminPage(props: AdminPageProps) {
                         </span>
                       </td>
                       <td className="px-4 py-4 align-top">
-                        <div className="flex flex-wrap gap-1 max-w-[220px]">
+                        <div className="flex flex-wrap gap-1 max-w-55">
                           {ponto.ponto_categorias.map((pc) => (
                             <span
                               key={pc.categoria_id}

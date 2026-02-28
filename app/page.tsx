@@ -388,6 +388,18 @@ export default async function Home(props: HomeProps) {
       .filter((cidade) => cidade.length > 0),
   ).size;
 
+  let totalPedidosAbertos = 0;
+  try {
+    const pedidosAbertosRows = await prisma.$queryRaw<Array<{ total: number }>>`
+      SELECT COUNT(*)::int AS total
+      FROM pedidos_ajuda
+      WHERE status = 'ABERTO'
+    `;
+    totalPedidosAbertos = pedidosAbertosRows[0]?.total ?? 0;
+  } catch (error) {
+    console.warn("Contagem de pedidos de ajuda indisponível na Home:", error);
+  }
+
   const buildWhatsAppUrl = (
     phone: string | null | undefined,
   ): string | null => {
@@ -475,6 +487,12 @@ export default async function Home(props: HomeProps) {
           <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
             <AuthButton />
             <Link
+              href="/pedido-ajuda"
+              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-emerald-200"
+            >
+              🤝 Preciso de Ajuda
+            </Link>
+            <Link
               href="/interdicoes"
               className="bg-red-50 hover:bg-red-100 text-red-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-red-200"
             >
@@ -561,7 +579,7 @@ export default async function Home(props: HomeProps) {
             </button>
           </form>
 
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
             <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-3">
               <p className="text-blue-100 text-xs uppercase tracking-wider">
                 Pontos ativos
@@ -586,6 +604,17 @@ export default async function Home(props: HomeProps) {
                 {totalCidades}
               </p>
             </div>
+            <Link
+              href="/admin/pedidos-ajuda"
+              className="bg-white/15 border border-white/20 rounded-xl px-4 py-3 block hover:bg-white/20 transition-colors"
+            >
+              <p className="text-blue-100 text-xs uppercase tracking-wider">
+                Pedidos em aberto
+              </p>
+              <p className="text-white text-2xl font-extrabold">
+                {totalPedidosAbertos}
+              </p>
+            </Link>
           </div>
         </div>
       </section>

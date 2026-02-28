@@ -59,3 +59,30 @@ WHERE nome IN ('FRAIUDAS', 'FRALDAS');
 --     'status_auto_inativar_em'
 --   )
 -- ORDER BY column_name;
+
+-- 6) Garantir tabela de pedidos de ajuda
+CREATE TABLE IF NOT EXISTS pedidos_ajuda (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nome TEXT NOT NULL,
+  contato TEXT NOT NULL,
+  cidade TEXT NOT NULL,
+  estado TEXT NOT NULL,
+  categoria TEXT NOT NULL DEFAULT 'OUTRO',
+  descricao TEXT NOT NULL,
+  urgencia TEXT NOT NULL DEFAULT 'MEDIA',
+  status TEXT NOT NULL DEFAULT 'ABERTO',
+  anonimo BOOLEAN NOT NULL DEFAULT false,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
+  atualizado_em TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS pedidos_ajuda_status_idx
+  ON pedidos_ajuda(status);
+
+CREATE INDEX IF NOT EXISTS pedidos_ajuda_cidade_estado_idx
+  ON pedidos_ajuda(cidade, estado);
+
+ALTER TABLE pedidos_ajuda
+  ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT,
+  ADD COLUMN IF NOT EXISTS atendido_por_anonimo BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMPTZ;

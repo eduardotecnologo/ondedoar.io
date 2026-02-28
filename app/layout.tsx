@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import TopMenu from "@/components/TopMenu";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -34,6 +35,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         <div className="min-h-screen flex flex-col">
+          <TopMenu />
+
           <div className="flex-1">
             <Providers>{children}</Providers>
           </div>
@@ -65,6 +68,10 @@ export default function RootLayout({
                 Defesa Civil: 199
               </a>
             </div>
+            <p className="max-w-6xl mx-auto mt-3 text-center text-sm text-slate-600">
+              Informações sujeitas a atualização. Se você está em situação de
+              riscos, informe nos canais acima!!!
+            </p>
           </footer>
         </div>
       </body>
