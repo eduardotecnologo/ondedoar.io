@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Ponto } from "@/types/ponto"; // <- NOTE o caminho absoluto pode ser usado se você tiver baseUrl/paths; caso contrário use '../../types/ponto'
@@ -29,9 +29,36 @@ type Props = {
   pontos: Ponto[];
 };
 
+type PontoComCoordenadas = Ponto & { latitude: number; longitude: number };
+
+function FitToPontos({ pontos }: { pontos: PontoComCoordenadas[] }) {
+  const map = useMap();
+
+  React.useEffect(() => {
+    if (pontos.length === 0) {
+      map.setView([-15.7801, -47.9292], 4);
+      return;
+    }
+
+    if (pontos.length === 1) {
+      map.setView([pontos[0].latitude, pontos[0].longitude], 14);
+      return;
+    }
+
+    const bounds = L.latLngBounds(
+      pontos.map(
+        (ponto) => [ponto.latitude, ponto.longitude] as [number, number],
+      ),
+    );
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+  }, [map, pontos]);
+
+  return null;
+}
+
 export default function MapaHome({ pontos }: Props) {
   const pontosValidos = pontos.filter(
-    (p): p is Ponto & { latitude: number; longitude: number } =>
+    (p): p is PontoComCoordenadas =>
       typeof p.latitude === "number" &&
       typeof p.longitude === "number" &&
       p.latitude !== 0 &&
@@ -66,6 +93,7 @@ export default function MapaHome({ pontos }: Props) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <FitToPontos pontos={pontosValidos} />
         {pontosValidos.map((ponto) => {
           const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
 

@@ -30,6 +30,10 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     .map((v) => (typeof v === "string" ? v : String(v)))
     .filter((v) => v && v.length > 0);
 
+  if (categoriasIds.length === 0) {
+    redirect("/cadastrar?error=no_category");
+  }
+
   // Geocoding via Nominatim
   let latitude = 0;
   let longitude = 0;

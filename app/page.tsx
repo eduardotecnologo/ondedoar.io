@@ -20,8 +20,18 @@ type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
 
 interface HomeProps {
   searchParams?:
-    | Promise<{ cidade?: string; success?: string }>
-    | { cidade?: string; success?: string };
+    | Promise<{
+        cidade?: string;
+        categoria?: string;
+        categoriaId?: string;
+        success?: string;
+      }>
+    | {
+        cidade?: string;
+        categoria?: string;
+        categoriaId?: string;
+        success?: string;
+      };
 }
 
 export default async function Home(props: HomeProps) {
@@ -29,16 +39,63 @@ export default async function Home(props: HomeProps) {
   const searchParams = await (props.searchParams ?? {});
 
   const cidadeFiltro = searchParams?.cidade?.trim() || undefined;
+  const categoriaFiltroNome = searchParams?.categoria?.trim() || undefined;
+  const categoriaFiltroId = searchParams?.categoriaId?.trim() || undefined;
+
+  const normalizeCategoryName = (value: string): string =>
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+
+  const buildCategoryHref = (categoriaId?: string): string => {
+    const params = new URLSearchParams();
+
+    if (cidadeFiltro) {
+      params.set("cidade", cidadeFiltro);
+    }
+
+    if (categoriaId) {
+      params.set("categoriaId", categoriaId);
+    }
+
+    const query = params.toString();
+    return query ? `/?${query}` : "/";
+  };
 
   // Monta filtro condicional com tipagem explícita do Prisma
-  const where: Prisma.PontoColetaWhereInput = cidadeFiltro
-    ? {
-        cidade: {
-          contains: cidadeFiltro,
-          mode: "insensitive",
-        },
-      }
-    : {};
+  const where: Prisma.PontoColetaWhereInput = {
+    ...(cidadeFiltro
+      ? {
+          cidade: {
+            contains: cidadeFiltro,
+            mode: "insensitive",
+          },
+        }
+      : {}),
+    ...(categoriaFiltroId
+      ? {
+          ponto_categorias: {
+            some: {
+              categoria_id: categoriaFiltroId,
+            },
+          },
+        }
+      : categoriaFiltroNome
+        ? {
+            ponto_categorias: {
+              some: {
+                categorias: {
+                  nome: {
+                    equals: categoriaFiltroNome,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            },
+          }
+        : {}),
+  };
 
   // Busca os pontos (incluir a relação ponto_categorias -> categorias)
   const pontosRaw: PontoWithCategorias[] = await prisma.pontoColeta.findMany({
@@ -80,13 +137,30 @@ export default async function Home(props: HomeProps) {
   });
 
   const categoriasAtalho = categorias.filter((categoria) => {
-    const normalized = categoria.nome
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toUpperCase();
+    const normalized = normalizeCategoryName(categoria.nome);
 
     return normalized !== "DORMITORIOS";
   });
+
+  const categoriaAtiva = categoriaFiltroId
+    ? categoriasAtalho.find((categoria) => categoria.id === categoriaFiltroId)
+    : categoriaFiltroNome
+      ? categoriasAtalho.find(
+          (categoria) =>
+            normalizeCategoryName(categoria.nome) ===
+            normalizeCategoryName(categoriaFiltroNome),
+        )
+      : undefined;
+
+  const categoriaFiltro = categoriaAtiva?.nome ?? categoriaFiltroNome;
+
+  const totalPontos = pontos.length;
+  const totalCategorias = categoriasAtalho.length;
+  const totalCidades = new Set(
+    pontos
+      .map((p) => (p.cidade ?? "").trim())
+      .filter((cidade) => cidade.length > 0),
+  ).size;
 
   const buildWhatsAppUrl = (
     phone: string | null | undefined,
@@ -133,9 +207,8 @@ export default async function Home(props: HomeProps) {
             Onde Doar?
           </h1>
           <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-            Encontre um ponto de coleta perto de você e faça parte dessa
-            corrente do bem. Mas se você precisa de ajuda, é só se dirigir ao
-            ponto mais próximo a sua localidade. você. 💛
+            Encontre rapidamente onde doar ou onde buscar ajuda na sua cidade.
+            Informação clara, ação imediata. 💛
           </p>
 
           <form
@@ -158,6 +231,33 @@ export default async function Home(props: HomeProps) {
               Buscar Cidade
             </button>
           </form>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-3">
+              <p className="text-blue-100 text-xs uppercase tracking-wider">
+                Pontos ativos
+              </p>
+              <p className="text-white text-2xl font-extrabold">
+                {totalPontos}
+              </p>
+            </div>
+            <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-3">
+              <p className="text-blue-100 text-xs uppercase tracking-wider">
+                Categorias
+              </p>
+              <p className="text-white text-2xl font-extrabold">
+                {totalCategorias}
+              </p>
+            </div>
+            <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-3">
+              <p className="text-blue-100 text-xs uppercase tracking-wider">
+                Cidades com ponto
+              </p>
+              <p className="text-white text-2xl font-extrabold">
+                {totalCidades}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -165,6 +265,24 @@ export default async function Home(props: HomeProps) {
         <div className="mb-12">
           <MapaWrapper pontos={pontos} />
         </div>
+
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+          Encontre por categoria
+        </h2>
+
+        {categoriaFiltro && (
+          <div className="mb-4 flex items-center justify-between gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2">
+            <p className="text-sm text-blue-800">
+              Filtro ativo: <span className="font-bold">{categoriaFiltro}</span>
+            </p>
+            <Link
+              href={buildCategoryHref()}
+              className="text-sm font-bold text-blue-700 hover:text-blue-900"
+            >
+              Limpar categoria
+            </Link>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
           {categoriasAtalho.map((cat) => {
@@ -185,27 +303,44 @@ export default async function Home(props: HomeProps) {
               DORMITORIO: "💤",
             };
             const emoji = emojiMap[cat.nome.toUpperCase()] || "📦";
+            const isActiveCategory = categoriaFiltroId
+              ? categoriaFiltroId === cat.id
+              : categoriaFiltro
+                ? normalizeCategoryName(categoriaFiltro) ===
+                  normalizeCategoryName(cat.nome)
+                : false;
 
             return (
-              <div
+              <Link
+                href={buildCategoryHref(cat.id)}
                 key={cat.id}
-                className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center hover:shadow-md transition-all cursor-pointer group"
+                className={`p-4 rounded-2xl shadow-sm border text-center transition-all cursor-pointer group ${
+                  isActiveCategory
+                    ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                    : "bg-white border-slate-100 hover:shadow-md"
+                }`}
               >
                 <span className="block text-2xl mb-1 group-hover:scale-110 transition-transform">
                   {emoji}
                 </span>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-widest ${
+                    isActiveCategory ? "text-blue-100" : "text-slate-500"
+                  }`}
+                >
                   {cat.nome}
                 </span>
-              </div>
+              </Link>
             );
           })}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-3">
           <h2 className="text-2xl font-bold text-slate-800">
-            {searchParams?.cidade
-              ? `Pontos em ${searchParams.cidade}`
+            {cidadeFiltro || categoriaFiltro
+              ? `Pontos${cidadeFiltro ? ` em ${cidadeFiltro}` : ""}${
+                  categoriaFiltro ? ` • ${categoriaFiltro}` : ""
+                }`
               : "Pontos Recentes"}
           </h2>
           <Link
@@ -263,7 +398,7 @@ export default async function Home(props: HomeProps) {
                         rel="noreferrer"
                         className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-xl font-bold text-sm transition-all"
                       >
-                        WhatsApp
+                        Chamar no WhatsApp
                       </a>
                     ) : (
                       <span className="flex-1 bg-slate-200 text-slate-500 text-center py-3 rounded-xl font-bold text-sm cursor-not-allowed">
