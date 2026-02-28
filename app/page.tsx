@@ -8,6 +8,7 @@ import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
 import AuthButton from "@/components/AuthButton";
 import PontoDetalhesButton from "@/components/PontoDetalhesButton";
 import VerNoMapaButton from "@/components/VerNoMapaButton";
+import UseMyLocationButton from "@/components/UseMyLocationButton";
 import type { Ponto } from "@/types/ponto";
 import type { Interdicao } from "@/types/interdicao";
 
@@ -56,12 +57,16 @@ interface HomeProps {
         cidade?: string;
         categoria?: string;
         categoriaId?: string;
+        geoLat?: string;
+        geoLon?: string;
         success?: string;
       }>
     | {
         cidade?: string;
         categoria?: string;
         categoriaId?: string;
+        geoLat?: string;
+        geoLon?: string;
         success?: string;
       };
 }
@@ -76,6 +81,79 @@ type OpenMeteoResponse = {
     precipitation_sum?: number[];
   };
 };
+
+type InmetAlert = {
+  title: string;
+  description: string;
+  link: string;
+  pubDate: string;
+  severity: "GRANDE_PERIGO" | "PERIGO" | "PERIGO_POTENCIAL" | "AVISO";
+};
+
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x2F;/g, "/");
+}
+
+function stripHtml(value: string): string {
+  return decodeHtmlEntities(value)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+}
+
+function extractTagValue(itemXml: string, tagName: string): string {
+  const match = itemXml.match(
+    new RegExp(`<${tagName}>([\\s\\S]*?)</${tagName}>`, "i"),
+  );
+  return match?.[1]?.trim() ?? "";
+}
+
+function parseInmetRss(xml: string): InmetAlert[] {
+  const items = xml.match(/<item>([\s\S]*?)<\/item>/gi) ?? [];
+
+  return items
+    .map((itemXml) => {
+      const title = stripHtml(extractTagValue(itemXml, "title"));
+      const description = stripHtml(extractTagValue(itemXml, "description"));
+      const link = stripHtml(extractTagValue(itemXml, "link"));
+      const pubDate = stripHtml(extractTagValue(itemXml, "pubDate"));
+
+      const titleNormalized = normalizeText(title);
+      const severity: InmetAlert["severity"] = titleNormalized.includes(
+        "GRANDE PERIGO",
+      )
+        ? "GRANDE_PERIGO"
+        : titleNormalized.includes("PERIGO POTENCIAL")
+          ? "PERIGO_POTENCIAL"
+          : titleNormalized.includes("PERIGO")
+            ? "PERIGO"
+            : "AVISO";
+
+      return {
+        title,
+        description,
+        link,
+        pubDate,
+        severity,
+      };
+    })
+    .filter((item) => item.title.length > 0);
+}
 
 function weatherCodeLabel(code?: number): string {
   if (code === undefined) return "Condição indisponível";
@@ -98,6 +176,9 @@ export default async function Home(props: HomeProps) {
   const cidadeFiltro = searchParams?.cidade?.trim() || undefined;
   const categoriaFiltroNome = searchParams?.categoria?.trim() || undefined;
   const categoriaFiltroId = searchParams?.categoriaId?.trim() || undefined;
+  const geoLat = Number(searchParams?.geoLat);
+  const geoLon = Number(searchParams?.geoLon);
+  const hasGeoCoords = Number.isFinite(geoLat) && Number.isFinite(geoLon);
 
   const normalizeCategoryName = (value: string): string =>
     value
@@ -472,6 +553,82 @@ export default async function Home(props: HomeProps) {
     }
   }
 
+  let cidadeDetectadaPorGeo: string | null = null;
+
+  if (hasGeoCoords) {
+    try {
+      const reverseGeocodeResponse = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${geoLat}&lon=${geoLon}`,
+        {
+          next: { revalidate: 3600 },
+          headers: {
+            "User-Agent":
+              "OndeDoarIO/1.0 - ondedoar.io (edudeveloperctk@gmail.com)",
+          },
+        },
+      );
+
+      if (reverseGeocodeResponse.ok) {
+        const reverseData = (await reverseGeocodeResponse.json()) as {
+          address?: {
+            city?: string;
+            town?: string;
+            village?: string;
+            municipality?: string;
+          };
+        };
+
+        cidadeDetectadaPorGeo =
+          reverseData.address?.city ??
+          reverseData.address?.town ??
+          reverseData.address?.village ??
+          reverseData.address?.municipality ??
+          null;
+      }
+    } catch (error) {
+      console.warn("Geolocalização reversa indisponível na Home:", error);
+    }
+  }
+
+  let inmetAlerts: InmetAlert[] = [];
+  const alertRegionLabel = (
+    cidadeFiltro ??
+    cidadeDetectadaPorGeo ??
+    pontoClima?.cidade ??
+    ""
+  ).trim();
+
+  try {
+    const inmetResponse = await fetch(
+      "https://apiprevmet3.inmet.gov.br/avisos/rss",
+      {
+        next: { revalidate: 900 },
+      },
+    );
+
+    if (inmetResponse.ok) {
+      const inmetXml = await inmetResponse.text();
+      const allAlerts = parseInmetRss(inmetXml);
+
+      const cityContext = alertRegionLabel;
+      const normalizedCityContext = cityContext
+        ? normalizeText(cityContext)
+        : "";
+
+      const filteredAlerts = normalizedCityContext
+        ? allAlerts.filter((alert) =>
+            normalizeText(`${alert.title} ${alert.description}`).includes(
+              normalizedCityContext,
+            ),
+          )
+        : allAlerts;
+
+      inmetAlerts = filteredAlerts.slice(0, 5);
+    }
+  } catch (error) {
+    console.warn("Alertas INMET indisponíveis na Home:", error);
+  }
+
   return (
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
@@ -495,6 +652,7 @@ export default async function Home(props: HomeProps) {
 
           {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
           <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2 sm:gap-3">
+            <UseMyLocationButton variant="compact" />
             <AuthButton />
             <Link
               href="/pedido-ajuda"
@@ -557,6 +715,86 @@ export default async function Home(props: HomeProps) {
         </section>
       )}
 
+      <section className="bg-slate-50 px-4 pt-4">
+        <div className="max-w-6xl mx-auto rounded-2xl border border-rose-100 bg-rose-50 p-4">
+          <p className="text-sm font-bold text-rose-800">
+            {inmetAlerts.length > 0
+              ? "⚠️ Atenção: Alertas oficiais de risco (INMET)"
+              : "Alertas oficiais de risco (INMET)"}
+          </p>
+
+          {inmetAlerts.length === 0 ? (
+            <p className="mt-2 text-sm text-rose-700">
+              Sem alertas oficiais no momento para{" "}
+              {alertRegionLabel ? (
+                <strong>{alertRegionLabel}</strong>
+              ) : (
+                "sua região"
+              )}{" "}
+              🙏🏿 .
+            </p>
+          ) : (
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {inmetAlerts.map((alert, index) => {
+                const severityClass =
+                  alert.severity === "GRANDE_PERIGO"
+                    ? "bg-red-100 text-red-700"
+                    : alert.severity === "PERIGO"
+                      ? "bg-orange-100 text-orange-700"
+                      : alert.severity === "PERIGO_POTENCIAL"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-100 text-slate-700";
+
+                const severityLabel =
+                  alert.severity === "GRANDE_PERIGO"
+                    ? "GRANDE PERIGO"
+                    : alert.severity === "PERIGO"
+                      ? "PERIGO"
+                      : alert.severity === "PERIGO_POTENCIAL"
+                        ? "PERIGO POTENCIAL"
+                        : "AVISO";
+
+                return (
+                  <article
+                    key={`${alert.link}-${index}`}
+                    className="rounded-xl border border-rose-100 bg-white p-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-800 leading-snug">
+                        {alert.title}
+                      </p>
+                      <span
+                        className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${severityClass}`}
+                      >
+                        {severityLabel}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-600 line-clamp-3">
+                      {alert.description || "Sem detalhes adicionais."}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-slate-500">
+                        {alert.pubDate}
+                      </span>
+                      {alert.link ? (
+                        <a
+                          href={alert.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-bold text-rose-700 hover:text-rose-900"
+                        >
+                          Ver aviso
+                        </a>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
       <section className="bg-blue-600 pt-16 pb-32 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
@@ -588,6 +826,12 @@ export default async function Home(props: HomeProps) {
               Buscar Cidade
             </button>
           </form>
+
+          {cidadeDetectadaPorGeo ? (
+            <p className="mt-2 text-xs text-blue-100">
+              Região detectada: <strong>{cidadeDetectadaPorGeo}</strong>
+            </p>
+          ) : null}
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
             <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-3">
