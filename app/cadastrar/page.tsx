@@ -312,8 +312,8 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                   </label>
                   <input
                     name="website"
-                    type="url"
-                    placeholder="https://instagram.com/suaong"
+                    type="text"
+                    placeholder="@suaong ou https://instagram.com/suaong"
                     className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
                   />
                 </div>

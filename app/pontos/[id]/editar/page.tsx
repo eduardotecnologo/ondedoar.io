@@ -54,6 +54,22 @@ export default async function EditarPontoPage({
     ponto.ponto_categorias.map((item) => item.categoria_id),
   );
 
+  const extractInstagramUrl = (text?: string | null): string => {
+    if (!text) return "";
+    const match = text.match(
+      /(https?:\/\/(?:www\.)?instagram\.com\/[\w\d._\/-]+)/i,
+    );
+    return match?.[1] ?? "";
+  };
+
+  const instagramAtual = extractInstagramUrl(ponto.descricao);
+  const descricaoSemInstagram = (ponto.descricao ?? "")
+    .replace(
+      /\n?Instagram:\s*https?:\/\/(?:www\.)?instagram\.com\/[\w\d._\/-]+\s*/gi,
+      "",
+    )
+    .trim();
+
   const showError =
     query?.error === "1" ||
     query?.error === "missing_fields" ||
@@ -188,10 +204,18 @@ export default async function EditarPontoPage({
               />
             </div>
 
+            <input
+              name="website"
+              type="text"
+              defaultValue={instagramAtual}
+              placeholder="Instagram (@seuperfil ou link)"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+            />
+
             <textarea
               name="descricao"
               rows={4}
-              defaultValue={ponto.descricao ?? ""}
+              defaultValue={descricaoSemInstagram}
               placeholder="Detalhes"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none resize-y focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
             />

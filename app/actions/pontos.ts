@@ -25,6 +25,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const statusDoacaoRaw = (formData.get("status_doacao") as string) || "";
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
+  const website = (formData.get("website") as string) || "";
   if (!cep.trim()) {
     redirect("/cadastrar?error=1");
   }
@@ -56,6 +57,38 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
           normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
         ? "DOANDO_RECEBENDO"
         : "DOANDO";
+
+  const normalizeInstagramUrl = (value: string): string | null => {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return null;
+
+    const handleMatch = trimmedValue.match(/^@([a-zA-Z0-9._]{1,30})$/);
+    if (handleMatch?.[1]) {
+      return `https://instagram.com/${handleMatch[1]}`;
+    }
+
+    const normalizedValue = /^https?:\/\//i.test(trimmedValue)
+      ? trimmedValue
+      : `https://${trimmedValue}`;
+
+    const isInstagramUrl = /^https?:\/\/(www\.)?instagram\.com\//i.test(
+      normalizedValue,
+    );
+
+    return isInstagramUrl ? normalizedValue : null;
+  };
+
+  const instagramUrl = normalizeInstagramUrl(website);
+  const descricaoNormalizada = descricao.trim();
+  const descricaoComInstagram = [
+    descricaoNormalizada,
+    instagramUrl &&
+    !descricaoNormalizada.toLowerCase().includes("instagram.com")
+      ? `Instagram: ${instagramUrl}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   // Geocoding via Nominatim
   let latitude = 0;
@@ -132,7 +165,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     // Monta payload de criação
     const createData: Prisma.PontoColetaUncheckedCreateInput = {
       nome,
-      descricao: descricao || null,
+      descricao: descricaoComInstagram || null,
       status_doacao: statusDoacao,
       cep: cep.trim(),
       endereco,

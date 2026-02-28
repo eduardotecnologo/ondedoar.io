@@ -26,6 +26,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const statusDoacaoRaw = String(formData.get("status_doacao") || "").trim();
   const telefone = String(formData.get("telefone") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
+  const website = String(formData.get("website") || "").trim();
   const voluntarioEspecialidades = String(
     formData.get("voluntario_especialidades") || "",
   ).trim();
@@ -57,6 +58,40 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
           normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
         ? "DOANDO_RECEBENDO"
         : "DOANDO";
+
+  const normalizeInstagramUrl = (value: string): string | null => {
+    if (!value) return null;
+
+    const trimmedValue = value.trim();
+    const handleMatch = trimmedValue.match(/^@([a-zA-Z0-9._]{1,30})$/);
+    if (handleMatch?.[1]) {
+      return `https://instagram.com/${handleMatch[1]}`;
+    }
+
+    const normalizedValue = /^https?:\/\//i.test(trimmedValue)
+      ? trimmedValue
+      : `https://${trimmedValue}`;
+
+    const isInstagramUrl = /^https?:\/\/(www\.)?instagram\.com\//i.test(
+      normalizedValue,
+    );
+
+    return isInstagramUrl ? normalizedValue : null;
+  };
+
+  const instagramUrl = normalizeInstagramUrl(website);
+  const descricaoSemInstagram = descricao
+    .replace(
+      /\n?Instagram:\s*https?:\/\/(?:www\.)?instagram\.com\/[\w\d._\/-]+\s*/gi,
+      "",
+    )
+    .trim();
+  const descricaoComInstagram = [
+    descricaoSemInstagram,
+    instagramUrl ? `Instagram: ${instagramUrl}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   try {
     const user = await prisma.user.findUnique({
@@ -146,7 +181,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
         where: { id },
         data: {
           nome,
-          descricao: descricao || null,
+          descricao: descricaoComInstagram || null,
           status_doacao: statusDoacao,
           cep,
           endereco,

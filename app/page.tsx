@@ -283,6 +283,18 @@ export default async function Home(props: HomeProps) {
     return `https://wa.me/${sanitizedPhone}`;
   };
 
+  const extractInstagramUrl = (text?: string | null): string | null => {
+    if (!text) return null;
+
+    const instagramRegex =
+      /(https?:\/\/(?:www\.)?instagram\.com\/[\w\d._\/-]+)/i;
+    const match = text.match(instagramRegex);
+
+    if (!match?.[1]) return null;
+
+    return match[1].replace(/[),.;!?]+$/, "");
+  };
+
   const pontoClima = pontos.find(
     (ponto) =>
       typeof ponto.latitude === "number" &&
@@ -568,6 +580,7 @@ export default async function Home(props: HomeProps) {
               const voluntarioZapUrl = buildWhatsAppUrl(
                 ponto.voluntarioContatoAgendamento,
               );
+              const instagramUrl = extractInstagramUrl(ponto.detalhes);
 
               return (
                 <div
@@ -600,6 +613,17 @@ export default async function Home(props: HomeProps) {
                       {ponto.numero ? `, ${ponto.numero}` : ""}, {ponto.cidade}{" "}
                       - {ponto.estado}
                     </p>
+
+                    {instagramUrl && (
+                      <a
+                        href={instagramUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 mb-4 text-sm font-semibold text-pink-700 hover:text-pink-800"
+                      >
+                        📸 Instagram
+                      </a>
+                    )}
 
                     <div className="flex flex-wrap gap-2 mt-auto">
                       {ponto.categorias?.map((pc) => (
