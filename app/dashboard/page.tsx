@@ -143,6 +143,9 @@ export default async function DashboardPage(props: DashboardPageProps) {
             <p className="text-slate-500">
               Gerencie os locais que você cadastrou.
             </p>
+            <p className="text-sm text-slate-400 mt-1">
+              Logado como: {session.user.email}
+            </p>
           </div>
           <Link
             href="/cadastrar"
