@@ -72,6 +72,18 @@ export default function RootLayout({
               Informações sujeitas a atualização. Se você está em situação de
               riscos, informe nos canais acima!!!
             </p>
+            <p className="max-w-6xl mx-auto mt-1 text-center text-sm text-slate-600">
+              © 2026 ondedoar.io - Conectando solidariedade. <br />
+              <a
+                href="https://www.instagram.com/eduardodeveloper/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Com <span className="text-blue-600">❤</span> por Eduardo
+                Developer
+              </a>
+            </p>
           </footer>
         </div>
       </body>
