@@ -48,6 +48,14 @@ export default async function Home(props: HomeProps) {
       .replace(/[\u0300-\u036f]/g, "")
       .toUpperCase();
 
+  const getDisplayCategoryName = (name: string): string => {
+    const normalized = normalizeCategoryName(name);
+    if (normalized === "FRAIUDAS" || normalized === "FRALDAS") {
+      return "FRAUDAS";
+    }
+    return name.trim();
+  };
+
   const buildCategoryHref = (categoriaId?: string): string => {
     const params = new URLSearchParams();
 
@@ -143,11 +151,30 @@ export default async function Home(props: HomeProps) {
     orderBy: { nome: "asc" },
   });
 
-  const categoriasAtalho = categorias.filter((categoria) => {
-    const normalized = normalizeCategoryName(categoria.nome);
+  const categoriasAtalho = categorias
+    .filter((categoria) => {
+      const normalized = normalizeCategoryName(categoria.nome);
 
-    return normalized !== "DORMITORIOS";
-  });
+      return normalized !== "DORMITORIOS";
+    })
+    .sort((a, b) => {
+      const priority: Record<string, number> = {
+        ALIMENTOS: 1,
+        FRAUDAS: 2,
+        FRALDAS: 2,
+        FRAIUDAS: 2,
+        ROUPAS: 3,
+        VOLUNTARIO: 4,
+      };
+
+      const aKey = normalizeCategoryName(a.nome);
+      const bKey = normalizeCategoryName(b.nome);
+      const aPriority = priority[aKey] ?? 999;
+      const bPriority = priority[bKey] ?? 999;
+
+      if (aPriority !== bPriority) return aPriority - bPriority;
+      return a.nome.localeCompare(b.nome, "pt-BR");
+    });
 
   const categoriaAtiva = categoriaFiltroId
     ? categoriasAtalho.find((categoria) => categoria.id === categoriaFiltroId)
@@ -215,7 +242,8 @@ export default async function Home(props: HomeProps) {
           </h1>
           <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Encontre rapidamente onde doar ou onde buscar ajuda na sua cidade.
-            Informação clara, ação imediata. 💛
+            Informação clara, ação imediata. 💛 Faça o contato no Zap do local,
+            informando sua localidade!!!
           </p>
 
           <form
@@ -293,6 +321,7 @@ export default async function Home(props: HomeProps) {
 
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
           {categoriasAtalho.map((cat) => {
+            const displayName = getDisplayCategoryName(cat.nome);
             const emojiMap: { [key: string]: string } = {
               ALIMENTOS: "🍎",
               ROUPAS: "👕",
@@ -313,12 +342,12 @@ export default async function Home(props: HomeProps) {
               HIGIENE: "🧼",
               DORMITORIO: "💤",
             };
-            const emoji = emojiMap[cat.nome.toUpperCase()] || "📦";
+            const emoji = emojiMap[normalizeCategoryName(displayName)] || "📦";
             const isActiveCategory = categoriaFiltroId
               ? categoriaFiltroId === cat.id
               : categoriaFiltro
                 ? normalizeCategoryName(categoriaFiltro) ===
-                  normalizeCategoryName(cat.nome)
+                  normalizeCategoryName(displayName)
                 : false;
 
             return (
@@ -339,7 +368,7 @@ export default async function Home(props: HomeProps) {
                     isActiveCategory ? "text-blue-100" : "text-slate-500"
                   }`}
                 >
-                  {cat.nome}
+                  {displayName}
                 </span>
               </Link>
             );
