@@ -2,28 +2,58 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setResetSuccess(params.get("reset") === "success");
+    let active = true;
 
-    const success = params.get("success");
-    if (success === "registered") {
-      setSuccessMessage("Conta criada com sucesso. Faça login para continuar.");
-    } else if (success === "password_created") {
-      setSuccessMessage(
-        "Senha criada com sucesso para seu usuário existente. Faça login.",
-      );
+    async function bootstrapLoginState() {
+      const params = new URLSearchParams(window.location.search);
+      const hasResetSuccess = params.get("reset") === "success";
+
+      const success = params.get("success");
+      const errorParam = params.get("error");
+
+      let nextSuccessMessage: string | null = null;
+      if (success === "registered") {
+        nextSuccessMessage =
+          "Conta criada com sucesso. Faça login para continuar.";
+      } else if (success === "password_created") {
+        nextSuccessMessage =
+          "Senha criada com sucesso para seu usuário existente. Faça login.";
+      }
+
+      const providers = await getProviders();
+      const hasGoogleProvider = Boolean(providers?.google);
+
+      if (!active) return;
+
+      setResetSuccess(hasResetSuccess);
+      setSuccessMessage(nextSuccessMessage);
+      setGoogleAvailable(hasGoogleProvider);
+
+      if (errorParam && errorParam.toLowerCase().includes("oauth")) {
+        setError(
+          "Não foi possível entrar com Google agora. Verifique a configuração e tente novamente.",
+        );
+      }
     }
+
+    bootstrapLoginState();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -49,6 +79,29 @@ export default function LoginPage() {
       router.push("/dashboard");
       router.refresh();
     }
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setLoadingGoogle(true);
+    const result = await signIn("google", {
+      callbackUrl: "/dashboard",
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Não foi possível entrar com Google. Tente novamente.");
+      setLoadingGoogle(false);
+      return;
+    }
+
+    if (result?.url) {
+      router.push(result.url);
+      return;
+    }
+
+    setError("Login com Google indisponível no momento.");
+    setLoadingGoogle(false);
   }
 
   return (
@@ -108,10 +161,23 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || loadingGoogle}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
           >
             {loading ? "Entrando..." : "Entrar"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading || loadingGoogle || !googleAvailable}
+            className="w-full bg-white hover:bg-slate-50 text-slate-700 font-bold py-4 rounded-xl transition-all border border-slate-200 disabled:opacity-50"
+          >
+            {!googleAvailable
+              ? "Google indisponível"
+              : loadingGoogle
+                ? "Conectando com Google..."
+                : "Entrar com Google"}
           </button>
 
           <p className="text-center text-sm">
