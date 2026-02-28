@@ -179,11 +179,30 @@ export default async function Home(props: HomeProps) {
     orderBy: { nome: "asc" },
   });
 
-  const interdicoesRaw = await prisma.ruaInterditada.findMany({
-    where: { ativa: true },
-    orderBy: { criado_em: "desc" },
-    take: 100,
-  });
+  let interdicoesRaw: Array<{
+    id: string;
+    rua: string;
+    numero: string | null;
+    cidade: string;
+    estado: string;
+    referencia: string | null;
+    motivo: string | null;
+    foto_motivo: string | null;
+    ativa: boolean;
+    latitude: number | null;
+    longitude: number | null;
+    criado_em: Date;
+  }> = [];
+
+  try {
+    interdicoesRaw = await prisma.ruaInterditada.findMany({
+      where: { ativa: true },
+      orderBy: { criado_em: "desc" },
+      take: 100,
+    });
+  } catch (error) {
+    console.error("Erro ao carregar interdições na Home:", error);
+  }
 
   const interdicoes: Interdicao[] = interdicoesRaw.map((item) => ({
     id: item.id,
