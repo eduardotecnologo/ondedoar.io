@@ -44,6 +44,7 @@ model PontoColeta {
   voluntario_especialidades       String?
   voluntario_contato_agendamento  String?
   voluntario_disponivel           Boolean?
+  fraldas_publico                 String?
   criado_em        DateTime?        @default(now()) @db.Timestamptz(6)
   user_id          String?          @db.Uuid
   ponto_categorias PontoCategoria[]

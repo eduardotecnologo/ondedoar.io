@@ -19,6 +19,7 @@ export type Ponto = {
   voluntarioEspecialidades?: string | null;
   voluntarioContatoAgendamento?: string | null;
   voluntarioDisponivel?: boolean | null;
+  fraldasPublico?: string | null;
   latitude: number | null;
   longitude: number | null;
   categorias?: CategoriaRelacionada[];

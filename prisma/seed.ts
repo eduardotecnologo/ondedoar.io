@@ -12,6 +12,7 @@ async function main() {
     { nome: "ABRIGO ANIMAIS", icone: "🐶🐱" },
     { nome: "ABRIGO", icone: "🏠" },
     { nome: "VOLUNTARIO", icone: "🤝" },
+    { nome: "FRAUDAS", icone: "👶" },
   ];
 
   for (const tipo of tipos) {

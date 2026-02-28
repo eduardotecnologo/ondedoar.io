@@ -15,6 +15,9 @@ type Props = {
     contatoAgendamento?: string | null;
     disponivel?: boolean | null;
   };
+  fraldasDefault?: {
+    publico?: string | null;
+  };
 };
 
 function normalize(value: string): string {
@@ -28,6 +31,7 @@ export default function CategoriaVoluntarioFields({
   categorias,
   selectedCategoriaIds = [],
   voluntarioDefaults,
+  fraldasDefault,
 }: Props) {
   const [selectedIds, setSelectedIds] =
     useState<string[]>(selectedCategoriaIds);
@@ -43,6 +47,18 @@ export default function CategoriaVoluntarioFields({
 
   const voluntarioSelecionado =
     !!categoriaVoluntarioId && selectedIds.includes(categoriaVoluntarioId);
+
+  const categoriaFraudasId = useMemo(() => {
+    const found = categorias.find((categoria) => {
+      const normalized = normalize(categoria.nome);
+      return normalized === "FRAUDAS" || normalized === "FRALDAS";
+    });
+
+    return found?.id;
+  }, [categorias]);
+
+  const fraudasSelecionada =
+    !!categoriaFraudasId && selectedIds.includes(categoriaFraudasId);
 
   const toggleCategoria = (categoriaId: string, checked: boolean) => {
     setSelectedIds((prev) => {
@@ -133,6 +149,39 @@ export default function CategoriaVoluntarioFields({
               Disponível neste momento
             </span>
           </label>
+        </div>
+      )}
+
+      {fraudasSelecionada && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
+          <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+            Tipo de Fraldas
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <input
+                type="radio"
+                name="fraldas_publico"
+                value="ADULTO"
+                defaultChecked={fraldasDefault?.publico === "ADULTO"}
+                required={fraudasSelecionada}
+                className="w-4 h-4 border-slate-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm font-medium text-slate-700">Adulto</span>
+            </label>
+            <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <input
+                type="radio"
+                name="fraldas_publico"
+                value="CRIANCA"
+                defaultChecked={fraldasDefault?.publico === "CRIANCA"}
+                className="w-4 h-4 border-slate-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                Criança
+              </span>
+            </label>
+          </div>
         </div>
       )}
     </div>

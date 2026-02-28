@@ -126,6 +126,7 @@ export default async function Home(props: HomeProps) {
       typeof p.voluntario_disponivel === "boolean"
         ? p.voluntario_disponivel
         : null,
+    fraldasPublico: p.fraldas_publico ?? null,
     latitude: typeof p.latitude === "number" ? p.latitude : 0,
     longitude: typeof p.longitude === "number" ? p.longitude : 0,
     categorias: (p.ponto_categorias ?? []).map((pc) => ({
@@ -307,6 +308,8 @@ export default async function Home(props: HomeProps) {
               ABRIDO: "🏠",
               VOLUNTARIO: "🤝",
               VOLUNTÁRIO: "🤝",
+              FRAUDAS: "👶",
+              FRALDAS: "👶",
               HIGIENE: "🧼",
               DORMITORIO: "💤",
             };
@@ -441,6 +444,19 @@ export default async function Home(props: HomeProps) {
                             {ponto.voluntarioDisponivel ? "Sim" : "Não"}
                           </p>
                         )}
+                      </div>
+                    )}
+
+                    {ponto.fraldasPublico && (
+                      <div className="mt-3 rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-slate-700">
+                        <p>
+                          <span className="font-bold text-amber-700">
+                            Fraldas:
+                          </span>{" "}
+                          {ponto.fraldasPublico === "ADULTO"
+                            ? "Adulto"
+                            : "Criança"}
+                        </p>
                       </div>
                     )}
                   </div>

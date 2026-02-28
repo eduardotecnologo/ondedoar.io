@@ -33,6 +33,9 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const voluntarioDisponivelRaw = String(
     formData.get("voluntario_disponivel") || "",
   ).trim();
+  const fraldasPublicoRaw = String(
+    formData.get("fraldas_publico") || "",
+  ).trim();
   const categoriasRaw = formData.getAll("categorias");
 
   if (!id || !nome || !endereco || !numero || !cidade || !estado) {
@@ -77,6 +80,30 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     const voluntarioSelecionado = categoriaVoluntario
       ? categoriasIds.includes(categoriaVoluntario.id)
       : false;
+
+    const categoriaFraudas = await prisma.tipoDoacao.findFirst({
+      where: {
+        OR: [
+          { nome: { equals: "FRAUDAS", mode: "insensitive" } },
+          { nome: { equals: "FRALDAS", mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const fraldasSelecionada = categoriaFraudas
+      ? categoriasIds.includes(categoriaFraudas.id)
+      : false;
+
+    const fraldasPublico = fraldasPublicoRaw.toUpperCase();
+
+    if (
+      fraldasSelecionada &&
+      fraldasPublico !== "ADULTO" &&
+      fraldasPublico !== "CRIANCA"
+    ) {
+      redirect(`/pontos/${id}/editar?error=fraldas_publico`);
+    }
 
     let latitude: number | null = ponto.latitude ?? null;
     let longitude: number | null = ponto.longitude ?? null;
@@ -125,6 +152,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
                 voluntarioDisponivelRaw.toLowerCase(),
               )
             : null,
+          fraldas_publico: fraldasSelecionada ? fraldasPublico : null,
           latitude,
           longitude,
           user_id: ponto.user_id ?? user.id,

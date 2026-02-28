@@ -29,6 +29,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     (formData.get("voluntario_contato_agendamento") as string) || "";
   const voluntarioDisponivelRaw =
     (formData.get("voluntario_disponivel") as string) || "";
+  const fraldasPublicoRaw = (formData.get("fraldas_publico") as string) || "";
   const categoriasRaw = formData.getAll("categorias"); // pode ser um array de ids ou vazio
 
   // Normaliza categorias para string[]
@@ -88,6 +89,30 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       ? categoriasIds.includes(categoriaVoluntario.id)
       : false;
 
+    const categoriaFraudas = await prisma.tipoDoacao.findFirst({
+      where: {
+        OR: [
+          { nome: { equals: "FRAUDAS", mode: "insensitive" } },
+          { nome: { equals: "FRALDAS", mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const fraldasSelecionada = categoriaFraudas
+      ? categoriasIds.includes(categoriaFraudas.id)
+      : false;
+
+    const fraldasPublico = fraldasPublicoRaw.trim().toUpperCase();
+
+    if (
+      fraldasSelecionada &&
+      fraldasPublico !== "ADULTO" &&
+      fraldasPublico !== "CRIANCA"
+    ) {
+      redirect("/cadastrar?error=fraldas_publico");
+    }
+
     // Monta payload de criação
     const createData: Prisma.PontoColetaUncheckedCreateInput = {
       nome,
@@ -107,6 +132,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       voluntario_disponivel: voluntarioSelecionado
         ? ["1", "on", "true"].includes(voluntarioDisponivelRaw.toLowerCase())
         : null,
+      fraldas_publico: fraldasSelecionada ? fraldasPublico : null,
       latitude: typeof latitude === "number" ? latitude : null,
       longitude: typeof longitude === "number" ? longitude : null,
       user_id: user?.id ?? null, // vincula ao usuário se existir

@@ -54,7 +54,10 @@ export default async function EditarPontoPage({
     ponto.ponto_categorias.map((item) => item.categoria_id),
   );
 
-  const showError = query?.error === "1" || query?.error === "missing_fields";
+  const showError =
+    query?.error === "1" ||
+    query?.error === "missing_fields" ||
+    query?.error === "fraldas_publico";
 
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -70,8 +73,9 @@ export default async function EditarPontoPage({
 
         {showError && (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            Não foi possível atualizar o ponto. Verifique os dados e tente
-            novamente.
+            {query?.error === "fraldas_publico"
+              ? "Selecione se as fraldas são para adulto ou criança."
+              : "Não foi possível atualizar o ponto. Verifique os dados e tente novamente."}
           </div>
         )}
 
@@ -158,6 +162,9 @@ export default async function EditarPontoPage({
                 especialidades: ponto.voluntario_especialidades,
                 contatoAgendamento: ponto.voluntario_contato_agendamento,
                 disponivel: ponto.voluntario_disponivel,
+              }}
+              fraldasDefault={{
+                publico: ponto.fraldas_publico,
               }}
             />
 
