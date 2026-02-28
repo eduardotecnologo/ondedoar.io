@@ -47,7 +47,15 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     redirect("/cadastrar?error=no_category");
   }
 
-  const statusDoacao = statusDoacaoRaw === "RECEBENDO" ? "RECEBENDO" : "DOANDO";
+  const normalizedStatusDoacaoRaw = statusDoacaoRaw.trim().toUpperCase();
+  const statusDoacao =
+    normalizedStatusDoacaoRaw === "RECEBENDO"
+      ? "RECEBENDO"
+      : normalizedStatusDoacaoRaw === "DOANDO_RECEBENDO" ||
+          normalizedStatusDoacaoRaw === "DOANDO/RECEBENDO" ||
+          normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
+        ? "DOANDO_RECEBENDO"
+        : "DOANDO";
 
   // Geocoding via Nominatim
   let latitude = 0;

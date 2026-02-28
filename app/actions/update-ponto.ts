@@ -48,7 +48,15 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     .map((value) => (typeof value === "string" ? value : String(value)))
     .filter((value) => value.length > 0);
 
-  const statusDoacao = statusDoacaoRaw === "RECEBENDO" ? "RECEBENDO" : "DOANDO";
+  const normalizedStatusDoacaoRaw = statusDoacaoRaw.trim().toUpperCase();
+  const statusDoacao =
+    normalizedStatusDoacaoRaw === "RECEBENDO"
+      ? "RECEBENDO"
+      : normalizedStatusDoacaoRaw === "DOANDO_RECEBENDO" ||
+          normalizedStatusDoacaoRaw === "DOANDO/RECEBENDO" ||
+          normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
+        ? "DOANDO_RECEBENDO"
+        : "DOANDO";
 
   try {
     const user = await prisma.user.findUnique({

@@ -153,9 +153,13 @@ export default async function Home(props: HomeProps) {
     statusDoacao:
       p.status_doacao === "RECEBENDO"
         ? "RECEBENDO"
-        : p.status_doacao === "DOANDO"
-          ? "DOANDO"
-          : "DOANDO",
+        : p.status_doacao === "DOANDO_RECEBENDO" ||
+            p.status_doacao === "DOANDO/RECEBENDO" ||
+            p.status_doacao === "DANDO/RECEBENDO"
+          ? "DOANDO_RECEBENDO"
+          : p.status_doacao === "DOANDO"
+            ? "DOANDO"
+            : "DOANDO",
     endereco: p.endereco,
     numero: p.numero,
     cidade: p.cidade ?? null,
@@ -579,10 +583,14 @@ export default async function Home(props: HomeProps) {
                         className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
                           ponto.statusDoacao === "RECEBENDO"
                             ? "bg-amber-50 text-amber-700"
-                            : "bg-emerald-50 text-emerald-700"
+                            : ponto.statusDoacao === "DOANDO_RECEBENDO"
+                              ? "bg-violet-50 text-violet-700"
+                              : "bg-emerald-50 text-emerald-700"
                         }`}
                       >
-                        {ponto.statusDoacao ?? "DOANDO"}
+                        {ponto.statusDoacao === "DOANDO_RECEBENDO"
+                          ? "DOANDO/RECEBENDO"
+                          : (ponto.statusDoacao ?? "DOANDO")}
                       </span>
                     </div>
 
@@ -706,7 +714,7 @@ export default async function Home(props: HomeProps) {
 
         <section className="mt-2 pb-16">
           <h2 className="text-2xl font-bold text-red-700 mb-4">
-            Interdições! Cuidado!!!
+            Interdições de ruas! Cuidado!!!
           </h2>
           {interdicoes.length > 0 ? (
             <div className="bg-white rounded-3xl border border-red-100 shadow-sm p-3">

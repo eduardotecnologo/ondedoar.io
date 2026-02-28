@@ -171,12 +171,20 @@ export default async function DashboardPage(props: DashboardPageProps) {
                       className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
                         ponto.status_doacao === "RECEBENDO"
                           ? "bg-amber-50 text-amber-700"
-                          : "bg-emerald-50 text-emerald-700"
+                          : ponto.status_doacao === "DOANDO_RECEBENDO" ||
+                              ponto.status_doacao === "DOANDO/RECEBENDO" ||
+                              ponto.status_doacao === "DANDO/RECEBENDO"
+                            ? "bg-violet-50 text-violet-700"
+                            : "bg-emerald-50 text-emerald-700"
                       }`}
                     >
                       {ponto.status_doacao === "RECEBENDO"
                         ? "RECEBENDO"
-                        : "DOANDO"}
+                        : ponto.status_doacao === "DOANDO_RECEBENDO" ||
+                            ponto.status_doacao === "DOANDO/RECEBENDO" ||
+                            ponto.status_doacao === "DANDO/RECEBENDO"
+                          ? "DOANDO/RECEBENDO"
+                          : "DOANDO"}
                     </span>
                   </div>
                   <p className="text-slate-500 text-sm mb-3">

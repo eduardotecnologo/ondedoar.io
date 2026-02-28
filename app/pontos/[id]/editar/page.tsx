@@ -177,6 +177,7 @@ export default async function EditarPontoPage({
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               >
                 <option value="DOANDO">DOANDO</option>
+                <option value="DOANDO_RECEBENDO">DOANDO/RECEBENDO</option>
                 <option value="RECEBENDO">RECEBENDO</option>
               </select>
             </div>

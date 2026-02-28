@@ -219,6 +219,17 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                     <input
                       type="radio"
                       name="status_doacao"
+                      value="DOANDO_RECEBENDO"
+                      required
+                    />
+                    <span className="text-sm font-semibold text-slate-700">
+                      DOANDO/RECEBENDO
+                    </span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 bg-white">
+                    <input
+                      type="radio"
+                      name="status_doacao"
                       value="RECEBENDO"
                       required
                     />
