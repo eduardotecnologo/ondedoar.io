@@ -544,7 +544,14 @@ export default async function Home(props: HomeProps) {
           © 2026 ondedoar.io - Conectando solidariedade.
           <br />
           Com <span className="text-blue-600">❤</span> por{" "}
-          <span className="text-blue-600">Eduardo Developer</span>
+          <a
+            href="https://www.instagram.com/eduardodeveloper/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            Eduardo Developer
+          </a>
         </p>
       </footer>
     </main>
