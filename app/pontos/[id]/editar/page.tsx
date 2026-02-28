@@ -5,6 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { atualizarPonto } from "@/app/actions/update-ponto";
 import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
+import UFCidadeSelect from "@/components/UFCidadeSelect";
 
 type EditarPontoPageProps = {
   params: Promise<{ id: string }>;
@@ -145,50 +146,19 @@ export default async function EditarPontoPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <input
-                name="cidade"
-                required
-                defaultValue={ponto.cidade}
-                placeholder="Cidade"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              <UFCidadeSelect
+                estadoName="estado"
+                cidadeName="cidade"
+                defaultEstado={ponto.estado}
+                defaultCidade={ponto.cidade}
+                estadoRequired
+                cidadeRequired
+                containerClassName="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4"
+                estadoSelectClassName="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                cidadeSelectClassName="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
+                estadoPlaceholder="Selecione a UF"
+                cidadePlaceholder="Selecione a cidade"
               />
-              <select
-                name="estado"
-                required
-                defaultValue={ponto.estado}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
-              >
-                <option value="" disabled>
-                  Selecione a UF
-                </option>
-                <option value="AC">Acre (AC)</option>
-                <option value="AL">Alagoas (AL)</option>
-                <option value="AP">Amapá (AP)</option>
-                <option value="AM">Amazonas (AM)</option>
-                <option value="BA">Bahia (BA)</option>
-                <option value="CE">Ceará (CE)</option>
-                <option value="DF">Distrito Federal (DF)</option>
-                <option value="ES">Espírito Santo (ES)</option>
-                <option value="GO">Goiás (GO)</option>
-                <option value="MA">Maranhão (MA)</option>
-                <option value="MT">Mato Grosso (MT)</option>
-                <option value="MS">Mato Grosso do Sul (MS)</option>
-                <option value="MG">Minas Gerais (MG)</option>
-                <option value="PA">Pará (PA)</option>
-                <option value="PB">Paraíba (PB)</option>
-                <option value="PR">Paraná (PR)</option>
-                <option value="PE">Pernambuco (PE)</option>
-                <option value="PI">Piauí (PI)</option>
-                <option value="RJ">Rio de Janeiro (RJ)</option>
-                <option value="RN">Rio Grande do Norte (RN)</option>
-                <option value="RS">Rio Grande do Sul (RS)</option>
-                <option value="RO">Rondônia (RO)</option>
-                <option value="RR">Roraima (RR)</option>
-                <option value="SC">Santa Catarina (SC)</option>
-                <option value="SP">São Paulo (SP)</option>
-                <option value="SE">Sergipe (SE)</option>
-                <option value="TO">Tocantins (TO)</option>
-              </select>
               <input
                 name="cep"
                 required

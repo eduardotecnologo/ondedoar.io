@@ -6,13 +6,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
+import UFCidadeSelect from "@/components/UFCidadeSelect";
 
 interface PageProps {
   searchParams?: Promise<{
     error?: string;
   }>;
 }
-
 export default async function CadastrarPontoPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -27,7 +27,6 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Flash Message de Erro */}
         {resolvedParams?.error === "1" && (
           <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center">
@@ -159,60 +158,29 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Cidade <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    name="cidade"
-                    required
-                    type="text"
-                    placeholder="Juiz de Fora"
-                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Estado (UF) <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="estado"
-                    required
-                    defaultValue=""
-                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
-                  >
-                    <option value="" disabled>
-                      Selecione a UF
-                    </option>
-                    <option value="AC">Acre (AC)</option>
-                    <option value="AL">Alagoas (AL)</option>
-                    <option value="AP">Amapá (AP)</option>
-                    <option value="AM">Amazonas (AM)</option>
-                    <option value="BA">Bahia (BA)</option>
-                    <option value="CE">Ceará (CE)</option>
-                    <option value="DF">Distrito Federal (DF)</option>
-                    <option value="ES">Espírito Santo (ES)</option>
-                    <option value="GO">Goiás (GO)</option>
-                    <option value="MA">Maranhão (MA)</option>
-                    <option value="MT">Mato Grosso (MT)</option>
-                    <option value="MS">Mato Grosso do Sul (MS)</option>
-                    <option value="MG">Minas Gerais (MG)</option>
-                    <option value="PA">Pará (PA)</option>
-                    <option value="PB">Paraíba (PB)</option>
-                    <option value="PR">Paraná (PR)</option>
-                    <option value="PE">Pernambuco (PE)</option>
-                    <option value="PI">Piauí (PI)</option>
-                    <option value="RJ">Rio de Janeiro (RJ)</option>
-                    <option value="RN">Rio Grande do Norte (RN)</option>
-                    <option value="RS">Rio Grande do Sul (RS)</option>
-                    <option value="RO">Rondônia (RO)</option>
-                    <option value="RR">Roraima (RR)</option>
-                    <option value="SC">Santa Catarina (SC)</option>
-                    <option value="SP">São Paulo (SP)</option>
-                    <option value="SE">Sergipe (SE)</option>
-                    <option value="TO">Tocantins (TO)</option>
-                  </select>
-                </div>
+                <UFCidadeSelect
+                  estadoName="estado"
+                  cidadeName="cidade"
+                  estadoRequired
+                  cidadeRequired
+                  showLabels
+                  estadoLabel={
+                    <>
+                      Estado (UF) <span className="text-red-500">*</span>
+                    </>
+                  }
+                  cidadeLabel={
+                    <>
+                      Cidade <span className="text-red-500">*</span>
+                    </>
+                  }
+                  labelClassName="block text-sm font-medium text-slate-700 mb-2"
+                  containerClassName="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4"
+                  estadoSelectClassName="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  cidadeSelectClassName="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm disabled:bg-slate-100 disabled:text-slate-400"
+                  estadoPlaceholder="Selecione a UF"
+                  cidadePlaceholder="Selecione a cidade"
+                />
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     CEP <span className="text-red-500">*</span>

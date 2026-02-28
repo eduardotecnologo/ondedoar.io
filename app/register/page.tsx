@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { registerUser } from "@/app/actions/register";
+import UFCidadeSelect from "@/components/UFCidadeSelect";
 
 // O "export default" é obrigatório para o Next.js reconhecer a página
 export default async function RegisterPage(props: {
@@ -57,59 +58,19 @@ export default async function RegisterPage(props: {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
-                Estado
-              </label>
-              <select
-                name="estado"
-                defaultValue=""
-                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
-              >
-                <option value="">Selecione a UF</option>
-                <option value="AC">Acre (AC)</option>
-                <option value="AL">Alagoas (AL)</option>
-                <option value="AP">Amapá (AP)</option>
-                <option value="AM">Amazonas (AM)</option>
-                <option value="BA">Bahia (BA)</option>
-                <option value="CE">Ceará (CE)</option>
-                <option value="DF">Distrito Federal (DF)</option>
-                <option value="ES">Espírito Santo (ES)</option>
-                <option value="GO">Goiás (GO)</option>
-                <option value="MA">Maranhão (MA)</option>
-                <option value="MT">Mato Grosso (MT)</option>
-                <option value="MS">Mato Grosso do Sul (MS)</option>
-                <option value="MG">Minas Gerais (MG)</option>
-                <option value="PA">Pará (PA)</option>
-                <option value="PB">Paraíba (PB)</option>
-                <option value="PR">Paraná (PR)</option>
-                <option value="PE">Pernambuco (PE)</option>
-                <option value="PI">Piauí (PI)</option>
-                <option value="RJ">Rio de Janeiro (RJ)</option>
-                <option value="RN">Rio Grande do Norte (RN)</option>
-                <option value="RS">Rio Grande do Sul (RS)</option>
-                <option value="RO">Rondônia (RO)</option>
-                <option value="RR">Roraima (RR)</option>
-                <option value="SC">Santa Catarina (SC)</option>
-                <option value="SP">São Paulo (SP)</option>
-                <option value="SE">Sergipe (SE)</option>
-                <option value="TO">Tocantins (TO)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
-                Cidade
-              </label>
-              <input
-                name="cidade"
-                type="text"
-                placeholder="Juiz de Fora"
-                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
-              />
-            </div>
-          </div>
+          <UFCidadeSelect
+            estadoName="estado"
+            cidadeName="cidade"
+            showLabels
+            estadoLabel="Estado"
+            cidadeLabel="Cidade"
+            labelClassName="block text-sm font-bold text-slate-700 mb-2"
+            containerClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            estadoSelectClassName="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
+            cidadeSelectClassName="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all disabled:bg-slate-100 disabled:text-slate-400"
+            estadoPlaceholder="Selecione a UF"
+            cidadePlaceholder="Selecione a cidade"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
