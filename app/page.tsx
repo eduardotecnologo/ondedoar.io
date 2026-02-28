@@ -730,7 +730,7 @@ export default async function Home(props: HomeProps) {
 
           <div className="mt-8">
             <h3 className="text-2xl font-bold text-red-700 mb-4">
-              Minaha rua Precisa de Atenção
+              Mianha rua/casa Precisa de Atenção
             </h3>
             <div className="bg-white rounded-3xl border border-red-100 shadow-sm p-3">
               <MapaInterdicoesWrapper interdicoes={interdicoes} />
