@@ -91,7 +91,7 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
           </Link>
           {!session?.user?.email && (
             <Link
-              href="/login"
+              href="/register?from=interdicoes"
               className="inline-flex bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all"
             >
               Entrar para cadastrar

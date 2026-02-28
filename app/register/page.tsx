@@ -57,6 +57,59 @@ export default async function RegisterPage(props: {
             />
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Estado
+              </label>
+              <input
+                name="estado"
+                type="text"
+                maxLength={2}
+                placeholder="MG"
+                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all uppercase"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Cidade
+              </label>
+              <input
+                name="cidade"
+                type="text"
+                placeholder="Juiz de Fora"
+                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Bairro
+              </label>
+              <input
+                name="bairro"
+                type="text"
+                placeholder="Centro"
+                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Rua
+              </label>
+              <input
+                name="rua"
+                type="text"
+                placeholder="Rua Exemplo"
+                className="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-600 transition-all"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
               Senha
