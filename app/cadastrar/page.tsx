@@ -7,6 +7,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
 import UFCidadeSelect from "@/components/UFCidadeSelect";
+import ClientTimezoneOffsetField from "@/components/ClientTimezoneOffsetField";
 
 interface PageProps {
   searchParams?: Promise<{
@@ -97,6 +98,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
 
           {/* Formulário */}
           <form action={cadastrarPonto} className="p-8 space-y-8">
+            <ClientTimezoneOffsetField />
             {/* Informações Básicas */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">

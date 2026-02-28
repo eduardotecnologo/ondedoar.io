@@ -30,6 +30,9 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     (formData.get("status_auto_ativar_em") as string) || "";
   const statusAutoInativarEmRaw =
     (formData.get("status_auto_inativar_em") as string) || "";
+  const clientTimezoneOffsetMinutes = Number(
+    formData.get("client_timezone_offset_minutes") || "0",
+  );
   if (!cep.trim()) {
     redirect("/cadastrar?error=1");
   }
@@ -66,16 +69,49 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
             ? "DOANDO_RECEBENDO"
             : "DOANDO";
 
-  const parseDateTimeLocal = (value: string): Date | null => {
+  const parseDateTimeLocal = (
+    value: string,
+    timezoneOffsetMinutes: number,
+  ): Date | null => {
     const trimmedValue = value.trim();
     if (!trimmedValue) return null;
 
-    const parsedDate = new Date(trimmedValue);
+    const match = trimmedValue.match(
+      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/,
+    );
+
+    if (!match) {
+      const parsedDate = new Date(trimmedValue);
+      return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+    }
+
+    const [, yearStr, monthStr, dayStr, hourStr, minuteStr] = match;
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    const hour = Number(hourStr);
+    const minute = Number(minuteStr);
+
+    const utcMillis =
+      Date.UTC(year, month - 1, day, hour, minute) +
+      timezoneOffsetMinutes * 60_000;
+
+    const parsedDate = new Date(utcMillis);
     return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
   };
 
-  const statusAutoAtivarEm = parseDateTimeLocal(statusAutoAtivarEmRaw);
-  const statusAutoInativarEm = parseDateTimeLocal(statusAutoInativarEmRaw);
+  const safeTimezoneOffset = Number.isFinite(clientTimezoneOffsetMinutes)
+    ? clientTimezoneOffsetMinutes
+    : 0;
+
+  const statusAutoAtivarEm = parseDateTimeLocal(
+    statusAutoAtivarEmRaw,
+    safeTimezoneOffset,
+  );
+  const statusAutoInativarEm = parseDateTimeLocal(
+    statusAutoInativarEmRaw,
+    safeTimezoneOffset,
+  );
 
   const normalizeInstagramUrl = (value: string): string | null => {
     const trimmedValue = value.trim();

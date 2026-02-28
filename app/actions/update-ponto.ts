@@ -33,6 +33,9 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const statusAutoInativarEmRaw = String(
     formData.get("status_auto_inativar_em") || "",
   ).trim();
+  const clientTimezoneOffsetMinutes = Number(
+    formData.get("client_timezone_offset_minutes") || "0",
+  );
   const voluntarioEspecialidades = String(
     formData.get("voluntario_especialidades") || "",
   ).trim();
@@ -69,14 +72,45 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
             ? "DOANDO_RECEBENDO"
             : "DOANDO";
 
-  const parseDateTimeLocal = (value: string): Date | null => {
+  const parseDateTimeLocal = (
+    value: string,
+    timezoneOffsetMinutes: number,
+  ): Date | null => {
     if (!value) return null;
-    const parsedDate = new Date(value);
+
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+    if (!match) {
+      const fallbackDate = new Date(value);
+      return Number.isNaN(fallbackDate.getTime()) ? null : fallbackDate;
+    }
+
+    const [, yearStr, monthStr, dayStr, hourStr, minuteStr] = match;
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    const hour = Number(hourStr);
+    const minute = Number(minuteStr);
+
+    const utcMillis =
+      Date.UTC(year, month - 1, day, hour, minute) +
+      timezoneOffsetMinutes * 60_000;
+
+    const parsedDate = new Date(utcMillis);
     return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
   };
 
-  const statusAutoAtivarEm = parseDateTimeLocal(statusAutoAtivarEmRaw);
-  const statusAutoInativarEm = parseDateTimeLocal(statusAutoInativarEmRaw);
+  const safeTimezoneOffset = Number.isFinite(clientTimezoneOffsetMinutes)
+    ? clientTimezoneOffsetMinutes
+    : 0;
+
+  const statusAutoAtivarEm = parseDateTimeLocal(
+    statusAutoAtivarEmRaw,
+    safeTimezoneOffset,
+  );
+  const statusAutoInativarEm = parseDateTimeLocal(
+    statusAutoInativarEmRaw,
+    safeTimezoneOffset,
+  );
 
   const normalizeInstagramUrl = (value: string): string | null => {
     if (!value) return null;

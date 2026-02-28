@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { atualizarPonto } from "@/app/actions/update-ponto";
 import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
 import UFCidadeSelect from "@/components/UFCidadeSelect";
+import ClientTimezoneOffsetField from "@/components/ClientTimezoneOffsetField";
 
 type EditarPontoPageProps = {
   params: Promise<{ id: string }>;
@@ -173,6 +174,7 @@ export default async function EditarPontoPage({
 
           <form action={atualizarPonto} className="p-6 space-y-6">
             <input type="hidden" name="id" value={ponto.id} />
+            <ClientTimezoneOffsetField />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
