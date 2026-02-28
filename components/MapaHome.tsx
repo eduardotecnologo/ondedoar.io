@@ -56,7 +56,56 @@ function FitToPontos({ pontos }: { pontos: PontoComCoordenadas[] }) {
   return null;
 }
 
+function FocusPontoController({
+  pontos,
+  markerRefs,
+}: {
+  pontos: PontoComCoordenadas[];
+  markerRefs: React.MutableRefObject<Record<string, L.Marker | null>>;
+}) {
+  const map = useMap();
+
+  React.useEffect(() => {
+    const handleFocusPonto = (event: Event) => {
+      const customEvent = event as CustomEvent<{ pontoId?: string }>;
+      const pontoId = customEvent.detail?.pontoId;
+
+      if (!pontoId) return;
+
+      const pontoAlvo = pontos.find((ponto) => ponto.id === pontoId);
+      if (!pontoAlvo) return;
+
+      map.flyTo([pontoAlvo.latitude, pontoAlvo.longitude], 16, {
+        duration: 1.2,
+      });
+
+      const marker = markerRefs.current[pontoId];
+      if (marker) {
+        window.setTimeout(() => {
+          marker.openPopup();
+        }, 400);
+      }
+    };
+
+    window.addEventListener(
+      "ondedoar:focus-ponto",
+      handleFocusPonto as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "ondedoar:focus-ponto",
+        handleFocusPonto as EventListener,
+      );
+    };
+  }, [map, markerRefs, pontos]);
+
+  return null;
+}
+
 export default function MapaHome({ pontos }: Props) {
+  const markerRefs = React.useRef<Record<string, L.Marker | null>>({});
+
   const pontosValidos = pontos.filter(
     (p): p is PontoComCoordenadas =>
       typeof p.latitude === "number" &&
@@ -94,13 +143,20 @@ export default function MapaHome({ pontos }: Props) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FitToPontos pontos={pontosValidos} />
+        <FocusPontoController pontos={pontosValidos} markerRefs={markerRefs} />
         {pontosValidos.map((ponto) => {
           const whatsappUrl = buildWhatsAppUrl(
             ponto.whatsapp ?? ponto.telefone,
           );
 
           return (
-            <Marker key={ponto.id} position={[ponto.latitude, ponto.longitude]}>
+            <Marker
+              key={ponto.id}
+              position={[ponto.latitude, ponto.longitude]}
+              ref={(marker) => {
+                markerRefs.current[ponto.id] = marker;
+              }}
+            >
               <Popup>
                 <div className="font-sans">
                   <h3 className="font-bold text-blue-600">{ponto.nome}</h3>

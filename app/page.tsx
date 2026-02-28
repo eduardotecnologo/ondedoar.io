@@ -7,6 +7,7 @@ import MapaWrapper from "@/components/MapaWrapper";
 import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
 import AuthButton from "@/components/AuthButton";
 import PontoDetalhesButton from "@/components/PontoDetalhesButton";
+import VerNoMapaButton from "@/components/VerNoMapaButton";
 import type { Ponto } from "@/types/ponto";
 import type { Interdicao } from "@/types/interdicao";
 
@@ -496,7 +497,7 @@ export default async function Home(props: HomeProps) {
       </section>
 
       <section className="max-w-6xl mx-auto px-4 -mt-16">
-        <div className="mb-12">
+        <div id="mapa-pontos" className="mb-12">
           <MapaWrapper pontos={pontos} />
         </div>
 
@@ -716,21 +717,30 @@ export default async function Home(props: HomeProps) {
                     )}
                   </div>
 
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {whatsappUrl ? (
                       <a
                         href={whatsappUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-xl font-bold text-sm transition-all"
+                        className="bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-xl font-bold text-sm transition-all"
                       >
                         Chamar no WhatsApp
                       </a>
                     ) : (
-                      <span className="flex-1 bg-slate-200 text-slate-500 text-center py-3 rounded-xl font-bold text-sm cursor-not-allowed">
+                      <span className="bg-slate-200 text-slate-500 text-center py-3 rounded-xl font-bold text-sm cursor-not-allowed">
                         Sem WhatsApp
                       </span>
                     )}
+                    <VerNoMapaButton
+                      pontoId={ponto.id}
+                      disabled={
+                        typeof ponto.latitude !== "number" ||
+                        typeof ponto.longitude !== "number" ||
+                        ponto.latitude === 0 ||
+                        ponto.longitude === 0
+                      }
+                    />
                     <PontoDetalhesButton
                       titulo={ponto.nome}
                       detalhes={ponto.detalhes}
