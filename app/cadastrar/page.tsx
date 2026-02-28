@@ -186,10 +186,11 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    CEP (opcional)
+                    CEP <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="cep"
+                    required
                     type="text"
                     placeholder="01234-567"
                     className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"

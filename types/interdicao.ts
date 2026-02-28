@@ -6,6 +6,7 @@ export type Interdicao = {
   estado: string;
   referencia?: string | null;
   motivo?: string | null;
+  fotoMotivo?: string | null;
   ativa: boolean;
   latitude?: number | null;
   longitude?: number | null;

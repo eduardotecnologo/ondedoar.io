@@ -87,6 +87,7 @@ model RuaInterditada {
   estado      String
   referencia  String?
   motivo      String?
+  foto_motivo String?
   ativa       Boolean   @default(true)
   latitude    Float?
   longitude   Float?

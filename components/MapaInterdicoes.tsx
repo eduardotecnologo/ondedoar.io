@@ -231,7 +231,7 @@ export default function MapaInterdicoes({
               icon={iconInterdicao}
             >
               <Popup>
-                <div className="space-y-1 text-sm">
+                <div className="space-y-2 text-sm min-w-[220px]">
                   <p className="flex items-center gap-1 font-bold text-red-600">
                     <span aria-hidden>🚧</span>
                     Rua interditada
@@ -246,6 +246,22 @@ export default function MapaInterdicoes({
                   {item.motivo && (
                     <p>
                       <strong>Motivo:</strong> {item.motivo}
+                    </p>
+                  )}
+                  {item.referencia && (
+                    <p>
+                      <strong>Referência:</strong> {item.referencia}
+                    </p>
+                  )}
+                  {item.fotoMotivo ? (
+                    <img
+                      src={item.fotoMotivo}
+                      alt={`Foto da interdição em ${item.rua}`}
+                      className="mt-1 h-28 w-full rounded-lg border border-slate-200 object-cover"
+                    />
+                  ) : (
+                    <p className="text-xs text-slate-500">
+                      Foto não disponível.
                     </p>
                   )}
                 </div>

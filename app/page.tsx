@@ -4,9 +4,11 @@ import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import FlashMessage from "@/components/FlashMessage";
 import MapaWrapper from "@/components/MapaWrapper";
+import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
 import AuthButton from "@/components/AuthButton";
 import PontoDetalhesButton from "@/components/PontoDetalhesButton";
 import type { Ponto } from "@/types/ponto";
+import type { Interdicao } from "@/types/interdicao";
 
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
   include: {
@@ -176,6 +178,27 @@ export default async function Home(props: HomeProps) {
   const categorias = await prisma.tipoDoacao.findMany({
     orderBy: { nome: "asc" },
   });
+
+  const interdicoesRaw = await prisma.ruaInterditada.findMany({
+    where: { ativa: true },
+    orderBy: { criado_em: "desc" },
+    take: 100,
+  });
+
+  const interdicoes: Interdicao[] = interdicoesRaw.map((item) => ({
+    id: item.id,
+    rua: item.rua,
+    numero: item.numero,
+    cidade: item.cidade,
+    estado: item.estado,
+    referencia: item.referencia,
+    motivo: item.motivo,
+    fotoMotivo: item.foto_motivo,
+    ativa: item.ativa,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    criadoEm: item.criado_em.toISOString(),
+  }));
 
   const categoriasAtalho = categorias
     .filter((categoria) => {
@@ -649,6 +672,21 @@ export default async function Home(props: HomeProps) {
             </Link>
           </div>
         )}
+
+        <section className="mt-2 pb-16">
+          <h2 className="text-2xl font-bold text-red-700 mb-4">
+            Interdições! Cuidado!!!
+          </h2>
+          {interdicoes.length > 0 ? (
+            <div className="bg-white rounded-3xl border border-red-100 shadow-sm p-3">
+              <MapaInterdicoesWrapper interdicoes={interdicoes} />
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl border border-dashed border-slate-200 p-6 text-slate-500">
+              Nenhuma interdição ativa no momento.
+            </div>
+          )}
+        </section>
       </section>
 
       <footer className="bg-white border-t border-slate-200 py-10 text-center">

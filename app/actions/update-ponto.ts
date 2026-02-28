@@ -22,6 +22,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const estado = String(formData.get("estado") || "")
     .trim()
     .toUpperCase();
+  const cep = String(formData.get("cep") || "").trim();
   const telefone = String(formData.get("telefone") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
   const voluntarioEspecialidades = String(
@@ -38,7 +39,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   ).trim();
   const categoriasRaw = formData.getAll("categorias");
 
-  if (!id || !nome || !endereco || !numero || !cidade || !estado) {
+  if (!id || !nome || !endereco || !numero || !cidade || !estado || !cep) {
     redirect(`/pontos/${id}/editar?error=missing_fields`);
   }
 
@@ -109,7 +110,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     let longitude: number | null = ponto.longitude ?? null;
 
     const query = encodeURIComponent(
-      `${endereco}, ${numero}, ${cidade}, ${estado}, Brasil`,
+      `${endereco}, ${numero}, ${cidade}, ${estado}${cep ? `, ${cep}` : ""}, Brasil`,
     );
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,

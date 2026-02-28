@@ -19,6 +19,9 @@ type InterdicoesPageProps = {
 
 const errorMap: Record<string, string> = {
   missing_fields: "Preencha rua, cidade e estado para cadastrar a interdição.",
+  missing_photo: "A foto do motivo é obrigatória.",
+  invalid_photo: "Envie um arquivo de imagem válido.",
+  photo_too_large: "A foto deve ter no máximo 4MB.",
   invalid_id: "Interdição inválida.",
   not_found: "Interdição não encontrada.",
   not_allowed: "Você não tem permissão para encerrar esta interdição.",
@@ -56,6 +59,7 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
     estado: item.estado,
     referencia: item.referencia,
     motivo: item.motivo,
+    fotoMotivo: item.foto_motivo,
     ativa: item.ativa,
     latitude: item.latitude,
     longitude: item.longitude,
@@ -123,6 +127,7 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
             </h2>
             <form
               action={cadastrarRuaInterditada}
+              encType="multipart/form-data"
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               <input
@@ -160,6 +165,18 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
                 placeholder="Motivo da interdição (opcional)"
                 className="md:col-span-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none resize-y focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               />
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-sm font-semibold text-slate-700">
+                  Foto do motivo (obrigatória)
+                </label>
+                <input
+                  name="foto"
+                  type="file"
+                  required
+                  accept="image/*"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-white file:font-bold hover:file:bg-red-700"
+                />
+              </div>
               <button
                 type="submit"
                 className="md:col-span-2 w-full md:w-auto justify-self-start rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 transition-all"
@@ -207,6 +224,13 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
                       <p className="text-sm text-slate-600">
                         Motivo: {item.motivo}
                       </p>
+                    )}
+                    {item.fotoMotivo && (
+                      <img
+                        src={item.fotoMotivo}
+                        alt={`Foto da interdição em ${item.rua}`}
+                        className="mt-3 h-24 w-full max-w-[220px] rounded-lg border border-slate-200 object-cover"
+                      />
                     )}
                   </div>
 

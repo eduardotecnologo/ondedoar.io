@@ -25,10 +25,27 @@ export async function cadastrarRuaInterditada(
     .toUpperCase();
   const referencia = String(formData.get("referencia") || "").trim();
   const motivo = String(formData.get("motivo") || "").trim();
+  const foto = formData.get("foto");
 
   if (!rua || !cidade || !estado) {
     redirect("/interdicoes?error=missing_fields");
   }
+
+  if (!(foto instanceof File) || foto.size <= 0) {
+    redirect("/interdicoes?error=missing_photo");
+  }
+
+  if (!foto.type.startsWith("image/")) {
+    redirect("/interdicoes?error=invalid_photo");
+  }
+
+  const maxFileSizeInBytes = 4 * 1024 * 1024;
+  if (foto.size > maxFileSizeInBytes) {
+    redirect("/interdicoes?error=photo_too_large");
+  }
+
+  const fotoBuffer = Buffer.from(await foto.arrayBuffer());
+  const fotoMotivo = `data:${foto.type};base64,${fotoBuffer.toString("base64")}`;
 
   let latitude: number | null = null;
   let longitude: number | null = null;
@@ -70,6 +87,7 @@ export async function cadastrarRuaInterditada(
         estado,
         referencia: referencia || null,
         motivo: motivo || null,
+        foto_motivo: fotoMotivo,
         latitude,
         longitude,
         user_id: user?.id ?? null,

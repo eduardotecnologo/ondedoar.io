@@ -123,7 +123,7 @@ export default async function EditarPontoPage({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <input
                 name="cidade"
                 required
@@ -138,6 +138,13 @@ export default async function EditarPontoPage({
                 defaultValue={ponto.estado}
                 placeholder="UF"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm uppercase outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              />
+              <input
+                name="cep"
+                required
+                defaultValue=""
+                placeholder="CEP"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               />
               <input
                 name="whatsapp"
