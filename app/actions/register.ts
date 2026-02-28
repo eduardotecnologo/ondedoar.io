@@ -7,7 +7,9 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export async function registerUser(formData: FormData): Promise<void> {
   const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const email = String(formData.get("email") || "")
+    .trim()
+    .toLowerCase();
   const password = formData.get("password") as string;
 
   if (!email || !password) {
@@ -20,7 +22,21 @@ export async function registerUser(formData: FormData): Promise<void> {
   });
 
   if (userExists) {
-    redirect("/register?error=user_exists");
+    if (userExists.password) {
+      redirect("/register?error=user_exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: { id: userExists.id },
+      data: {
+        nome: name || userExists.nome,
+        password: hashedPassword,
+      },
+    });
+
+    redirect("/login?success=password_created");
   }
 
   // Criptografa a senha

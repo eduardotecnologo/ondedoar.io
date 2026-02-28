@@ -127,6 +127,7 @@ export default async function Home(props: HomeProps) {
     numero: p.numero,
     cidade: p.cidade ?? null,
     estado: p.estado ?? null,
+    telefone: p.telefone ?? null,
     whatsapp: p.whatsapp ?? null,
     voluntarioEspecialidades: p.voluntario_especialidades ?? null,
     voluntarioContatoAgendamento: p.voluntario_contato_agendamento ?? null,
@@ -394,7 +395,9 @@ export default async function Home(props: HomeProps) {
         {pontos.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             {pontos.map((ponto) => {
-              const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
+              const whatsappUrl = buildWhatsAppUrl(
+                ponto.whatsapp ?? ponto.telefone,
+              );
               const voluntarioZapUrl = buildWhatsAppUrl(
                 ponto.voluntarioContatoAgendamento,
               );

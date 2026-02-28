@@ -6,12 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-
-function isAdminEmail(email: string | null | undefined): boolean {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail || !email) return false;
-  return email.toLowerCase() === adminEmail.toLowerCase();
-}
+import { isAdminEmail } from "@/lib/admin";
 
 export async function deletarPontoAdmin(formData: FormData): Promise<void> {
   const session = await getServerSession(authOptions);
@@ -80,8 +75,7 @@ export async function criarCategoriaAdmin(formData: FormData): Promise<void> {
   const nomeRaw = formData.get("nome");
   const iconeRaw = formData.get("icone");
 
-  const nome =
-    typeof nomeRaw === "string" ? nomeRaw.trim().toUpperCase() : "";
+  const nome = typeof nomeRaw === "string" ? nomeRaw.trim().toUpperCase() : "";
   const icone = typeof iconeRaw === "string" ? iconeRaw.trim() : "";
 
   if (!nome) {
@@ -105,9 +99,7 @@ export async function criarCategoriaAdmin(formData: FormData): Promise<void> {
   }
 }
 
-export async function deletarCategoriaAdmin(
-  formData: FormData,
-): Promise<void> {
+export async function deletarCategoriaAdmin(formData: FormData): Promise<void> {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
@@ -126,4 +118,3 @@ export async function deletarCategoriaAdmin(
   revalidatePath("/admin");
   revalidatePath("/");
 }
-

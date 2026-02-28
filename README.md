@@ -1,3 +1,15 @@
+## Pós-deploy (produção)
+
+Para deploys que envolvem novas categorias ou campos no banco, execute o script:
+
+- `prisma/postdeploy-checklist.sql`
+
+Checklist rápido após execução:
+
+- validar categorias em `categorias` (`ABRIGO ANIMAIS`, `VOLUNTARIO`, `FRAUDAS`)
+- validar colunas em `pontos_coleta` (`voluntario_*`, `fraldas_publico`)
+- atualizar a Home e testar filtros de categoria
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -1,0 +1,4 @@
+- Leite
+- àgua
+- mostrar ruas interditadas
+- clima/tempo

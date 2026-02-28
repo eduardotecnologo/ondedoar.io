@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,22 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setResetSuccess(params.get("reset") === "success");
+
+    const success = params.get("success");
+    if (success === "registered") {
+      setSuccessMessage("Conta criada com sucesso. Faça login para continuar.");
+    } else if (success === "password_created") {
+      setSuccessMessage(
+        "Senha criada com sucesso para seu usuário existente. Faça login.",
+      );
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,6 +64,18 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {resetSuccess && (
+            <div className="bg-green-50 text-green-700 p-4 rounded-xl text-sm font-medium border border-green-100">
+              Senha redefinida com sucesso. Faça login com sua nova senha.
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-50 text-green-700 p-4 rounded-xl text-sm font-medium border border-green-100">
+              {successMessage}
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100">
               {error}
@@ -85,6 +113,15 @@ export default function LoginPage() {
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
+
+          <p className="text-center text-sm">
+            <Link
+              href="/esqueci-senha"
+              className="text-blue-600 font-bold hover:underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </p>
 
           <p className="text-center text-slate-500 text-sm">
             Não tem uma conta?{" "}

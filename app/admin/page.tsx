@@ -12,6 +12,7 @@ import {
 } from "@/app/actions/admin";
 import type { Prisma } from "@prisma/client";
 import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
+import { isAdminEmail } from "@/lib/admin";
 
 type PontoWithRelations = Prisma.PontoColetaGetPayload<{
   include: {
@@ -27,12 +28,6 @@ type UserWithCount = Prisma.UserGetPayload<{
 type CategoriaWithCount = Prisma.TipoDoacaoGetPayload<{
   include: { _count: { select: { ponto_categorias: true } } };
 }>;
-
-function isAdminEmail(email: string | null | undefined): boolean {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail || !email) return false;
-  return email.toLowerCase() === adminEmail.toLowerCase();
-}
 
 interface AdminPageProps {
   searchParams?:

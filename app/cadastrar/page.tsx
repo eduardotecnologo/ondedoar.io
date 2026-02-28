@@ -101,7 +101,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
             {/* Informações Básicas */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
-                Informações da Instituição
+                Informações:
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

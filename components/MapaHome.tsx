@@ -95,7 +95,9 @@ export default function MapaHome({ pontos }: Props) {
         />
         <FitToPontos pontos={pontosValidos} />
         {pontosValidos.map((ponto) => {
-          const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
+          const whatsappUrl = buildWhatsAppUrl(
+            ponto.whatsapp ?? ponto.telefone,
+          );
 
           return (
             <Marker key={ponto.id} position={[ponto.latitude, ponto.longitude]}>

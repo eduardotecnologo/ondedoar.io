@@ -140,7 +140,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
           cidade,
           estado,
           telefone: telefone || null,
-          whatsapp: whatsapp || null,
+          whatsapp: whatsapp || telefone || null,
           voluntario_especialidades: voluntarioSelecionado
             ? voluntarioEspecialidades || null
             : null,

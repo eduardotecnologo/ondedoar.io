@@ -15,6 +15,7 @@ export type Ponto = {
   numero: string;
   cidade?: string | null;
   estado?: string | null;
+  telefone?: string | null;
   whatsapp?: string | null;
   voluntarioEspecialidades?: string | null;
   voluntarioContatoAgendamento?: string | null;

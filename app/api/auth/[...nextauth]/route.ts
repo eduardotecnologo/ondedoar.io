@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { isAdminEmail } from "@/lib/admin";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -33,11 +34,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) return null;
 
-        const adminEmail = process.env.ADMIN_EMAIL;
-        const isAdmin =
-          !!adminEmail &&
-          !!user.email &&
-          user.email.toLowerCase() === adminEmail.toLowerCase();
+        const isAdmin = isAdminEmail(user.email);
 
         // Retorna os campos mínimos exigidos (NextAuth irá serializar)
         return {
