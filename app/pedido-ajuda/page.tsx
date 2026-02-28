@@ -112,7 +112,7 @@ export default async function PedidoAjudaPage(props: PedidoAjudaPageProps) {
         </h1>
         <p className="text-slate-600 leading-relaxed mb-6">
           Se você ou alguém próximo precisa de apoio, descreva a necessidade com
-          clareza e procure os pontos de apoio disponíveis na plataforma.
+          clareza ou procure os pontos de apoio disponíveis na plataforma!!!
         </p>
 
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 mb-6">
