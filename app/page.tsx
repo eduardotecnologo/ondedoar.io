@@ -476,12 +476,22 @@ export default async function Home(props: HomeProps) {
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
-          <Link
-            href="/"
-            className="text-xl font-black text-blue-600 tracking-tighter"
-          >
-            ondedoar<span className="text-slate-400">.io</span>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/"
+              className="text-xl font-black text-blue-600 tracking-tighter"
+            >
+              ondedoar<span className="text-slate-400">.io</span>
+            </Link>
+            <a
+              href="https://wa.me/5532985132378"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-green-200"
+            >
+              💬 Contato
+            </a>
+          </div>
 
           {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
           <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
