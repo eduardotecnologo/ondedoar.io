@@ -23,6 +23,19 @@ const iconDefault = L.icon({
   shadowSize: [41, 41],
 });
 
+const iconInactive = L.icon({
+  iconRetinaUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+  shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41],
+});
+
 L.Marker.prototype.options.icon = iconDefault;
 
 type Props = {
@@ -131,7 +144,7 @@ export default function MapaHome({ pontos }: Props) {
   };
 
   return (
-    <div className="h-[400px] w-full rounded-3xl overflow-hidden shadow-inner border-4 border-white">
+    <div className="h-100 w-full rounded-3xl overflow-hidden shadow-inner border-4 border-white">
       <MapContainer
         center={center}
         zoom={zoom}
@@ -148,11 +161,14 @@ export default function MapaHome({ pontos }: Props) {
           const whatsappUrl = buildWhatsAppUrl(
             ponto.whatsapp ?? ponto.telefone,
           );
+          const markerIcon =
+            ponto.statusDoacao === "INATIVO" ? iconInactive : iconDefault;
 
           return (
             <Marker
               key={ponto.id}
               position={[ponto.latitude, ponto.longitude]}
+              icon={markerIcon}
               ref={(marker) => {
                 markerRefs.current[ponto.id] = marker;
               }}

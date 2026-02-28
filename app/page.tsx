@@ -622,6 +622,10 @@ export default async function Home(props: HomeProps) {
       <section className="max-w-6xl mx-auto px-4 -mt-16">
         <div id="mapa-pontos" className="mb-12">
           <MapaWrapper pontos={pontos} />
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs text-slate-600 shadow-sm">
+            <span className="inline-block h-3 w-3 rounded-full bg-orange-500" />
+            Pin laranja = ponto inativo
+          </div>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
