@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: "OndeDoar.io",
   description:
     "OndeDoar.io - Encontre pontos de coleta de doações perto de você",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
