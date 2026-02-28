@@ -50,6 +50,8 @@ model PontoColeta {
   nome             String
   descricao        String?
   status_doacao    String?
+  status_auto_ativar_em   DateTime?      @db.Timestamptz(6)
+  status_auto_inativar_em DateTime?      @db.Timestamptz(6)
   cep              String?
   endereco         String
   numero           String

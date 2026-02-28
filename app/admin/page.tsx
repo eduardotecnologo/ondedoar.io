@@ -15,9 +15,28 @@ import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
 import { isAdminEmail } from "@/lib/admin";
 
 type PontoWithRelations = Prisma.PontoColetaGetPayload<{
-  include: {
-    ponto_categorias: { include: { categorias: true } };
-    user: true;
+  select: {
+    id: true;
+    nome: true;
+    criado_em: true;
+    endereco: true;
+    cidade: true;
+    estado: true;
+    ponto_categorias: {
+      select: {
+        categoria_id: true;
+        categorias: {
+          select: {
+            nome: true;
+          };
+        };
+      };
+    };
+    user: {
+      select: {
+        email: true;
+      };
+    };
   };
 }>;
 
@@ -98,9 +117,28 @@ export default async function AdminPage(props: AdminPageProps) {
   const [pontos, usuarios, categorias] = await Promise.all([
     prisma.pontoColeta.findMany({
       where: wherePonto,
-      include: {
-        ponto_categorias: { include: { categorias: true } },
-        user: true,
+      select: {
+        id: true,
+        nome: true,
+        criado_em: true,
+        endereco: true,
+        cidade: true,
+        estado: true,
+        ponto_categorias: {
+          select: {
+            categoria_id: true,
+            categorias: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            email: true,
+          },
+        },
       },
       orderBy: { criado_em: "desc" },
     }) as Promise<PontoWithRelations[]>,

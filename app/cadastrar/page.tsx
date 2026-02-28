@@ -307,6 +307,26 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                     className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Ativar automaticamente em
+                  </label>
+                  <input
+                    name="status_auto_ativar_em"
+                    type="datetime-local"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Desativar automaticamente em
+                  </label>
+                  <input
+                    name="status_auto_inativar_em"
+                    type="datetime-local"
+                    className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  />
+                </div>
               </div>
             </div>
 

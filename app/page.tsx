@@ -12,10 +12,32 @@ import type { Ponto } from "@/types/ponto";
 import type { Interdicao } from "@/types/interdicao";
 
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
-  include: {
+  select: {
+    id: true;
+    nome: true;
+    descricao: true;
+    status_doacao: true;
+    endereco: true;
+    numero: true;
+    cidade: true;
+    estado: true;
+    telefone: true;
+    whatsapp: true;
+    voluntario_especialidades: true;
+    voluntario_contato_agendamento: true;
+    voluntario_disponivel: true;
+    fraldas_publico: true;
+    latitude: true;
+    longitude: true;
     ponto_categorias: {
-      include: {
-        categorias: true;
+      select: {
+        categoria_id: true;
+        categorias: {
+          select: {
+            id: true;
+            nome: true;
+          };
+        };
       };
     };
   };
@@ -148,10 +170,32 @@ export default async function Home(props: HomeProps) {
     [pontosRaw, categorias] = await Promise.all([
       prisma.pontoColeta.findMany({
         where,
-        include: {
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          status_doacao: true,
+          endereco: true,
+          numero: true,
+          cidade: true,
+          estado: true,
+          telefone: true,
+          whatsapp: true,
+          voluntario_especialidades: true,
+          voluntario_contato_agendamento: true,
+          voluntario_disponivel: true,
+          fraldas_publico: true,
+          latitude: true,
+          longitude: true,
           ponto_categorias: {
-            include: {
-              categorias: true,
+            select: {
+              categoria_id: true,
+              categorias: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
             },
           },
         },
@@ -170,12 +214,39 @@ export default async function Home(props: HomeProps) {
     console.error("Erro ao carregar pontos/categorias na Home:", error);
   }
 
+  const timerStatusById = new Map<
+    string,
+    { statusAutoAtivarEm: Date | null; statusAutoInativarEm: Date | null }
+  >();
+
+  try {
+    const timerStatusRows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        status_auto_ativar_em: Date | null;
+        status_auto_inativar_em: Date | null;
+      }>
+    >`
+      SELECT id, status_auto_ativar_em, status_auto_inativar_em
+      FROM pontos_coleta
+    `;
+
+    for (const row of timerStatusRows) {
+      timerStatusById.set(row.id, {
+        statusAutoAtivarEm: row.status_auto_ativar_em,
+        statusAutoInativarEm: row.status_auto_inativar_em,
+      });
+    }
+  } catch (error) {
+    console.warn("Timer automático indisponível na Home:", error);
+  }
+
   // Transforma para o formato que os componentes front esperam (types/ponto.ts)
-  const pontos: Ponto[] = pontosRaw.map((p) => ({
-    id: p.id,
-    nome: p.nome,
-    detalhes: p.descricao ?? null,
-    statusDoacao:
+  const now = new Date();
+
+  const pontos: Ponto[] = pontosRaw.map((p) => {
+    const timerStatus = timerStatusById.get(p.id);
+    const statusBase =
       p.status_doacao === "INATIVO"
         ? "INATIVO"
         : p.status_doacao === "ATIVO"
@@ -188,30 +259,46 @@ export default async function Home(props: HomeProps) {
               ? "DOANDO_RECEBENDO"
               : p.status_doacao === "DOANDO"
                 ? "DOANDO"
-                : "DOANDO",
-    endereco: p.endereco,
-    numero: p.numero,
-    cidade: p.cidade ?? null,
-    estado: p.estado ?? null,
-    telefone: p.telefone ?? null,
-    whatsapp: p.whatsapp ?? null,
-    voluntarioEspecialidades: p.voluntario_especialidades ?? null,
-    voluntarioContatoAgendamento: p.voluntario_contato_agendamento ?? null,
-    voluntarioDisponivel:
-      typeof p.voluntario_disponivel === "boolean"
-        ? p.voluntario_disponivel
-        : null,
-    fraldasPublico: p.fraldas_publico ?? null,
-    latitude: typeof p.latitude === "number" ? p.latitude : 0,
-    longitude: typeof p.longitude === "number" ? p.longitude : 0,
-    categorias: (p.ponto_categorias ?? []).map((pc) => ({
-      categoriaId: pc.categoria_id,
-      categoria: {
-        id: pc.categorias.id,
-        nome: pc.categorias.nome,
-      },
-    })),
-  }));
+                : "DOANDO";
+
+    const statusAuto =
+      timerStatus?.statusAutoInativarEm &&
+      now >= timerStatus.statusAutoInativarEm
+        ? "INATIVO"
+        : timerStatus?.statusAutoAtivarEm &&
+            now >= timerStatus.statusAutoAtivarEm
+          ? "ATIVO"
+          : null;
+
+    return {
+      id: p.id,
+      nome: p.nome,
+      detalhes: p.descricao ?? null,
+      statusDoacao: statusAuto ?? statusBase,
+      endereco: p.endereco,
+      numero: p.numero,
+      cidade: p.cidade ?? null,
+      estado: p.estado ?? null,
+      telefone: p.telefone ?? null,
+      whatsapp: p.whatsapp ?? null,
+      voluntarioEspecialidades: p.voluntario_especialidades ?? null,
+      voluntarioContatoAgendamento: p.voluntario_contato_agendamento ?? null,
+      voluntarioDisponivel:
+        typeof p.voluntario_disponivel === "boolean"
+          ? p.voluntario_disponivel
+          : null,
+      fraldasPublico: p.fraldas_publico ?? null,
+      latitude: typeof p.latitude === "number" ? p.latitude : 0,
+      longitude: typeof p.longitude === "number" ? p.longitude : 0,
+      categorias: (p.ponto_categorias ?? []).map((pc) => ({
+        categoriaId: pc.categoria_id,
+        categoria: {
+          id: pc.categorias.id,
+          nome: pc.categorias.nome,
+        },
+      })),
+    };
+  });
 
   let interdicoesRaw: Array<{
     id: string;

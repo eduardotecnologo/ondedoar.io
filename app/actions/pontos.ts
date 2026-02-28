@@ -26,6 +26,10 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
   const website = (formData.get("website") as string) || "";
+  const statusAutoAtivarEmRaw =
+    (formData.get("status_auto_ativar_em") as string) || "";
+  const statusAutoInativarEmRaw =
+    (formData.get("status_auto_inativar_em") as string) || "";
   if (!cep.trim()) {
     redirect("/cadastrar?error=1");
   }
@@ -61,6 +65,17 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
               normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
             ? "DOANDO_RECEBENDO"
             : "DOANDO";
+
+  const parseDateTimeLocal = (value: string): Date | null => {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return null;
+
+    const parsedDate = new Date(trimmedValue);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+  };
+
+  const statusAutoAtivarEm = parseDateTimeLocal(statusAutoAtivarEmRaw);
+  const statusAutoInativarEm = parseDateTimeLocal(statusAutoInativarEmRaw);
 
   const normalizeInstagramUrl = (value: string): string | null => {
     const trimmedValue = value.trim();
@@ -203,9 +218,23 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     }
 
     // Cria o ponto
-    await prisma.pontoColeta.create({
+    const pontoCriado = await prisma.pontoColeta.create({
       data: createData,
     });
+
+    try {
+      await prisma.$executeRaw`
+        UPDATE pontos_coleta
+        SET status_auto_ativar_em = ${statusAutoAtivarEm},
+            status_auto_inativar_em = ${statusAutoInativarEm}
+        WHERE id = ${pontoCriado.id}::uuid
+      `;
+    } catch (timerError) {
+      console.warn(
+        "Não foi possível salvar timer automático do ponto:",
+        timerError,
+      );
+    }
 
     // Revalida a rota raiz e redireciona para sucesso
     revalidatePath("/");

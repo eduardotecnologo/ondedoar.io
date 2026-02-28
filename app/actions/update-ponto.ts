@@ -27,6 +27,12 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const telefone = String(formData.get("telefone") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
   const website = String(formData.get("website") || "").trim();
+  const statusAutoAtivarEmRaw = String(
+    formData.get("status_auto_ativar_em") || "",
+  ).trim();
+  const statusAutoInativarEmRaw = String(
+    formData.get("status_auto_inativar_em") || "",
+  ).trim();
   const voluntarioEspecialidades = String(
     formData.get("voluntario_especialidades") || "",
   ).trim();
@@ -62,6 +68,15 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
               normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
             ? "DOANDO_RECEBENDO"
             : "DOANDO";
+
+  const parseDateTimeLocal = (value: string): Date | null => {
+    if (!value) return null;
+    const parsedDate = new Date(value);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+  };
+
+  const statusAutoAtivarEm = parseDateTimeLocal(statusAutoAtivarEmRaw);
+  const statusAutoInativarEm = parseDateTimeLocal(statusAutoInativarEmRaw);
 
   const normalizeInstagramUrl = (value: string): string | null => {
     if (!value) return null;
@@ -108,6 +123,12 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
 
     const ponto = await prisma.pontoColeta.findUnique({
       where: { id },
+      select: {
+        id: true,
+        user_id: true,
+        latitude: true,
+        longitude: true,
+      },
     });
 
     if (!ponto) {
@@ -211,6 +232,20 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
           user_id: ponto.user_id ?? user.id,
         },
       });
+
+      try {
+        await tx.$executeRaw`
+          UPDATE pontos_coleta
+          SET status_auto_ativar_em = ${statusAutoAtivarEm},
+              status_auto_inativar_em = ${statusAutoInativarEm}
+          WHERE id = ${id}::uuid
+        `;
+      } catch (timerError) {
+        console.warn(
+          "Não foi possível atualizar timer automático do ponto:",
+          timerError,
+        );
+      }
 
       await tx.pontoCategoria.deleteMany({
         where: { ponto_id: id },

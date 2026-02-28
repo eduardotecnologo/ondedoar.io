@@ -11,9 +11,22 @@ import { alterarSenha } from "@/app/actions/account";
 
 // Define o tipo retornado com include correto
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
-  include: {
+  select: {
+    id: true;
+    nome: true;
+    status_doacao: true;
+    endereco: true;
+    cidade: true;
+    user_id: true;
     ponto_categorias: {
-      include: { categorias: true };
+      select: {
+        categoria_id: true;
+        categorias: {
+          select: {
+            nome: true;
+          };
+        };
+      };
     };
   };
 }>;
@@ -58,13 +71,54 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
   const meusPontos = (await prisma.pontoColeta.findMany({
     where: { user_id: user.id },
-    include: {
+    select: {
+      id: true,
+      nome: true,
+      status_doacao: true,
+      endereco: true,
+      cidade: true,
+      user_id: true,
       ponto_categorias: {
-        include: { categorias: true },
+        select: {
+          categoria_id: true,
+          categorias: {
+            select: {
+              nome: true,
+            },
+          },
+        },
       },
     },
     orderBy: { criado_em: "desc" },
   })) as PontoWithCategorias[];
+
+  const timerStatusById = new Map<
+    string,
+    { statusAutoAtivarEm: Date | null; statusAutoInativarEm: Date | null }
+  >();
+
+  try {
+    const timerRows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        status_auto_ativar_em: Date | null;
+        status_auto_inativar_em: Date | null;
+      }>
+    >`
+      SELECT id, status_auto_ativar_em, status_auto_inativar_em
+      FROM pontos_coleta
+      WHERE user_id = ${user.id}::uuid
+    `;
+
+    for (const row of timerRows) {
+      timerStatusById.set(row.id, {
+        statusAutoAtivarEm: row.status_auto_ativar_em,
+        statusAutoInativarEm: row.status_auto_inativar_em,
+      });
+    }
+  } catch (error) {
+    console.warn("Timer automático indisponível no Dashboard:", error);
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -157,70 +211,100 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
         {meusPontos.length > 0 ? (
           <div className="grid gap-4">
-            {meusPontos.map((ponto) => (
-              <div
-                key={ponto.id}
-                className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-md transition-all"
-              >
-                <div className="flex-1">
-                  <div className="mb-1 flex items-start justify-between gap-2">
-                    <h3 className="text-xl font-bold text-slate-800">
-                      {ponto.nome}
-                    </h3>
-                    <span
-                      className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
-                        ponto.status_doacao === "RECEBENDO"
-                          ? "bg-amber-50 text-amber-700"
-                          : ponto.status_doacao === "DOANDO_RECEBENDO" ||
-                              ponto.status_doacao === "DOANDO/RECEBENDO" ||
-                              ponto.status_doacao === "DANDO/RECEBENDO"
-                            ? "bg-violet-50 text-violet-700"
-                            : "bg-emerald-50 text-emerald-700"
-                      }`}
-                    >
-                      {ponto.status_doacao === "RECEBENDO"
-                        ? "RECEBENDO"
-                        : ponto.status_doacao === "DOANDO_RECEBENDO" ||
-                            ponto.status_doacao === "DOANDO/RECEBENDO" ||
-                            ponto.status_doacao === "DANDO/RECEBENDO"
-                          ? "DOANDO/RECEBENDO"
-                          : "DOANDO"}
-                    </span>
-                  </div>
-                  <p className="text-slate-500 text-sm mb-3">
-                    📍 {ponto.endereco}, {ponto.cidade}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {ponto.ponto_categorias.map((pc) => (
-                      <span
-                        key={pc.categoria_id}
-                        className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-lg uppercase"
-                      >
-                        {pc.categorias.nome}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+            {meusPontos.map((ponto) => {
+              const timerStatus = timerStatusById.get(ponto.id);
+              const statusBase =
+                ponto.status_doacao === "INATIVO"
+                  ? "INATIVO"
+                  : ponto.status_doacao === "ATIVO"
+                    ? "ATIVO"
+                    : ponto.status_doacao === "RECEBENDO"
+                      ? "RECEBENDO"
+                      : ponto.status_doacao === "DOANDO_RECEBENDO" ||
+                          ponto.status_doacao === "DOANDO/RECEBENDO" ||
+                          ponto.status_doacao === "DANDO/RECEBENDO"
+                        ? "DOANDO_RECEBENDO"
+                        : "DOANDO";
 
-                <div className="flex gap-2 w-full md:w-auto">
-                  <Link
-                    href={`/pontos/${ponto.id}/editar`}
-                    className="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-xl font-bold text-sm transition-all text-center"
-                  >
-                    Editar
-                  </Link>
-                  <ConfirmServerActionForm
-                    action={deletarPontoFromForm}
-                    className="flex-1 md:flex-none"
-                    hiddenInputs={[{ name: "id", value: ponto.id }]}
-                    confirmMessage="Tem certeza que deseja excluir?"
-                    buttonText="Excluir"
-                    pendingText="Excluindo..."
-                    buttonClassName="w-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 font-bold text-sm px-4 py-3 rounded-xl disabled:opacity-60"
-                  />
+              const now = new Date();
+              const statusEfetivo =
+                timerStatus?.statusAutoInativarEm &&
+                now >= timerStatus.statusAutoInativarEm
+                  ? "INATIVO"
+                  : timerStatus?.statusAutoAtivarEm &&
+                      now >= timerStatus.statusAutoAtivarEm
+                    ? "ATIVO"
+                    : statusBase;
+
+              return (
+                <div
+                  key={ponto.id}
+                  className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-md transition-all"
+                >
+                  <div className="flex-1">
+                    <div className="mb-1 flex items-start justify-between gap-2">
+                      <h3 className="text-xl font-bold text-slate-800">
+                        {ponto.nome}
+                      </h3>
+                      <span
+                        className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
+                          statusEfetivo === "INATIVO"
+                            ? "bg-slate-200 text-slate-700"
+                            : statusEfetivo === "ATIVO"
+                              ? "bg-blue-50 text-blue-700"
+                              : statusEfetivo === "RECEBENDO"
+                                ? "bg-amber-50 text-amber-700"
+                                : statusEfetivo === "DOANDO_RECEBENDO"
+                                  ? "bg-violet-50 text-violet-700"
+                                  : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
+                        {statusEfetivo === "INATIVO"
+                          ? "INATIVO"
+                          : statusEfetivo === "ATIVO"
+                            ? "ATIVO"
+                            : statusEfetivo === "RECEBENDO"
+                              ? "RECEBENDO"
+                              : statusEfetivo === "DOANDO_RECEBENDO"
+                                ? "DOANDO/RECEBENDO"
+                                : "DOANDO"}
+                      </span>
+                    </div>
+                    <p className="text-slate-500 text-sm mb-3">
+                      📍 {ponto.endereco}, {ponto.cidade}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {ponto.ponto_categorias.map((pc) => (
+                        <span
+                          key={pc.categoria_id}
+                          className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-lg uppercase"
+                        >
+                          {pc.categorias.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 w-full md:w-auto">
+                    <Link
+                      href={`/pontos/${ponto.id}/editar`}
+                      className="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-xl font-bold text-sm transition-all text-center"
+                    >
+                      Editar
+                    </Link>
+                    <ConfirmServerActionForm
+                      action={deletarPontoFromForm}
+                      className="flex-1 md:flex-none"
+                      hiddenInputs={[{ name: "id", value: ponto.id }]}
+                      confirmMessage="Tem certeza que deseja excluir?"
+                      buttonText="Excluir"
+                      pendingText="Excluindo..."
+                      buttonClassName="w-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 font-bold text-sm px-4 py-3 rounded-xl disabled:opacity-60"
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">

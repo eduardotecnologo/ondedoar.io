@@ -9,7 +9,9 @@ ALTER TABLE pontos_coleta
   ADD COLUMN IF NOT EXISTS voluntario_especialidades TEXT,
   ADD COLUMN IF NOT EXISTS voluntario_contato_agendamento TEXT,
   ADD COLUMN IF NOT EXISTS voluntario_disponivel BOOLEAN,
-  ADD COLUMN IF NOT EXISTS fraldas_publico TEXT;
+  ADD COLUMN IF NOT EXISTS fraldas_publico TEXT,
+  ADD COLUMN IF NOT EXISTS status_auto_ativar_em TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS status_auto_inativar_em TIMESTAMPTZ;
 
 -- 2) Garantir categorias padrão mais recentes
 INSERT INTO categorias (nome, icone)
@@ -52,6 +54,8 @@ WHERE nome IN ('FRAIUDAS', 'FRALDAS');
 --     'voluntario_especialidades',
 --     'voluntario_contato_agendamento',
 --     'voluntario_disponivel',
---     'fraldas_publico'
+--     'fraldas_publico',
+--     'status_auto_ativar_em',
+--     'status_auto_inativar_em'
 --   )
 -- ORDER BY column_name;

@@ -10,6 +10,39 @@ Checklist rápido após execução:
 - validar colunas em `pontos_coleta` (`voluntario_*`, `fraldas_publico`)
 - atualizar a Home e testar filtros de categoria
 
+## Timer automático (Ativo/Inativo)
+
+Para usar ativação/desativação automática de pontos por data/hora:
+
+1. Execute o SQL de colunas:
+
+- `prisma/add-status-timer-columns.sql`
+
+2. Se necessário, regenere o Prisma Client:
+
+- `npx prisma generate`
+
+3. Valide no app:
+
+- em `/cadastrar` ou `/pontos/[id]/editar`, preencha os campos de data/hora do timer
+- confira na Home e no Dashboard se o badge muda para `ATIVO`/`INATIVO` automaticamente quando o horário chega
+
+### Troubleshooting (Windows) - `EPERM` no `prisma generate`
+
+Se aparecer erro como `EPERM: operation not permitted, unlink ... query_engine-windows.dll.node`:
+
+1. Pare o servidor de desenvolvimento (`npm run dev`) e qualquer terminal com Prisma aberto.
+2. Feche processos Node que podem manter lock no arquivo.
+3. Rode novamente:
+
+- `npx prisma generate`
+
+4. Inicie o app de novo:
+
+- `npm run dev`
+
+Se ainda persistir, feche e reabra o VS Code/terminal e repita os comandos acima.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

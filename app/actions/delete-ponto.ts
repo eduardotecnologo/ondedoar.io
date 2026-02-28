@@ -17,6 +17,10 @@ export async function deletarPonto(pontoId: string) {
 
   const ponto = await prisma.pontoColeta.findUnique({
     where: { id: pontoId },
+    select: {
+      id: true,
+      user_id: true,
+    },
   });
 
   if (!ponto) throw new Error("Ponto não encontrado.");

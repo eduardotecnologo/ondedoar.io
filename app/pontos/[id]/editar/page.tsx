@@ -34,8 +34,30 @@ export default async function EditarPontoPage({
 
   const ponto = await prisma.pontoColeta.findUnique({
     where: { id },
-    include: {
-      ponto_categorias: true,
+    select: {
+      id: true,
+      nome: true,
+      descricao: true,
+      status_doacao: true,
+      cep: true,
+      endereco: true,
+      numero: true,
+      cidade: true,
+      estado: true,
+      latitude: true,
+      longitude: true,
+      telefone: true,
+      whatsapp: true,
+      voluntario_especialidades: true,
+      voluntario_contato_agendamento: true,
+      voluntario_disponivel: true,
+      fraldas_publico: true,
+      user_id: true,
+      ponto_categorias: {
+        select: {
+          categoria_id: true,
+        },
+      },
     },
   });
 
@@ -54,6 +76,46 @@ export default async function EditarPontoPage({
   const categoriasSelecionadas = new Set(
     ponto.ponto_categorias.map((item) => item.categoria_id),
   );
+
+  let timerStatus: {
+    statusAutoAtivarEm: Date | null;
+    statusAutoInativarEm: Date | null;
+  } | null = null;
+
+  try {
+    const timerRows = await prisma.$queryRaw<
+      Array<{
+        status_auto_ativar_em: Date | null;
+        status_auto_inativar_em: Date | null;
+      }>
+    >`
+      SELECT status_auto_ativar_em, status_auto_inativar_em
+      FROM pontos_coleta
+      WHERE id = ${ponto.id}::uuid
+      LIMIT 1
+    `;
+
+    if (timerRows.length > 0) {
+      timerStatus = {
+        statusAutoAtivarEm: timerRows[0].status_auto_ativar_em,
+        statusAutoInativarEm: timerRows[0].status_auto_inativar_em,
+      };
+    }
+  } catch (error) {
+    console.warn("Timer automático indisponível na edição:", error);
+  }
+
+  const formatDateTimeLocal = (value?: Date | string | null): string => {
+    if (!value) return "";
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+    return localDate.toISOString().slice(0, 16);
+  };
 
   const extractInstagramUrl = (text?: string | null): string => {
     if (!text) return "";
@@ -205,6 +267,35 @@ export default async function EditarPontoPage({
                 <option value="ATIVO">ATIVO</option>
                 <option value="INATIVO">INATIVO</option>
               </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Ativar automaticamente em
+                </label>
+                <input
+                  name="status_auto_ativar_em"
+                  type="datetime-local"
+                  defaultValue={formatDateTimeLocal(
+                    timerStatus?.statusAutoAtivarEm,
+                  )}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Desativar automaticamente em
+                </label>
+                <input
+                  name="status_auto_inativar_em"
+                  type="datetime-local"
+                  defaultValue={formatDateTimeLocal(
+                    timerStatus?.statusAutoInativarEm,
+                  )}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                />
+              </div>
             </div>
 
             <CategoriaVoluntarioFields
