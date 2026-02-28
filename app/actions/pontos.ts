@@ -22,6 +22,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const cidade = (formData.get("cidade") as string) || "";
   const estado = (formData.get("estado") as string) || "";
   const cep = (formData.get("cep") as string) || "";
+  const statusDoacaoRaw = (formData.get("status_doacao") as string) || "";
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
   if (!cep.trim()) {
@@ -45,6 +46,8 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   if (categoriasIds.length === 0) {
     redirect("/cadastrar?error=no_category");
   }
+
+  const statusDoacao = statusDoacaoRaw === "RECEBENDO" ? "RECEBENDO" : "DOANDO";
 
   // Geocoding via Nominatim
   let latitude = 0;
@@ -122,6 +125,8 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     const createData: Prisma.PontoColetaUncheckedCreateInput = {
       nome,
       descricao: descricao || null,
+      status_doacao: statusDoacao,
+      cep: cep.trim(),
       endereco,
       numero,
       cidade,

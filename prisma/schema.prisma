@@ -49,6 +49,8 @@ model PontoColeta {
   id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   nome             String
   descricao        String?
+  status_doacao    String?
+  cep              String?
   endereco         String
   numero           String
   cidade           String

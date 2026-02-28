@@ -163,9 +163,22 @@ export default async function DashboardPage(props: DashboardPageProps) {
                 className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-md transition-all"
               >
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-slate-800 mb-1">
-                    {ponto.nome}
-                  </h3>
+                  <div className="mb-1 flex items-start justify-between gap-2">
+                    <h3 className="text-xl font-bold text-slate-800">
+                      {ponto.nome}
+                    </h3>
+                    <span
+                      className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
+                        ponto.status_doacao === "RECEBENDO"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-emerald-50 text-emerald-700"
+                      }`}
+                    >
+                      {ponto.status_doacao === "RECEBENDO"
+                        ? "RECEBENDO"
+                        : "DOANDO"}
+                    </span>
+                  </div>
                   <p className="text-slate-500 text-sm mb-3">
                     📍 {ponto.endereco}, {ponto.cidade}
                   </p>

@@ -11,6 +11,7 @@ export type Ponto = {
   id: string;
   nome: string;
   detalhes?: string | null;
+  statusDoacao?: "DOANDO" | "RECEBENDO" | null;
   endereco: string;
   numero: string;
   cidade?: string | null;

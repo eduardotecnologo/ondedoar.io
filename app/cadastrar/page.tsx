@@ -197,6 +197,37 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Situação do Ponto <span className="text-red-500">*</span>
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 bg-white">
+                    <input
+                      type="radio"
+                      name="status_doacao"
+                      value="DOANDO"
+                      required
+                      defaultChecked
+                    />
+                    <span className="text-sm font-semibold text-slate-700">
+                      DOANDO
+                    </span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 bg-white">
+                    <input
+                      type="radio"
+                      name="status_doacao"
+                      value="RECEBENDO"
+                      required
+                    />
+                    <span className="text-sm font-semibold text-slate-700">
+                      RECEBENDO
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             {/* Categorias */}

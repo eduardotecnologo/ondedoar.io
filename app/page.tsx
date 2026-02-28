@@ -150,6 +150,12 @@ export default async function Home(props: HomeProps) {
     id: p.id,
     nome: p.nome,
     detalhes: p.descricao ?? null,
+    statusDoacao:
+      p.status_doacao === "RECEBENDO"
+        ? "RECEBENDO"
+        : p.status_doacao === "DOANDO"
+          ? "DOANDO"
+          : "DOANDO",
     endereco: p.endereco,
     numero: p.numero,
     cidade: p.cidade ?? null,
@@ -569,8 +575,14 @@ export default async function Home(props: HomeProps) {
                       <h3 className="text-xl font-bold text-slate-800 leading-tight">
                         {ponto.nome}
                       </h3>
-                      <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
-                        Ativo
+                      <span
+                        className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
+                          ponto.statusDoacao === "RECEBENDO"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
+                        {ponto.statusDoacao ?? "DOANDO"}
                       </span>
                     </div>
 

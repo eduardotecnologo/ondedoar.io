@@ -23,6 +23,7 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     .trim()
     .toUpperCase();
   const cep = String(formData.get("cep") || "").trim();
+  const statusDoacaoRaw = String(formData.get("status_doacao") || "").trim();
   const telefone = String(formData.get("telefone") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
   const voluntarioEspecialidades = String(
@@ -46,6 +47,8 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const categoriasIds = categoriasRaw
     .map((value) => (typeof value === "string" ? value : String(value)))
     .filter((value) => value.length > 0);
+
+  const statusDoacao = statusDoacaoRaw === "RECEBENDO" ? "RECEBENDO" : "DOANDO";
 
   try {
     const user = await prisma.user.findUnique({
@@ -136,6 +139,8 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
         data: {
           nome,
           descricao: descricao || null,
+          status_doacao: statusDoacao,
+          cep,
           endereco,
           numero,
           cidade,
@@ -182,6 +187,14 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error("Erro ao atualizar ponto:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message.toLowerCase() : String(error);
+
+    if (errorMessage.includes("status_doacao")) {
+      redirect(`/pontos/${id}/editar?error=status_doacao_migration`);
+    }
+
     redirect(`/pontos/${id}/editar?error=1`);
   }
 }

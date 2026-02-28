@@ -57,7 +57,8 @@ export default async function EditarPontoPage({
   const showError =
     query?.error === "1" ||
     query?.error === "missing_fields" ||
-    query?.error === "fraldas_publico";
+    query?.error === "fraldas_publico" ||
+    query?.error === "status_doacao_migration";
 
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -75,7 +76,11 @@ export default async function EditarPontoPage({
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {query?.error === "fraldas_publico"
               ? "Selecione se as fraldas são para adulto ou criança."
-              : "Não foi possível atualizar o ponto. Verifique os dados e tente novamente."}
+              : query?.error === "missing_fields"
+                ? "Preencha todos os campos obrigatórios (incluindo CEP) para atualizar o ponto."
+                : query?.error === "status_doacao_migration"
+                  ? "Seu banco (local ou produção) ainda não tem a coluna status_doacao. Rode a migration/SQL de atualização e tente novamente."
+                  : "Não foi possível atualizar o ponto. Verifique os dados e tente novamente."}
           </div>
         )}
 
@@ -142,7 +147,7 @@ export default async function EditarPontoPage({
               <input
                 name="cep"
                 required
-                defaultValue=""
+                defaultValue={ponto.cep ?? ""}
                 placeholder="CEP"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
               />
@@ -161,6 +166,20 @@ export default async function EditarPontoPage({
               placeholder="Detalhes"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none resize-y focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
             />
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">
+                Situação do Ponto
+              </label>
+              <select
+                name="status_doacao"
+                defaultValue={ponto.status_doacao ?? "DOANDO"}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+              >
+                <option value="DOANDO">DOANDO</option>
+                <option value="RECEBENDO">RECEBENDO</option>
+              </select>
+            </div>
 
             <CategoriaVoluntarioFields
               categorias={categorias}
