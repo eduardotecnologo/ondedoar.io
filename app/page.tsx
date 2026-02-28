@@ -540,6 +540,7 @@ export default async function Home(props: HomeProps) {
               AGUA: "💧",
               ÁGUA: "💧",
               LEITE: "🥛",
+              DOCUMENTOS: "📄",
               FRAUDAS: "👶",
               FRALDAS: "👶",
               HIGIENE: "🧼",

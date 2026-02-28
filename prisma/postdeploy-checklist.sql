@@ -17,7 +17,8 @@ VALUES
   ('ABRIGO', '🏠'),
   ('ABRIGO ANIMAIS', '🐶🐱'),
   ('VOLUNTARIO', '🤝'),
-  ('FRAUDAS', '👶')
+  ('FRAUDAS', '👶'),
+  ('DOCUMENTOS', '📄')
 ON CONFLICT (nome) DO UPDATE
 SET icone = EXCLUDED.icone;
 

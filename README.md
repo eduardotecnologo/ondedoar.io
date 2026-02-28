@@ -6,7 +6,7 @@ Para deploys que envolvem novas categorias ou campos no banco, execute o script:
 
 Checklist rápido após execução:
 
-- validar categorias em `categorias` (`ABRIGO ANIMAIS`, `VOLUNTARIO`, `FRAUDAS`)
+- validar categorias em `categorias` (`ABRIGO ANIMAIS`, `VOLUNTARIO`, `FRAUDAS`, `DOCUMENTOS`)
 - validar colunas em `pontos_coleta` (`voluntario_*`, `fraldas_publico`)
 - atualizar a Home e testar filtros de categoria
 
