@@ -702,7 +702,9 @@ export default async function Home(props: HomeProps) {
             </div>
           ) : (
             <div className="bg-white rounded-3xl border border-dashed border-slate-200 p-6 text-slate-500">
-              Nenhuma interdição ativa no momento.
+              Nenhuma interdição ativa no momento! Esta sabendo de alguma?
+              Cadastre-se! E nos ajude a manter a comunidade informada e
+              segura!!! 🚧
             </div>
           )}
         </section>
