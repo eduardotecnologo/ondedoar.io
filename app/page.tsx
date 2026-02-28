@@ -34,6 +34,31 @@ interface HomeProps {
       };
 }
 
+type OpenMeteoResponse = {
+  current?: {
+    temperature_2m?: number;
+    weather_code?: number;
+  };
+  daily?: {
+    precipitation_probability_max?: number[];
+    precipitation_sum?: number[];
+  };
+};
+
+function weatherCodeLabel(code?: number): string {
+  if (code === undefined) return "Condição indisponível";
+
+  if ([0].includes(code)) return "Céu limpo";
+  if ([1, 2, 3].includes(code)) return "Parcialmente nublado";
+  if ([45, 48].includes(code)) return "Neblina";
+  if ([51, 53, 55, 56, 57].includes(code)) return "Garoa";
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "Chuva";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Neve";
+  if ([95, 96, 99].includes(code)) return "Tempestade";
+
+  return "Condição variável";
+}
+
 export default async function Home(props: HomeProps) {
   // Unwrap searchParams (Next pode passar como Promise)
   const searchParams = await (props.searchParams ?? {});
@@ -206,6 +231,57 @@ export default async function Home(props: HomeProps) {
     return `https://wa.me/${sanitizedPhone}`;
   };
 
+  const pontoClima = pontos.find(
+    (ponto) =>
+      typeof ponto.latitude === "number" &&
+      typeof ponto.longitude === "number" &&
+      ponto.latitude !== 0 &&
+      ponto.longitude !== 0,
+  );
+
+  let climaAtual: {
+    temperatura?: number;
+    condicao?: string;
+    chanceChuvaHoje?: number;
+    chuvaHojeMm?: number;
+    cidade?: string | null;
+  } | null = null;
+
+  if (pontoClima) {
+    try {
+      const weatherUrl = new URL("https://api.open-meteo.com/v1/forecast");
+      weatherUrl.searchParams.set("latitude", String(pontoClima.latitude));
+      weatherUrl.searchParams.set("longitude", String(pontoClima.longitude));
+      weatherUrl.searchParams.set("current", "temperature_2m,weather_code");
+      weatherUrl.searchParams.set(
+        "daily",
+        "precipitation_probability_max,precipitation_sum",
+      );
+      weatherUrl.searchParams.set("forecast_days", "1");
+      weatherUrl.searchParams.set("timezone", "auto");
+
+      const weatherResponse = await fetch(weatherUrl.toString(), {
+        next: { revalidate: 1800 },
+      });
+
+      if (weatherResponse.ok) {
+        const weatherData = (await weatherResponse.json()) as OpenMeteoResponse;
+        const weatherCode = weatherData.current?.weather_code;
+
+        climaAtual = {
+          temperatura: weatherData.current?.temperature_2m,
+          condicao: weatherCodeLabel(weatherCode),
+          chanceChuvaHoje:
+            weatherData.daily?.precipitation_probability_max?.[0],
+          chuvaHojeMm: weatherData.daily?.precipitation_sum?.[0],
+          cidade: pontoClima.cidade,
+        };
+      }
+    } catch (error) {
+      console.error("Erro ao buscar clima:", error);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
@@ -234,6 +310,36 @@ export default async function Home(props: HomeProps) {
           type="success"
           text="Ponto cadastrado com sucesso! Obrigado por ajudar."
         />
+      )}
+
+      {climaAtual && (
+        <section className="bg-slate-50 px-4 pt-4">
+          <div className="max-w-6xl mx-auto rounded-2xl border border-sky-100 bg-sky-50 p-4">
+            <p className="text-sm font-bold text-sky-800">
+              Clima agora{climaAtual.cidade ? ` em ${climaAtual.cidade}` : ""}
+            </p>
+            <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-slate-700">
+              <span>
+                🌡️{" "}
+                <strong>{climaAtual.temperatura?.toFixed(1) ?? "--"}°C</strong>
+              </span>
+              <span>
+                ☁️{" "}
+                <strong>
+                  {climaAtual.condicao ?? "Condição indisponível"}
+                </strong>
+              </span>
+              <span>
+                🌧️ Chance de chuva hoje:{" "}
+                <strong>{climaAtual.chanceChuvaHoje ?? 0}%</strong>
+              </span>
+              <span>
+                💧 Previsão de chuva:{" "}
+                <strong>{climaAtual.chuvaHojeMm ?? 0} mm</strong>
+              </span>
+            </div>
+          </div>
+        </section>
       )}
 
       <section className="bg-blue-600 pt-16 pb-32 px-4">
