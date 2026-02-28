@@ -17,6 +17,7 @@ model User {
   atualizado_em DateTime?     @updatedAt @db.Timestamptz(6)
   pontos        PontoColeta[]
   reset_tokens  PasswordResetToken[]
+  interdicoes   RuaInterditada[]
 
   @@map("users")
 }
@@ -76,4 +77,25 @@ model PontoCategoria {
 
   @@id([ponto_id, categoria_id])
   @@map("ponto_categorias")
+}
+
+model RuaInterditada {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  rua         String
+  numero      String?
+  cidade      String
+  estado      String
+  referencia  String?
+  motivo      String?
+  ativa       Boolean   @default(true)
+  latitude    Float?
+  longitude   Float?
+  criado_em   DateTime  @default(now()) @db.Timestamptz(6)
+  atualizado_em DateTime? @updatedAt @db.Timestamptz(6)
+  user_id     String?   @db.Uuid
+  user        User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([cidade, estado])
+  @@index([ativa])
+  @@map("ruas_interditadas")
 }

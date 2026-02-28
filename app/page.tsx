@@ -297,6 +297,12 @@ export default async function Home(props: HomeProps) {
           <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
             <AuthButton />
             <Link
+              href="/interdicoes"
+              className="bg-red-50 hover:bg-red-100 text-red-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-red-200"
+            >
+              🚧 Ruas Interditadas
+            </Link>
+            <Link
               href="/cadastrar"
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-full font-bold transition-all shadow-md text-xs sm:text-sm whitespace-nowrap"
             >
