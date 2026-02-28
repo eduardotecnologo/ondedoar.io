@@ -5,6 +5,7 @@ import { cadastrarPonto } from "@/app/actions/pontos";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
 
 interface PageProps {
   searchParams?: Promise<{
@@ -179,30 +180,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
             </div>
 
             {/* Categorias */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
-                O que este ponto aceita?
-              </h2>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {categorias.map((categoria) => (
-                  <label
-                    key={categoria.id}
-                    className="flex items-center p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all group"
-                  >
-                    <input
-                      type="checkbox"
-                      name="categorias"
-                      value={categoria.id}
-                      className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 mr-3"
-                    />
-                    <span className="font-medium text-slate-700 group-hover:text-blue-700">
-                      {categoria.nome}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <CategoriaVoluntarioFields categorias={categorias} />
 
             {/* Horário e Observações */}
             <div className="space-y-4">

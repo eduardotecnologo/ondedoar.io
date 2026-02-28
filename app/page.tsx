@@ -120,6 +120,12 @@ export default async function Home(props: HomeProps) {
     cidade: p.cidade ?? null,
     estado: p.estado ?? null,
     whatsapp: p.whatsapp ?? null,
+    voluntarioEspecialidades: p.voluntario_especialidades ?? null,
+    voluntarioContatoAgendamento: p.voluntario_contato_agendamento ?? null,
+    voluntarioDisponivel:
+      typeof p.voluntario_disponivel === "boolean"
+        ? p.voluntario_disponivel
+        : null,
     latitude: typeof p.latitude === "number" ? p.latitude : 0,
     longitude: typeof p.longitude === "number" ? p.longitude : 0,
     categorias: (p.ponto_categorias ?? []).map((pc) => ({
@@ -299,6 +305,8 @@ export default async function Home(props: HomeProps) {
               "ABRIDO ANIMAIS": "🐶🐱",
               ABRIGO: "🏠",
               ABRIDO: "🏠",
+              VOLUNTARIO: "🤝",
+              VOLUNTÁRIO: "🤝",
               HIGIENE: "🧼",
               DORMITORIO: "💤",
             };
@@ -355,6 +363,9 @@ export default async function Home(props: HomeProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             {pontos.map((ponto) => {
               const whatsappUrl = buildWhatsAppUrl(ponto.whatsapp);
+              const voluntarioZapUrl = buildWhatsAppUrl(
+                ponto.voluntarioContatoAgendamento,
+              );
 
               return (
                 <div
@@ -388,6 +399,50 @@ export default async function Home(props: HomeProps) {
                         </span>
                       ))}
                     </div>
+
+                    {(ponto.voluntarioEspecialidades ||
+                      ponto.voluntarioContatoAgendamento ||
+                      typeof ponto.voluntarioDisponivel === "boolean") && (
+                      <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-slate-700 space-y-1">
+                        <p className="font-bold text-blue-700">Voluntário</p>
+                        {ponto.voluntarioEspecialidades && (
+                          <p>
+                            <span className="font-semibold">
+                              Especialidades:
+                            </span>{" "}
+                            {ponto.voluntarioEspecialidades}
+                          </p>
+                        )}
+                        {ponto.voluntarioContatoAgendamento && (
+                          <div className="flex items-center justify-between gap-2">
+                            <p>
+                              <span className="font-semibold">
+                                Contato para agendamento:
+                              </span>{" "}
+                              {ponto.voluntarioContatoAgendamento}
+                            </p>
+                            {voluntarioZapUrl && (
+                              <a
+                                href={voluntarioZapUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="shrink-0 bg-green-500 hover:bg-green-600 text-white px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all"
+                              >
+                                Zap
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {typeof ponto.voluntarioDisponivel === "boolean" && (
+                          <p>
+                            <span className="font-semibold">
+                              Disponível agora:
+                            </span>{" "}
+                            {ponto.voluntarioDisponivel ? "Sim" : "Não"}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">

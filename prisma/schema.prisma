@@ -41,6 +41,9 @@ model PontoColeta {
   longitude        Float?
   telefone         String?
   whatsapp         String?
+  voluntario_especialidades       String?
+  voluntario_contato_agendamento  String?
+  voluntario_disponivel           Boolean?
   criado_em        DateTime?        @default(now()) @db.Timestamptz(6)
   user_id          String?          @db.Uuid
   ponto_categorias PontoCategoria[]

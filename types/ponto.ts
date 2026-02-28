@@ -16,6 +16,9 @@ export type Ponto = {
   cidade?: string | null;
   estado?: string | null;
   whatsapp?: string | null;
+  voluntarioEspecialidades?: string | null;
+  voluntarioContatoAgendamento?: string | null;
+  voluntarioDisponivel?: boolean | null;
   latitude: number | null;
   longitude: number | null;
   categorias?: CategoriaRelacionada[];

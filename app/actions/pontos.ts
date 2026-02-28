@@ -23,6 +23,12 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const estado = (formData.get("estado") as string) || "";
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
+  const voluntarioEspecialidades =
+    (formData.get("voluntario_especialidades") as string) || "";
+  const voluntarioContatoAgendamento =
+    (formData.get("voluntario_contato_agendamento") as string) || "";
+  const voluntarioDisponivelRaw =
+    (formData.get("voluntario_disponivel") as string) || "";
   const categoriasRaw = formData.getAll("categorias"); // pode ser um array de ids ou vazio
 
   // Normaliza categorias para string[]
@@ -68,6 +74,20 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       where: { email: session.user.email },
     });
 
+    const categoriaVoluntario = await prisma.tipoDoacao.findFirst({
+      where: {
+        OR: [
+          { nome: { equals: "VOLUNTARIO", mode: "insensitive" } },
+          { nome: { equals: "VOLUNTÁRIO", mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const voluntarioSelecionado = categoriaVoluntario
+      ? categoriasIds.includes(categoriaVoluntario.id)
+      : false;
+
     // Monta payload de criação
     const createData: Prisma.PontoColetaUncheckedCreateInput = {
       nome,
@@ -78,6 +98,15 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       estado,
       telefone: telefone || null,
       whatsapp: whatsapp || null,
+      voluntario_especialidades: voluntarioSelecionado
+        ? voluntarioEspecialidades.trim() || null
+        : null,
+      voluntario_contato_agendamento: voluntarioSelecionado
+        ? voluntarioContatoAgendamento.trim() || null
+        : null,
+      voluntario_disponivel: voluntarioSelecionado
+        ? ["1", "on", "true"].includes(voluntarioDisponivelRaw.toLowerCase())
+        : null,
       latitude: typeof latitude === "number" ? latitude : null,
       longitude: typeof longitude === "number" ? longitude : null,
       user_id: user?.id ?? null, // vincula ao usuário se existir

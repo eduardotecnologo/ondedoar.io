@@ -13,6 +13,7 @@ const isRedirectErrorMock = vi.fn((error: unknown) => {
 
 const prismaUserFindUniqueMock = vi.fn();
 const prismaPontoCreateMock = vi.fn();
+const prismaTipoDoacaoFindFirstMock = vi.fn();
 
 vi.mock("next-auth/next", () => ({
   getServerSession: (...args: unknown[]) => getServerSessionMock(...args),
@@ -38,6 +39,9 @@ vi.mock("@/lib/prisma", () => ({
   default: {
     user: {
       findUnique: (args: unknown) => prismaUserFindUniqueMock(args),
+    },
+    tipoDoacao: {
+      findFirst: (args: unknown) => prismaTipoDoacaoFindFirstMock(args),
     },
     pontoColeta: {
       create: (args: unknown) => prismaPontoCreateMock(args),
@@ -66,6 +70,7 @@ function buildValidFormData(): FormData {
 describe("cadastrarPonto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaTipoDoacaoFindFirstMock.mockResolvedValue(null);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

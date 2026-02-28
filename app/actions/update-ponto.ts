@@ -24,6 +24,15 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     .toUpperCase();
   const telefone = String(formData.get("telefone") || "").trim();
   const whatsapp = String(formData.get("whatsapp") || "").trim();
+  const voluntarioEspecialidades = String(
+    formData.get("voluntario_especialidades") || "",
+  ).trim();
+  const voluntarioContatoAgendamento = String(
+    formData.get("voluntario_contato_agendamento") || "",
+  ).trim();
+  const voluntarioDisponivelRaw = String(
+    formData.get("voluntario_disponivel") || "",
+  ).trim();
   const categoriasRaw = formData.getAll("categorias");
 
   if (!id || !nome || !endereco || !numero || !cidade || !estado) {
@@ -54,6 +63,20 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
     if (ponto.user_id !== null && ponto.user_id !== user.id) {
       redirect("/dashboard?error=not_allowed");
     }
+
+    const categoriaVoluntario = await prisma.tipoDoacao.findFirst({
+      where: {
+        OR: [
+          { nome: { equals: "VOLUNTARIO", mode: "insensitive" } },
+          { nome: { equals: "VOLUNTÁRIO", mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const voluntarioSelecionado = categoriaVoluntario
+      ? categoriasIds.includes(categoriaVoluntario.id)
+      : false;
 
     let latitude: number | null = ponto.latitude ?? null;
     let longitude: number | null = ponto.longitude ?? null;
@@ -91,6 +114,17 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
           estado,
           telefone: telefone || null,
           whatsapp: whatsapp || null,
+          voluntario_especialidades: voluntarioSelecionado
+            ? voluntarioEspecialidades || null
+            : null,
+          voluntario_contato_agendamento: voluntarioSelecionado
+            ? voluntarioContatoAgendamento || null
+            : null,
+          voluntario_disponivel: voluntarioSelecionado
+            ? ["1", "on", "true"].includes(
+                voluntarioDisponivelRaw.toLowerCase(),
+              )
+            : null,
           latitude,
           longitude,
           user_id: ponto.user_id ?? user.id,
