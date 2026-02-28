@@ -61,18 +61,19 @@ export const authOptions: NextAuthOptions = {
       // user existe apenas no primeiro login/authorize
       if (user) {
         token.id = user.id ?? token.id;
-        token.isAdmin =
-          typeof user.isAdmin === "boolean"
-            ? user.isAdmin
-            : Boolean(token.isAdmin);
       }
+
+      const tokenEmail =
+        typeof token.email === "string" ? token.email : user?.email;
+      token.isAdmin = isAdminEmail(tokenEmail);
+
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.isAdmin = Boolean(token.isAdmin);
+        session.user.isAdmin = isAdminEmail(session.user.email);
       }
       return session;
     },

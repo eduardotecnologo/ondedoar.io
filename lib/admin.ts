@@ -3,11 +3,21 @@ export function getAdminEmails(): string[] {
   const multipleRaw = (process.env.ADMIN_EMAILS || "").trim();
 
   const multiple = multipleRaw
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
+    .split(/[;,\n\r\t ]+/)
+    .map((email) =>
+      email
+        .replace(/^['"]|['"]$/g, "")
+        .trim()
+        .toLowerCase(),
+    )
     .filter((email) => email.length > 0);
 
-  const all = [...multiple, single.toLowerCase()].filter(
+  const normalizedSingle = single
+    .replace(/^['"]|['"]$/g, "")
+    .trim()
+    .toLowerCase();
+
+  const all = [...multiple, normalizedSingle].filter(
     (email) => email.length > 0,
   );
 
