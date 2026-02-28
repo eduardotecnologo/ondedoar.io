@@ -11,7 +11,13 @@ export type Ponto = {
   id: string;
   nome: string;
   detalhes?: string | null;
-  statusDoacao?: "DOANDO" | "DOANDO_RECEBENDO" | "RECEBENDO" | null;
+  statusDoacao?:
+    | "DOANDO"
+    | "DOANDO_RECEBENDO"
+    | "RECEBENDO"
+    | "ATIVO"
+    | "INATIVO"
+    | null;
   endereco: string;
   numero: string;
   cidade?: string | null;

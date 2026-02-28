@@ -50,13 +50,17 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
 
   const normalizedStatusDoacaoRaw = statusDoacaoRaw.trim().toUpperCase();
   const statusDoacao =
-    normalizedStatusDoacaoRaw === "RECEBENDO"
-      ? "RECEBENDO"
-      : normalizedStatusDoacaoRaw === "DOANDO_RECEBENDO" ||
-          normalizedStatusDoacaoRaw === "DOANDO/RECEBENDO" ||
-          normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
-        ? "DOANDO_RECEBENDO"
-        : "DOANDO";
+    normalizedStatusDoacaoRaw === "INATIVO"
+      ? "INATIVO"
+      : normalizedStatusDoacaoRaw === "ATIVO"
+        ? "ATIVO"
+        : normalizedStatusDoacaoRaw === "RECEBENDO"
+          ? "RECEBENDO"
+          : normalizedStatusDoacaoRaw === "DOANDO_RECEBENDO" ||
+              normalizedStatusDoacaoRaw === "DOANDO/RECEBENDO" ||
+              normalizedStatusDoacaoRaw === "DANDO/RECEBENDO"
+            ? "DOANDO_RECEBENDO"
+            : "DOANDO";
 
   const normalizeInstagramUrl = (value: string): string | null => {
     const trimmedValue = value.trim();

@@ -176,15 +176,19 @@ export default async function Home(props: HomeProps) {
     nome: p.nome,
     detalhes: p.descricao ?? null,
     statusDoacao:
-      p.status_doacao === "RECEBENDO"
-        ? "RECEBENDO"
-        : p.status_doacao === "DOANDO_RECEBENDO" ||
-            p.status_doacao === "DOANDO/RECEBENDO" ||
-            p.status_doacao === "DANDO/RECEBENDO"
-          ? "DOANDO_RECEBENDO"
-          : p.status_doacao === "DOANDO"
-            ? "DOANDO"
-            : "DOANDO",
+      p.status_doacao === "INATIVO"
+        ? "INATIVO"
+        : p.status_doacao === "ATIVO"
+          ? "ATIVO"
+          : p.status_doacao === "RECEBENDO"
+            ? "RECEBENDO"
+            : p.status_doacao === "DOANDO_RECEBENDO" ||
+                p.status_doacao === "DOANDO/RECEBENDO" ||
+                p.status_doacao === "DANDO/RECEBENDO"
+              ? "DOANDO_RECEBENDO"
+              : p.status_doacao === "DOANDO"
+                ? "DOANDO"
+                : "DOANDO",
     endereco: p.endereco,
     numero: p.numero,
     cidade: p.cidade ?? null,
@@ -618,16 +622,24 @@ export default async function Home(props: HomeProps) {
                       </h3>
                       <span
                         className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
-                          ponto.statusDoacao === "RECEBENDO"
-                            ? "bg-amber-50 text-amber-700"
-                            : ponto.statusDoacao === "DOANDO_RECEBENDO"
-                              ? "bg-violet-50 text-violet-700"
-                              : "bg-emerald-50 text-emerald-700"
+                          ponto.statusDoacao === "INATIVO"
+                            ? "bg-slate-200 text-slate-700"
+                            : ponto.statusDoacao === "ATIVO"
+                              ? "bg-blue-50 text-blue-700"
+                              : ponto.statusDoacao === "RECEBENDO"
+                                ? "bg-amber-50 text-amber-700"
+                                : ponto.statusDoacao === "DOANDO_RECEBENDO"
+                                  ? "bg-violet-50 text-violet-700"
+                                  : "bg-emerald-50 text-emerald-700"
                         }`}
                       >
-                        {ponto.statusDoacao === "DOANDO_RECEBENDO"
-                          ? "DOANDO/RECEBENDO"
-                          : (ponto.statusDoacao ?? "DOANDO")}
+                        {ponto.statusDoacao === "INATIVO"
+                          ? "INATIVO"
+                          : ponto.statusDoacao === "ATIVO"
+                            ? "ATIVO"
+                            : ponto.statusDoacao === "DOANDO_RECEBENDO"
+                              ? "DOANDO/RECEBENDO"
+                              : (ponto.statusDoacao ?? "DOANDO")}
                       </span>
                     </div>
 

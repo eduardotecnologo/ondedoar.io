@@ -202,6 +202,8 @@ export default async function EditarPontoPage({
                 <option value="DOANDO">DOANDO</option>
                 <option value="DOANDO_RECEBENDO">DOANDO/RECEBENDO</option>
                 <option value="RECEBENDO">RECEBENDO</option>
+                <option value="ATIVO">ATIVO</option>
+                <option value="INATIVO">INATIVO</option>
               </select>
             </div>
 
