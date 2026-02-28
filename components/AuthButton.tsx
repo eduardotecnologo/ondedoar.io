@@ -7,6 +7,11 @@ export default function AuthButton() {
   const { data: session, status } = useSession();
   const isAdmin = Boolean(session?.user?.isAdmin);
 
+  const displayName =
+    session?.user?.name?.trim() ||
+    session?.user?.email?.split("@")[0]?.trim() ||
+    "Usuário";
+
   if (status === "loading") {
     return (
       <div className="w-20 h-8 bg-slate-200 animate-pulse rounded-xl"></div>
@@ -16,6 +21,9 @@ export default function AuthButton() {
   if (session) {
     return (
       <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
+        <span className="text-xs sm:text-sm font-semibold text-slate-600">
+          Olá, {displayName}
+        </span>
         {isAdmin && (
           <Link
             href="/admin"
