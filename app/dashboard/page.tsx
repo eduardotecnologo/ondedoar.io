@@ -217,6 +217,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                 ? new Intl.DateTimeFormat("pt-BR", {
                     dateStyle: "short",
                     timeStyle: "short",
+                    timeZone: "America/Sao_Paulo",
                   }).format(timerStatus.statusAutoInativarEm)
                 : null;
               const statusBase =

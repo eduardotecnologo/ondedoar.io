@@ -112,10 +112,17 @@ export default async function EditarPontoPage({
     const date = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(date.getTime())) return "";
 
-    const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
-    );
-    return localDate.toISOString().slice(0, 16);
+    const formatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    return formatter.format(date).replace(" ", "T");
   };
 
   const extractInstagramUrl = (text?: string | null): string => {
