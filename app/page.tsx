@@ -20,6 +20,13 @@ type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
   };
 }>;
 
+type TipoDoacao = Prisma.TipoDoacaoGetPayload<{
+  select: {
+    id: true;
+    nome: true;
+  };
+}>;
+
 interface HomeProps {
   searchParams?:
     | Promise<{
@@ -132,18 +139,35 @@ export default async function Home(props: HomeProps) {
         : {}),
   };
 
-  // Busca os pontos (incluir a relação ponto_categorias -> categorias)
-  const pontosRaw: PontoWithCategorias[] = await prisma.pontoColeta.findMany({
-    where,
-    include: {
-      ponto_categorias: {
+  let dbUnavailable = false;
+  let pontosRaw: PontoWithCategorias[] = [];
+  let categorias: TipoDoacao[] = [];
+
+  try {
+    [pontosRaw, categorias] = await Promise.all([
+      prisma.pontoColeta.findMany({
+        where,
         include: {
-          categorias: true, // este é o nome da relação no seu schema
+          ponto_categorias: {
+            include: {
+              categorias: true,
+            },
+          },
         },
-      },
-    },
-    orderBy: { criado_em: "desc" },
-  });
+        orderBy: { criado_em: "desc" },
+      }),
+      prisma.tipoDoacao.findMany({
+        select: {
+          id: true,
+          nome: true,
+        },
+        orderBy: { nome: "asc" },
+      }),
+    ]);
+  } catch (error) {
+    dbUnavailable = true;
+    console.error("Erro ao carregar pontos/categorias na Home:", error);
+  }
 
   // Transforma para o formato que os componentes front esperam (types/ponto.ts)
   const pontos: Ponto[] = pontosRaw.map((p) => ({
@@ -183,11 +207,6 @@ export default async function Home(props: HomeProps) {
       },
     })),
   }));
-
-  // Busca as categorias para os atalhos
-  const categorias = await prisma.tipoDoacao.findMany({
-    orderBy: { nome: "asc" },
-  });
 
   let interdicoesRaw: Array<{
     id: string;
@@ -366,12 +385,6 @@ export default async function Home(props: HomeProps) {
             >
               🚧 Ruas Interditadas
             </Link>
-            <Link
-              href="/cadastrar"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-full font-bold transition-all shadow-md text-xs sm:text-sm whitespace-nowrap"
-            >
-              + Cadastrar Ponto de Ajuda!
-            </Link>
           </div>
         </div>
       </nav>
@@ -380,6 +393,15 @@ export default async function Home(props: HomeProps) {
           type="success"
           text="Ponto cadastrado com sucesso! Obrigado por ajudar."
         />
+      )}
+
+      {dbUnavailable && (
+        <section className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+          <div className="max-w-6xl mx-auto text-sm font-medium text-amber-800">
+            Banco de dados indisponível no momento. Exibindo a página em modo
+            limitado.
+          </div>
+        </section>
       )}
 
       {climaAtual && (

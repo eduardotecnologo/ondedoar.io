@@ -3,3 +3,4 @@
 - mostrar ruas interditadas - OK
 - clima/tempo - OK
 - login com google
+- Notícias
