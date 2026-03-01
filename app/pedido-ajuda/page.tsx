@@ -211,6 +211,8 @@ export default async function PedidoAjudaPage(props: PedidoAjudaPageProps) {
                 <option value="HIGIENE">Higiene</option>
                 <option value="REMEDIO">Remédio</option>
                 <option value="ABRIGO">Abrigo</option>
+                <option value="MOVEIS">Móveis</option>
+                <option value="ELETRODOMESTICO">Eletrodoméstico</option>
                 <option value="DOCUMENTOS">Documentos</option>
                 <option value="OUTRO">Outro</option>
               </select>
