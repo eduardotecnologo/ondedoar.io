@@ -126,3 +126,85 @@ CREATE INDEX IF NOT EXISTS geocode_reverse_events_outcome_idx
 
 CREATE INDEX IF NOT EXISTS geocode_reverse_events_criado_em_idx
   ON geocode_reverse_events(criado_em);
+
+-- 9) Encontrar Pessoas
+CREATE TABLE IF NOT EXISTS encontrar_pessoas (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nome TEXT NOT NULL,
+  contato TEXT NOT NULL,
+  cidade TEXT NOT NULL,
+  estado TEXT NOT NULL,
+  descricao TEXT NOT NULL,
+  foto_url TEXT,
+  status TEXT NOT NULL DEFAULT 'DESAPARECIDO',
+  anonimo BOOLEAN NOT NULL DEFAULT false,
+  encontrado_por_nome TEXT,
+  encontrado_por_anonimo BOOLEAN NOT NULL DEFAULT false,
+  encontrado_em TIMESTAMPTZ,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
+  atualizado_em TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS encontrar_pessoas_status_idx
+  ON encontrar_pessoas(status);
+
+CREATE INDEX IF NOT EXISTS encontrar_pessoas_cidade_estado_idx
+  ON encontrar_pessoas(cidade, estado);
+
+-- 10) Encontrar Animais
+CREATE TABLE IF NOT EXISTS encontrar_animais (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nome TEXT NOT NULL,
+  contato TEXT NOT NULL,
+  cidade TEXT NOT NULL,
+  estado TEXT NOT NULL,
+  especie TEXT NOT NULL DEFAULT 'OUTRO',
+  descricao TEXT NOT NULL,
+  foto_url TEXT,
+  status TEXT NOT NULL DEFAULT 'DESAPARECIDO',
+  anonimo BOOLEAN NOT NULL DEFAULT false,
+  encontrado_por_nome TEXT,
+  encontrado_por_anonimo BOOLEAN NOT NULL DEFAULT false,
+  encontrado_em TIMESTAMPTZ,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
+  atualizado_em TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS encontrar_animais_status_idx
+  ON encontrar_animais(status);
+
+CREATE INDEX IF NOT EXISTS encontrar_animais_cidade_estado_idx
+  ON encontrar_animais(cidade, estado);
+
+CREATE INDEX IF NOT EXISTS encontrar_animais_especie_idx
+  ON encontrar_animais(especie);
+
+-- 11) Galeria de imagens - encontrar pessoas
+CREATE TABLE IF NOT EXISTS encontrar_pessoas_imagens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  pessoa_id UUID NOT NULL REFERENCES encontrar_pessoas(id) ON DELETE CASCADE,
+  imagem_data TEXT NOT NULL,
+  ordem INTEGER NOT NULL DEFAULT 0,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS encontrar_pessoas_imagens_pessoa_id_idx
+  ON encontrar_pessoas_imagens(pessoa_id);
+
+CREATE INDEX IF NOT EXISTS encontrar_pessoas_imagens_ordem_idx
+  ON encontrar_pessoas_imagens(pessoa_id, ordem);
+
+-- 12) Galeria de imagens - encontrar animais
+CREATE TABLE IF NOT EXISTS encontrar_animais_imagens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  animal_id UUID NOT NULL REFERENCES encontrar_animais(id) ON DELETE CASCADE,
+  imagem_data TEXT NOT NULL,
+  ordem INTEGER NOT NULL DEFAULT 0,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_animal_id_idx
+  ON encontrar_animais_imagens(animal_id);
+
+CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_ordem_idx
+  ON encontrar_animais_imagens(animal_id, ordem);

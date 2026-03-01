@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import FlashMessage from "@/components/FlashMessage";
@@ -7,10 +8,37 @@ import MapaWrapper from "@/components/MapaWrapper";
 import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
 import AuthButton from "@/components/AuthButton";
 import PontoDetalhesButton from "@/components/PontoDetalhesButton";
+import EncontrarMaisInformacoesButton from "@/components/EncontrarMaisInformacoesButton";
+import HomeMobileMenu from "@/components/HomeMobileMenu";
 import VerNoMapaButton from "@/components/VerNoMapaButton";
 import UseMyLocationButton from "@/components/UseMyLocationButton";
 import type { Ponto } from "@/types/ponto";
 import type { Interdicao } from "@/types/interdicao";
+
+type PessoaDesaparecidaHome = {
+  id: string;
+  nome: string;
+  contato: string;
+  cidade: string;
+  estado: string;
+  descricao: string;
+  foto_url: string | null;
+  status: "DESAPARECIDO" | "ENCONTRADO";
+  criado_em: Date;
+};
+
+type AnimalDesaparecidoHome = {
+  id: string;
+  nome: string;
+  contato: string;
+  cidade: string;
+  estado: string;
+  especie: string;
+  descricao: string;
+  foto_url: string | null;
+  status: "DESAPARECIDO" | "ENCONTRADO";
+  criado_em: Date;
+};
 
 type PontoWithCategorias = Prisma.PontoColetaGetPayload<{
   select: {
@@ -513,6 +541,101 @@ export default async function Home(props: HomeProps) {
       .filter((cidade) => cidade.length > 0),
   ).size;
 
+  let pessoasDesaparecidas: PessoaDesaparecidaHome[] = [];
+  try {
+    pessoasDesaparecidas = await prisma.$queryRaw<PessoaDesaparecidaHome[]>`
+      SELECT
+        id,
+        nome,
+        contato,
+        cidade,
+        estado,
+        descricao,
+        foto_url,
+        status,
+        criado_em
+      FROM encontrar_pessoas
+      WHERE status = 'DESAPARECIDO'
+      ORDER BY criado_em DESC
+      LIMIT 6
+    `;
+  } catch (error) {
+    console.warn("Pessoas desaparecidas indisponíveis na Home:", error);
+  }
+
+  let animaisDesaparecidos: AnimalDesaparecidoHome[] = [];
+  try {
+    animaisDesaparecidos = await prisma.$queryRaw<AnimalDesaparecidoHome[]>`
+      SELECT
+        id,
+        nome,
+        contato,
+        cidade,
+        estado,
+        especie,
+        descricao,
+        foto_url,
+        status,
+        criado_em
+      FROM encontrar_animais
+      WHERE status = 'DESAPARECIDO'
+      ORDER BY criado_em DESC
+      LIMIT 6
+    `;
+  } catch (error) {
+    console.warn("Animais desaparecidos indisponíveis na Home:", error);
+  }
+
+  const pessoasFotosById = new Map<string, string[]>();
+  try {
+    const pessoasGaleriaRows = await prisma.$queryRaw<
+      Array<{
+        pessoa_id: string;
+        imagem_data: string;
+      }>
+    >`
+      SELECT pessoa_id, imagem_data
+      FROM encontrar_pessoas_imagens
+      ORDER BY pessoa_id, ordem ASC, criado_em ASC
+    `;
+
+    for (const row of pessoasGaleriaRows) {
+      const current = pessoasFotosById.get(row.pessoa_id) ?? [];
+      current.push(row.imagem_data);
+      pessoasFotosById.set(row.pessoa_id, current);
+    }
+  } catch (error) {
+    console.warn(
+      "Galeria de pessoas desaparecidas indisponível na Home:",
+      error,
+    );
+  }
+
+  const animaisFotosById = new Map<string, string[]>();
+  try {
+    const animaisGaleriaRows = await prisma.$queryRaw<
+      Array<{
+        animal_id: string;
+        imagem_data: string;
+      }>
+    >`
+      SELECT animal_id, imagem_data
+      FROM encontrar_animais_imagens
+      ORDER BY animal_id, ordem ASC, criado_em ASC
+    `;
+
+    for (const row of animaisGaleriaRows) {
+      const current = animaisFotosById.get(row.animal_id) ?? [];
+      current.push(row.imagem_data);
+      animaisFotosById.set(row.animal_id, current);
+    }
+  } catch (error) {
+    console.warn(
+      "Galeria de animais desaparecidos indisponível na Home:",
+      error,
+    );
+  }
+
   let totalPedidosAbertos = 0;
   try {
     const pedidosAbertosRows = await prisma.$queryRaw<Array<{ total: number }>>`
@@ -676,40 +799,58 @@ export default async function Home(props: HomeProps) {
   return (
     <main className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-100 py-4 px-4 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/"
-              className="text-xl font-black text-blue-600 tracking-tighter"
-            >
-              ondedoar<span className="text-slate-400">.io</span>
-            </Link>
-            <a
-              href="https://wa.me/5532985132378"
-              target="_blank"
-              rel="noreferrer"
-              className="bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-green-200"
-            >
-              💬 Contato
-            </a>
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link
+                href="/"
+                className="text-xl font-black text-blue-600 tracking-tighter"
+              >
+                ondedoar<span className="text-slate-400">.io</span>
+              </Link>
+              <a
+                href="https://wa.me/5532985132378"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-green-200"
+              >
+                💬 Contato
+              </a>
+            </div>
+
+            <div className="hidden lg:flex items-center justify-end gap-2 flex-nowrap">
+              <UseMyLocationButton variant="compact" />
+              <Link
+                href="/pedido-ajuda"
+                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-emerald-200"
+              >
+                🤝 Preciso de Ajuda
+              </Link>
+              <Link
+                href="/encontrar-pessoas"
+                className="bg-violet-50 hover:bg-violet-100 text-violet-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-violet-200"
+              >
+                🧍 Encontrar Pessoas
+              </Link>
+              <Link
+                href="/encontrar-animais"
+                className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-amber-200"
+              >
+                🐾 Encontrar Animais
+              </Link>
+              <Link
+                href="/interdicoes"
+                className="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-red-200"
+              >
+                🚧 Riscos / Interdições
+              </Link>
+            </div>
+
+            <HomeMobileMenu />
           </div>
 
-          {/* Aqui está a correção: AuthButton + Botão Cadastrar */}
-          <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2 sm:gap-3">
-            <UseMyLocationButton variant="compact" />
+          <div className="hidden lg:flex justify-end mt-2">
             <AuthButton />
-            <Link
-              href="/pedido-ajuda"
-              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-emerald-200"
-            >
-              🤝 Preciso de Ajuda
-            </Link>
-            <Link
-              href="/interdicoes"
-              className="bg-red-50 hover:bg-red-100 text-red-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-red-200"
-            >
-              🚧 Riscos / Interdições
-            </Link>
           </div>
         </div>
       </nav>
@@ -1223,6 +1364,148 @@ export default async function Home(props: HomeProps) {
             </Link>
           </div>
         )}
+
+        <section className="mt-2 pb-12">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3">
+            <h2 className="text-2xl font-bold text-violet-700">
+              Pessoas Desaparecidas
+            </h2>
+            <Link
+              href="/encontrar-pessoas"
+              className="text-sm font-bold text-violet-700 hover:text-violet-900"
+            >
+              Ver todos os registros
+            </Link>
+          </div>
+
+          {pessoasDesaparecidas.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pessoasDesaparecidas.map((item) => {
+                const fotos = pessoasFotosById.get(item.id) ?? [];
+                const fotoCard = item.foto_url || fotos[0] || null;
+
+                return (
+                  <article
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-violet-100 shadow-sm overflow-hidden"
+                  >
+                    {fotoCard ? (
+                      <Image
+                        src={fotoCard}
+                        alt={`Foto de ${item.nome}`}
+                        width={900}
+                        height={560}
+                        unoptimized
+                        className="h-44 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-44 w-full bg-slate-100 flex items-center justify-center text-5xl">
+                        🧍
+                      </div>
+                    )}
+                    <div className="p-4 space-y-2">
+                      <h3 className="text-lg font-bold text-slate-900 truncate">
+                        {item.nome}
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        📍 {item.cidade} - {item.estado}
+                      </p>
+                      <p className="text-sm text-slate-600 line-clamp-2">
+                        {item.descricao}
+                      </p>
+                      <EncontrarMaisInformacoesButton
+                        titulo={item.nome}
+                        cidade={item.cidade}
+                        estado={item.estado}
+                        descricao={item.descricao}
+                        fotoUrl={item.foto_url}
+                        fotoUrls={fotos}
+                        contato={item.contato}
+                      />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-6 text-slate-500">
+              Não há registros de pessoas desaparecidas no momento.
+            </div>
+          )}
+        </section>
+
+        <section className="mt-2 pb-12">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3">
+            <h2 className="text-2xl font-bold text-amber-700">
+              Animais Desaparecidos
+            </h2>
+            <Link
+              href="/encontrar-animais"
+              className="text-sm font-bold text-amber-700 hover:text-amber-900"
+            >
+              Ver todos os registros
+            </Link>
+          </div>
+
+          {animaisDesaparecidos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {animaisDesaparecidos.map((item) => {
+                const fotos = animaisFotosById.get(item.id) ?? [];
+                const fotoCard = item.foto_url || fotos[0] || null;
+
+                return (
+                  <article
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden"
+                  >
+                    {fotoCard ? (
+                      <Image
+                        src={fotoCard}
+                        alt={`Foto de ${item.nome}`}
+                        width={900}
+                        height={560}
+                        unoptimized
+                        className="h-44 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-44 w-full bg-slate-100 flex items-center justify-center text-5xl">
+                        🐾
+                      </div>
+                    )}
+                    <div className="p-4 space-y-2">
+                      <h3 className="text-lg font-bold text-slate-900 truncate">
+                        {item.nome}
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        📍 {item.cidade} - {item.estado}
+                      </p>
+                      <p className="text-sm text-slate-600">
+                        🐶🐱 {item.especie}
+                      </p>
+                      <p className="text-sm text-slate-600 line-clamp-2">
+                        {item.descricao}
+                      </p>
+                      <EncontrarMaisInformacoesButton
+                        titulo={item.nome}
+                        subtitulo={item.especie}
+                        cidade={item.cidade}
+                        estado={item.estado}
+                        descricao={item.descricao}
+                        fotoUrl={item.foto_url}
+                        fotoUrls={fotos}
+                        contato={item.contato}
+                      />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-6 text-slate-500">
+              Não há registros de animais desaparecidos no momento.
+            </div>
+          )}
+        </section>
 
         <section className="mt-2 pb-16">
           <h2 className="text-2xl font-bold text-red-700 mb-4">
