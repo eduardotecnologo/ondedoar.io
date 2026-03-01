@@ -1,7 +1,10 @@
-const FIXED_ADMIN_EMAIL = "edudeveloperctk@gmail.com";
+const FIXED_ADMIN_EMAILS = [
+  "edudeveloperctk@gmail.com",
+  "eduardotecnologo@hotmail.com",
+];
 
 export function getAdminEmails(): string[] {
-  return [FIXED_ADMIN_EMAIL];
+  return FIXED_ADMIN_EMAILS;
 }
 
 export function isAdminEmail(email: string | null | undefined): boolean {
