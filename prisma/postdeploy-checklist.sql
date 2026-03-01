@@ -23,6 +23,7 @@ VALUES
   ('ABRIGO', '🏠'),
   ('ABRIGO ANIMAIS', '🐶🐱'),
   ('ALIMENTO ANIMAIS', '🐾'),
+  ('ELETRO DOMESTICO', '🔌'),
   ('VOLUNTARIO', '🤝'),
   ('FRAUDAS', '👶'),
   ('DOCUMENTOS', '📄')
@@ -110,3 +111,18 @@ CREATE INDEX IF NOT EXISTS ponto_imagens_ponto_id_idx
 
 CREATE INDEX IF NOT EXISTS ponto_imagens_ordem_idx
   ON ponto_imagens(ponto_id, ordem);
+
+-- 8) Telemetria leve de reverse geocoding (sem dados pessoais)
+CREATE TABLE IF NOT EXISTS geocode_reverse_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  outcome TEXT NOT NULL,
+  lat_rounded NUMERIC(6,2),
+  lon_rounded NUMERIC(6,2),
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS geocode_reverse_events_outcome_idx
+  ON geocode_reverse_events(outcome);
+
+CREATE INDEX IF NOT EXISTS geocode_reverse_events_criado_em_idx
+  ON geocode_reverse_events(criado_em);

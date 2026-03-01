@@ -708,7 +708,7 @@ export default async function Home(props: HomeProps) {
               href="/interdicoes"
               className="bg-red-50 hover:bg-red-100 text-red-700 px-4 sm:px-5 py-2 rounded-full font-bold transition-all text-xs sm:text-sm whitespace-nowrap border border-red-200"
             >
-              🚧 Ruas Interditadas
+              🚧 Riscos / Interdições
             </Link>
           </div>
         </div>

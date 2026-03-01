@@ -50,6 +50,17 @@ type OverpassResponse = {
   elements?: OverpassElement[];
 };
 
+const OVERPASS_ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+
+const OVERPASS_COOLDOWN_MS = 5 * 60 * 1000;
+const OVERPASS_MAX_LOOKUPS_PER_RENDER = 8;
+
+let overpassBlockedUntil = 0;
+const ruaGeometriaCache = new Map<string, [number, number][] | null>();
+
 function buildRuaSinalizacao(
   latitude: number,
   longitude: number,
@@ -74,43 +85,76 @@ async function fetchRuaGeometria(
   const ruaEscaped = escapeRegex(item.rua.trim());
   if (!ruaEscaped) return null;
 
+  const cacheKey = `${ruaEscaped}|${item.latitude.toFixed(5)}|${item.longitude.toFixed(5)}`;
+  if (ruaGeometriaCache.has(cacheKey)) {
+    return ruaGeometriaCache.get(cacheKey) ?? null;
+  }
+
+  if (Date.now() < overpassBlockedUntil) {
+    ruaGeometriaCache.set(cacheKey, null);
+    return null;
+  }
+
   const query = `[out:json][timeout:20];way(around:120,${item.latitude},${item.longitude})["highway"]["name"~"^${ruaEscaped}$",i];out geom;`;
 
-  const response = await fetch("https://overpass-api.de/api/interpreter", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-    body: `data=${encodeURIComponent(query)}`,
-  });
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      body: `data=${encodeURIComponent(query)}`,
+    });
 
-  if (!response.ok) return null;
+    if (response.status === 429) {
+      overpassBlockedUntil = Date.now() + OVERPASS_COOLDOWN_MS;
+      continue;
+    }
 
-  const data = (await response.json()) as OverpassResponse;
-  const ways = (data.elements ?? []).filter(
-    (element) => Array.isArray(element.geometry) && element.geometry.length > 1,
-  );
+    if (!response.ok) {
+      continue;
+    }
 
-  if (ways.length === 0) return null;
+    const data = (await response.json()) as OverpassResponse;
+    const ways = (data.elements ?? []).filter(
+      (element) =>
+        Array.isArray(element.geometry) && element.geometry.length > 1,
+    );
 
-  const bestWay = ways
-    .map((way) => {
-      const distance = Math.min(
-        ...(way.geometry ?? []).map((point) =>
-          Math.hypot(point.lat - item.latitude, point.lon - item.longitude),
-        ),
-      );
+    if (ways.length === 0) {
+      continue;
+    }
 
-      return {
-        way,
-        distance,
-      };
-    })
-    .sort((a, b) => a.distance - b.distance)[0]?.way;
+    const bestWay = ways
+      .map((way) => {
+        const distance = Math.min(
+          ...(way.geometry ?? []).map((point) =>
+            Math.hypot(point.lat - item.latitude, point.lon - item.longitude),
+          ),
+        );
 
-  if (!bestWay?.geometry || bestWay.geometry.length < 2) return null;
+        return {
+          way,
+          distance,
+        };
+      })
+      .sort((a, b) => a.distance - b.distance)[0]?.way;
 
-  return bestWay.geometry.map((point) => [point.lat, point.lon]);
+    if (!bestWay?.geometry || bestWay.geometry.length < 2) {
+      continue;
+    }
+
+    const geometry = bestWay.geometry.map((point) => [
+      point.lat,
+      point.lon,
+    ]) as [number, number][];
+
+    ruaGeometriaCache.set(cacheKey, geometry);
+    return geometry;
+  }
+
+  ruaGeometriaCache.set(cacheKey, null);
+  return null;
 }
 
 function FitToInterdicoes({
@@ -148,12 +192,16 @@ export default function MapaInterdicoes({
 }: {
   interdicoes: Interdicao[];
 }) {
-  const validas = interdicoes.filter(
-    (item): item is InterdicaoComCoordenada =>
-      typeof item.latitude === "number" &&
-      typeof item.longitude === "number" &&
-      item.latitude !== 0 &&
-      item.longitude !== 0,
+  const validas = React.useMemo(
+    () =>
+      interdicoes.filter(
+        (item): item is InterdicaoComCoordenada =>
+          typeof item.latitude === "number" &&
+          typeof item.longitude === "number" &&
+          item.latitude !== 0 &&
+          item.longitude !== 0,
+      ),
+    [interdicoes],
   );
 
   const [ruasGeometria, setRuasGeometria] = React.useState<
@@ -164,16 +212,19 @@ export default function MapaInterdicoes({
     let active = true;
 
     async function loadGeometrias() {
-      const pairs = await Promise.all(
-        validas.map(async (item) => {
-          try {
-            const geometry = await fetchRuaGeometria(item);
-            return [item.id, geometry] as const;
-          } catch {
-            return [item.id, null] as const;
-          }
-        }),
-      );
+      const pairs: Array<readonly [string, [number, number][] | null]> = [];
+      const targets = validas.slice(0, OVERPASS_MAX_LOOKUPS_PER_RENDER);
+
+      for (const item of targets) {
+        if (!active) break;
+
+        try {
+          const geometry = await fetchRuaGeometria(item);
+          pairs.push([item.id, geometry] as const);
+        } catch {
+          pairs.push([item.id, null] as const);
+        }
+      }
 
       if (!active) return;
 

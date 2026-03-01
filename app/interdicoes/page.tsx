@@ -11,11 +11,24 @@ import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
 import type { Interdicao } from "@/types/interdicao";
 import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
 import UFCidadeSelect from "@/components/UFCidadeSelect";
+import { getCityRisk } from "@/lib/city-risk";
+import MapaRiscoCamadasWrapper from "@/components/MapaRiscoCamadasWrapper";
+import RiscoCidadeForm from "@/components/RiscoCidadeForm";
 
 type InterdicoesPageProps = {
   searchParams?:
-    | Promise<{ success?: string; error?: string }>
-    | { success?: string; error?: string };
+    | Promise<{
+        success?: string;
+        error?: string;
+        risk_cidade?: string;
+        risk_uf?: string;
+      }>
+    | {
+        success?: string;
+        error?: string;
+        risk_cidade?: string;
+        risk_uf?: string;
+      };
 };
 
 const errorMap: Record<string, string> = {
@@ -35,7 +48,15 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
   const query = (await (props.searchParams ?? {})) as {
     success?: string;
     error?: string;
+    risk_cidade?: string;
+    risk_uf?: string;
   };
+
+  const riskCidade = query.risk_cidade?.trim() || "Juiz de Fora";
+  const riskUf = query.risk_uf?.trim().toUpperCase() || "MG";
+
+  const riscoCidade =
+    riskCidade && riskUf ? await getCityRisk(riskCidade, riskUf) : null;
 
   const user = session?.user?.email
     ? await prisma.user.findUnique({
@@ -109,6 +130,89 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
             Cadastre e consulte interdições em tempo real pela comunidade.
           </p>
         </header>
+
+        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            Risco por cidade (enchente/deslizamento)
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">
+            Consulta gratuita baseada na previsão de chuva (Open-Meteo).
+          </p>
+
+          <RiscoCidadeForm defaultCidade={riskCidade} defaultUf={riskUf} />
+
+          {riskCidade && riskUf && !riscoCidade && (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+              Não foi possível localizar dados para {riskCidade}/{riskUf}. Tente
+              ajustar cidade/UF.
+            </div>
+          )}
+
+          {riscoCidade && (
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+              <div>
+                <p className="text-sm text-slate-500">Cidade consultada</p>
+                <p className="font-bold text-slate-800">
+                  {riscoCidade.cidade} - {riscoCidade.estado}
+                </p>
+                <p className="text-xs text-slate-500">
+                  Lat/Lon: {riscoCidade.latitude.toFixed(4)},{" "}
+                  {riscoCidade.longitude.toFixed(4)}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <p className="text-slate-500">Chuva hoje</p>
+                  <p className="text-lg font-bold text-slate-800">
+                    {riscoCidade.chuvaMmHoje} mm
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <p className="text-slate-500">Chuva amanhã</p>
+                  <p className="text-lg font-bold text-slate-800">
+                    {riscoCidade.chuvaMmAmanha} mm
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <p className="text-slate-500">Acumulado 3 dias</p>
+                  <p className="text-lg font-bold text-slate-800">
+                    {riscoCidade.chuvaMm3Dias} mm
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <p className="text-slate-500">Risco de enchente</p>
+                  <p className="text-lg font-extrabold text-slate-800">
+                    {riscoCidade.riscoEnchente}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white border border-slate-200 p-3">
+                  <p className="text-slate-500">Risco de deslizamento</p>
+                  <p className="text-lg font-extrabold text-slate-800">
+                    {riscoCidade.riscoDeslizamento}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500">{riscoCidade.resumo}</p>
+              <p className="text-xs text-slate-500">
+                Fonte: {riscoCidade.fonte}
+              </p>
+
+              <MapaRiscoCamadasWrapper
+                cidade={riscoCidade.cidade}
+                estado={riscoCidade.estado}
+                latitude={riscoCidade.latitude}
+                longitude={riscoCidade.longitude}
+                riscoEnchente={riscoCidade.riscoEnchente}
+                riscoDeslizamento={riscoCidade.riscoDeslizamento}
+              />
+            </div>
+          )}
+        </section>
 
         {successMessage && (
           <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">

@@ -8,6 +8,7 @@ async function main() {
     { nome: "ALIMENTOS", icone: "🍎" },
     { nome: "ALIMENTO ANIMAIS", icone: "🐾" },
     { nome: "DOCUMENTOS", icone: "📄" },
+    { nome: "ELETRO DOMESTICO", icone: "🔌" },
     { nome: "COLCHOES", icone: "🛏️" },
     { nome: "REMEDIOS", icone: "💊" },
     { nome: "MOVEIS", icone: "🪑" },
