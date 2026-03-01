@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopMenu from "@/components/TopMenu";
+import VisitTracker from "@/components/VisitTracker";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
       >
         <div className="min-h-screen flex flex-col">
           <Providers>
+            <VisitTracker />
             <TopMenu />
 
             <div className="flex-1">{children}</div>

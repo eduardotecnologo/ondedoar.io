@@ -87,6 +87,14 @@ export default function TopMenu() {
                 Acessos
               </Link>
             )}
+            {canSeeAcessos && (
+              <Link
+                href="/health"
+                className="hover:text-blue-600 transition-colors"
+              >
+                Health
+              </Link>
+            )}
             <Link
               href="/pedido-ajuda"
               className="hover:text-blue-600 transition-colors"
@@ -127,6 +135,15 @@ export default function TopMenu() {
                 onClick={() => setIsOpen(false)}
               >
                 Acessos
+              </Link>
+            )}
+            {canSeeAcessos && (
+              <Link
+                href="/health"
+                className="hover:text-blue-600 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Health
               </Link>
             )}
           </div>

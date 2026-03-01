@@ -656,6 +656,54 @@ export default async function Home(props: HomeProps) {
     console.warn("Contagem de pedidos de ajuda indisponível na Home:", error);
   }
 
+  const monitoramentoResumo: {
+    disponivel: boolean;
+    eventos24h: number;
+    erros24h: number;
+    fontesAtivas: number;
+    ultimoEventoEm: Date | null;
+  } = {
+    disponivel: false,
+    eventos24h: 0,
+    erros24h: 0,
+    fontesAtivas: 0,
+    ultimoEventoEm: null,
+  };
+
+  if (canSeeAcessos) {
+    try {
+      const monitoramentoRows = await prisma.$queryRaw<
+        Array<{
+          eventos_24h: number;
+          erros_24h: number;
+          fontes_ativas: number;
+          ultimo_evento_em: Date | null;
+        }>
+      >`
+        SELECT
+          COUNT(*) FILTER (WHERE created_at >= now() - interval '24 hours')::int AS eventos_24h,
+          COUNT(*) FILTER (
+            WHERE created_at >= now() - interval '24 hours'
+              AND level = 'ERROR'
+          )::int AS erros_24h,
+          COUNT(DISTINCT source) FILTER (WHERE created_at >= now() - interval '24 hours')::int AS fontes_ativas,
+          MAX(created_at) AS ultimo_evento_em
+        FROM observability_events
+      `;
+
+      const row = monitoramentoRows[0];
+      if (row) {
+        monitoramentoResumo.disponivel = true;
+        monitoramentoResumo.eventos24h = row.eventos_24h ?? 0;
+        monitoramentoResumo.erros24h = row.erros_24h ?? 0;
+        monitoramentoResumo.fontesAtivas = row.fontes_ativas ?? 0;
+        monitoramentoResumo.ultimoEventoEm = row.ultimo_evento_em ?? null;
+      }
+    } catch (error) {
+      console.warn("Resumo de monitoramento indisponível na Home:", error);
+    }
+  }
+
   const buildWhatsAppUrl = (
     phone: string | null | undefined,
   ): string | null => {
@@ -860,6 +908,14 @@ export default async function Home(props: HomeProps) {
                   🔐 Acessos
                 </Link>
               )}
+              {canSeeAcessos && (
+                <Link
+                  href="/health"
+                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-emerald-200"
+                >
+                  💓 Health
+                </Link>
+              )}
             </div>
 
             <HomeMobileMenu />
@@ -882,6 +938,80 @@ export default async function Home(props: HomeProps) {
           <div className="max-w-6xl mx-auto text-sm font-medium text-amber-800">
             Banco de dados indisponível no momento. Exibindo a página em modo
             limitado.
+          </div>
+        </section>
+      )}
+
+      {canSeeAcessos && (
+        <section className="bg-slate-50 px-4 pt-4">
+          <div className="max-w-6xl mx-auto rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-slate-800">
+                  Monitoramento (24h)
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Visão rápida da saúde operacional do sistema.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/acessos"
+                  className="inline-flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors"
+                >
+                  Abrir painel
+                </Link>
+                <Link
+                  href="/health"
+                  className="inline-flex bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors border border-emerald-200"
+                >
+                  Healthcheck
+                </Link>
+              </div>
+            </div>
+
+            {monitoramentoResumo.disponivel ? (
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs uppercase text-slate-500">
+                    Eventos 24h
+                  </p>
+                  <p className="font-extrabold text-slate-800 text-xl">
+                    {monitoramentoResumo.eventos24h}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-red-100 bg-red-50 px-3 py-2">
+                  <p className="text-xs uppercase text-red-500">Erros 24h</p>
+                  <p className="font-extrabold text-red-700 text-xl">
+                    {monitoramentoResumo.erros24h}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs uppercase text-slate-500">
+                    Fontes ativas
+                  </p>
+                  <p className="font-extrabold text-slate-800 text-xl">
+                    {monitoramentoResumo.fontesAtivas}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs uppercase text-slate-500">
+                    Último evento
+                  </p>
+                  <p className="font-bold text-slate-700 text-xs mt-1">
+                    {monitoramentoResumo.ultimoEventoEm
+                      ? new Date(
+                          monitoramentoResumo.ultimoEventoEm,
+                        ).toLocaleString("pt-BR")
+                      : "Sem eventos"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                Não foi possível carregar o resumo de monitoramento agora.
+              </p>
+            )}
           </div>
         </section>
       )}

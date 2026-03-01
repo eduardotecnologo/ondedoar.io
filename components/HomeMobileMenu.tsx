@@ -95,6 +95,15 @@ export default function HomeMobileMenu() {
                   🔐 Acessos
                 </Link>
               )}
+              {canSeeAcessos && (
+                <Link
+                  href="/health"
+                  onClick={() => setOpen(false)}
+                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl font-bold transition-all text-sm whitespace-nowrap border border-emerald-200 text-center"
+                >
+                  💓 Health
+                </Link>
+              )}
             </div>
           </div>
         </>
