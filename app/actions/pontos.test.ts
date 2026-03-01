@@ -14,6 +14,7 @@ const isRedirectErrorMock = vi.fn((error: unknown) => {
 const prismaUserFindUniqueMock = vi.fn();
 const prismaPontoCreateMock = vi.fn();
 const prismaTipoDoacaoFindFirstMock = vi.fn();
+const prismaExecuteRawMock = vi.fn();
 
 vi.mock("next-auth/next", () => ({
   getServerSession: (...args: unknown[]) => getServerSessionMock(...args),
@@ -46,6 +47,7 @@ vi.mock("@/lib/prisma", () => ({
     pontoColeta: {
       create: (args: unknown) => prismaPontoCreateMock(args),
     },
+    $executeRaw: (...args: unknown[]) => prismaExecuteRawMock(...args),
   },
 }));
 
@@ -68,10 +70,20 @@ function buildValidFormData(): FormData {
   return formData;
 }
 
+function buildImageFile(
+  name = "foto.png",
+  type = "image/png",
+  size = 1024,
+): File {
+  const content = new Uint8Array(size).fill(1);
+  return new File([content], name, { type });
+}
+
 describe("cadastrarPonto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaTipoDoacaoFindFirstMock.mockResolvedValue(null);
+    prismaExecuteRawMock.mockResolvedValue(null);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -94,6 +106,99 @@ describe("cadastrarPonto", () => {
     expect(prismaPontoCreateMock).not.toHaveBeenCalled();
   });
 
+  it("redireciona quando cep está vazio", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    formData.set("cep", "  ");
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=1",
+    );
+  });
+
+  it("redireciona quando não há categorias", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    formData.delete("categorias");
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=no_category",
+    );
+  });
+
+  it("redireciona quando há fotos demais", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    for (let i = 0; i < 9; i += 1) {
+      formData.append("foto_ponto", buildImageFile(`foto-${i}.png`));
+    }
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=too_many_photos",
+    );
+  });
+
+  it("redireciona quando total das fotos excede limite", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    formData.append(
+      "foto_ponto",
+      buildImageFile("a.png", "image/png", 7 * 1024 * 1024),
+    );
+    formData.append(
+      "foto_ponto",
+      buildImageFile("b.png", "image/png", 6 * 1024 * 1024),
+    );
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=photo_total_too_large",
+    );
+  });
+
+  it("redireciona quando foto não é imagem", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    formData.append(
+      "foto_ponto",
+      buildImageFile("doc.txt", "text/plain", 1024),
+    );
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=invalid_photo",
+    );
+  });
+
+  it("redireciona quando foto individual excede 4MB", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+
+    const formData = buildValidFormData();
+    formData.append(
+      "foto_ponto",
+      buildImageFile("grande.png", "image/png", 5 * 1024 * 1024),
+    );
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=photo_too_large",
+    );
+  });
+
   it("cria ponto com número e categorias e redireciona com sucesso", async () => {
     getServerSessionMock.mockResolvedValue({
       user: { email: "user@example.com" },
@@ -101,7 +206,14 @@ describe("cadastrarPonto", () => {
     prismaUserFindUniqueMock.mockResolvedValue({ id: "user-1" });
     prismaPontoCreateMock.mockResolvedValue({ id: "ponto-1" });
 
-    await expect(cadastrarPonto(buildValidFormData())).rejects.toThrow(
+    const formData = buildValidFormData();
+    formData.set("website", "@ondedoar");
+    formData.append(
+      "foto_ponto",
+      buildImageFile("foto.png", "image/png", 1200),
+    );
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
       "NEXT_REDIRECT:/?success=1",
     );
 
@@ -119,11 +231,35 @@ describe("cadastrarPonto", () => {
 
     expect(createCallArg.data.endereco).toBe("Rua A");
     expect(createCallArg.data.numero).toBe("123");
+    expect(createCallArg.data.descricao).toContain(
+      "Instagram: https://instagram.com/ondedoar",
+    );
     expect(createCallArg.data.ponto_categorias?.create).toEqual([
       { categoria_id: "cat-1" },
       { categoria_id: "cat-2" },
     ]);
+    expect(prismaExecuteRawMock).toHaveBeenCalled();
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
+  });
+
+  it("redireciona quando categoria de fraldas é selecionada sem público válido", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+    prismaUserFindUniqueMock.mockResolvedValue({ id: "user-1" });
+
+    prismaTipoDoacaoFindFirstMock
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: "cat-fraldas" });
+
+    const formData = buildValidFormData();
+    formData.delete("categorias");
+    formData.append("categorias", "cat-fraldas");
+    formData.set("fraldas_publico", "idoso");
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/cadastrar?error=fraldas_publico",
+    );
   });
 
   it("redireciona para erro quando create falha", async () => {
