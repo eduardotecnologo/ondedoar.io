@@ -16,10 +16,7 @@ export default function RiscoCidadeForm({
   >("idle");
   const [locationDetected, setLocationDetected] = React.useState(false);
 
-  const formRef = React.useRef<HTMLFormElement | null>(null);
-  const autoSubmittedRef = React.useRef(false);
-
-  const loadCurrentLocation = React.useCallback((autoSubmit: boolean) => {
+  const loadCurrentLocation = React.useCallback(() => {
     if (!navigator.geolocation) {
       setStatus("error");
       return;
@@ -71,11 +68,6 @@ export default function RiscoCidadeForm({
           setUf(data.uf.toUpperCase());
           setStatus("idle");
           setLocationDetected(true);
-
-          if (autoSubmit && formRef.current && !autoSubmittedRef.current) {
-            autoSubmittedRef.current = true;
-            formRef.current.requestSubmit();
-          }
         } catch {
           setStatus("error");
         }
@@ -92,16 +84,12 @@ export default function RiscoCidadeForm({
   }, []);
 
   React.useEffect(() => {
-    loadCurrentLocation(true);
+    loadCurrentLocation();
   }, [loadCurrentLocation]);
 
   return (
     <>
-      <form
-        ref={formRef}
-        method="GET"
-        className="grid grid-cols-1 md:grid-cols-4 gap-3"
-      >
+      <form method="GET" className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <input
           name="risk_cidade"
           value={cidade}
@@ -136,7 +124,7 @@ export default function RiscoCidadeForm({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => loadCurrentLocation(true)}
+          onClick={loadCurrentLocation}
           className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
         >
           Usar minha localização
