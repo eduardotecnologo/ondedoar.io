@@ -35,11 +35,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         <div className="min-h-screen flex flex-col">
-          <TopMenu />
+          <Providers>
+            <TopMenu />
 
-          <div className="flex-1">
-            <Providers>{children}</Providers>
-          </div>
+            <div className="flex-1">{children}</div>
+          </Providers>
 
           <footer className="bg-slate-100 border-t border-slate-200 p-4">
             <div className="max-w-6xl mx-auto flex flex-wrap gap-3 justify-center">
