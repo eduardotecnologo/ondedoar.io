@@ -36,6 +36,7 @@ export async function alterarSenha(formData: FormData): Promise<void> {
   try {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true, password: true },
     });
 
     if (!user || !user.password) {
@@ -207,6 +208,7 @@ export async function solicitarResetSenha(formData: FormData): Promise<void> {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
+      select: { id: true },
     });
 
     if (user?.id) {

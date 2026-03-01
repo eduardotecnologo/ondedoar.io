@@ -11,6 +11,7 @@ export async function deletarPonto(pontoId: string) {
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
+    select: { id: true, email: true },
   });
 
   if (!user) throw new Error("Usuário não encontrado.");

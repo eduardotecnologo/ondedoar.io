@@ -20,6 +20,12 @@ const credentialsProvider = CredentialsProvider({
 
     const user = await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        email: true,
+        nome: true,
+        password: true,
+      },
     });
 
     if (!user || !user.password) return null;

@@ -19,6 +19,11 @@ export async function registerUser(formData: FormData): Promise<void> {
   // Verifica se o usuário já existe
   const userExists = await prisma.user.findUnique({
     where: { email },
+    select: {
+      id: true,
+      nome: true,
+      password: true,
+    },
   });
 
   if (userExists) {
