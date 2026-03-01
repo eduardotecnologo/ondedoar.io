@@ -14,6 +14,8 @@ const CATEGORIAS_VALIDAS = [
   "HIGIENE",
   "REMEDIO",
   "ABRIGO",
+  "MOVEIS",
+  "ELETRODOMESTICO",
   "DOCUMENTOS",
   "OUTRO",
 ] as const;

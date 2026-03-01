@@ -43,6 +43,34 @@ function buildWhatsAppUrl(contato: string): string | null {
   return `https://wa.me/${sanitized}`;
 }
 
+const CATEGORIA_LABELS: Record<string, string> = {
+  ALIMENTOS: "Alimentos",
+  AGASALHO: "Agasalho",
+  HIGIENE: "Higiene",
+  REMEDIO: "Remédio",
+  ABRIGO: "Abrigo",
+  MOVEIS: "Móveis",
+  ELETRODOMESTICO: "Eletrodoméstico",
+  DOCUMENTOS: "Documentos",
+  OUTRO: "Outro",
+};
+
+function formatCategoria(categoria: string): string {
+  const key = categoria.trim().toUpperCase();
+  return CATEGORIA_LABELS[key] || categoria;
+}
+
+const URGENCIA_LABELS: Record<string, string> = {
+  BAIXA: "Baixa",
+  MEDIA: "Média",
+  ALTA: "Alta",
+};
+
+function formatUrgencia(urgencia: string): string {
+  const key = urgencia.trim().toUpperCase();
+  return URGENCIA_LABELS[key] || urgencia;
+}
+
 export default async function PedidoAjudaPage(props: PedidoAjudaPageProps) {
   const rawSearchParams = (await (props.searchParams ?? {})) as {
     success?: string | string[];
@@ -321,7 +349,8 @@ export default async function PedidoAjudaPage(props: PedidoAjudaPageProps) {
                   📍 {pedido.cidade} - {pedido.estado}
                 </p>
                 <p className="text-sm text-slate-600">
-                  🏷️ {pedido.categoria} • ⚡ {pedido.urgencia}
+                  🏷️ {formatCategoria(pedido.categoria)} • ⚡{" "}
+                  {formatUrgencia(pedido.urgencia)}
                 </p>
                 <p className="text-sm text-slate-600">📞 {pedido.contato}</p>
 
