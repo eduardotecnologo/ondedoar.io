@@ -150,7 +150,21 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     (item): item is File => item instanceof File && item.size > 0,
   );
 
+  const maxFotos = 8;
+  if (fotosPonto.length > maxFotos) {
+    redirect("/cadastrar?error=too_many_photos");
+  }
+
   const maxFileSizeInBytes = 4 * 1024 * 1024;
+  const maxTotalFotosSizeInBytes = 12 * 1024 * 1024;
+  const totalFotosSize = fotosPonto.reduce(
+    (total, foto) => total + foto.size,
+    0,
+  );
+
+  if (totalFotosSize > maxTotalFotosSizeInBytes) {
+    redirect("/cadastrar?error=photo_total_too_large");
+  }
 
   for (const fotoPonto of fotosPonto) {
     if (!fotoPonto.type.startsWith("image/")) {

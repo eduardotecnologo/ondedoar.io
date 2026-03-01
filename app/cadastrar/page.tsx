@@ -120,6 +120,42 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
           </div>
         )}
 
+        {resolvedParams?.error === "too_many_photos" && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Muitas imagens selecionadas
+                </h3>
+                <p className="text-sm text-amber-700">
+                  Você pode enviar no máximo 8 imagens por ponto.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {resolvedParams?.error === "photo_total_too_large" && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Total de imagens excedeu o limite
+                </h3>
+                <p className="text-sm text-amber-700">
+                  O total enviado deve ter no máximo 12MB.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Card Principal */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
           {/* Header */}
