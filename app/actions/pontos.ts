@@ -26,6 +26,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
   const website = (formData.get("website") as string) || "";
+  const fotoPonto = formData.get("foto_ponto");
   const statusAutoAtivarEmRaw =
     (formData.get("status_auto_ativar_em") as string) || "";
   const statusAutoInativarEmRaw =
@@ -145,6 +146,22 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     .filter(Boolean)
     .join("\n");
 
+  let fotoPontoDataUrl: string | null = null;
+
+  if (fotoPonto instanceof File && fotoPonto.size > 0) {
+    if (!fotoPonto.type.startsWith("image/")) {
+      redirect("/cadastrar?error=invalid_photo");
+    }
+
+    const maxFileSizeInBytes = 4 * 1024 * 1024;
+    if (fotoPonto.size > maxFileSizeInBytes) {
+      redirect("/cadastrar?error=photo_too_large");
+    }
+
+    const fotoBuffer = Buffer.from(await fotoPonto.arrayBuffer());
+    fotoPontoDataUrl = `data:${fotoPonto.type};base64,${fotoBuffer.toString("base64")}`;
+  }
+
   // Geocoding via Nominatim
   let latitude = 0;
   let longitude = 0;
@@ -262,12 +279,13 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       await prisma.$executeRaw`
         UPDATE pontos_coleta
         SET status_auto_ativar_em = ${statusAutoAtivarEm},
-            status_auto_inativar_em = ${statusAutoInativarEm}
+            status_auto_inativar_em = ${statusAutoInativarEm},
+            foto_ponto = ${fotoPontoDataUrl}
         WHERE id = ${pontoCriado.id}::uuid
       `;
     } catch (timerError) {
       console.warn(
-        "Não foi possível salvar timer automático do ponto:",
+        "Não foi possível salvar timer automático/foto do ponto:",
         timerError,
       );
     }

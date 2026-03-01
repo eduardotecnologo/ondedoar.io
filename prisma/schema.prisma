@@ -50,6 +50,7 @@ model PontoColeta {
   id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   nome             String
   descricao        String?
+  foto_ponto       String?
   status_doacao    String?
   status_auto_ativar_em   DateTime?      @db.Timestamptz(6)
   status_auto_inativar_em DateTime?      @db.Timestamptz(6)

@@ -10,6 +10,7 @@ ALTER TABLE pontos_coleta
   ADD COLUMN IF NOT EXISTS voluntario_contato_agendamento TEXT,
   ADD COLUMN IF NOT EXISTS voluntario_disponivel BOOLEAN,
   ADD COLUMN IF NOT EXISTS fraldas_publico TEXT,
+  ADD COLUMN IF NOT EXISTS foto_ponto TEXT,
   ADD COLUMN IF NOT EXISTS status_auto_ativar_em TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS status_auto_inativar_em TIMESTAMPTZ;
 

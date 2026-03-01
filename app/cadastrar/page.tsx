@@ -83,6 +83,42 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
           </div>
         )}
 
+        {resolvedParams?.error === "invalid_photo" && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Formato de imagem inválido
+                </h3>
+                <p className="text-sm text-amber-700">
+                  Envie apenas arquivos de imagem (JPG, PNG, WEBP, etc.).
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {resolvedParams?.error === "photo_too_large" && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center">
+              <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Imagem muito grande
+                </h3>
+                <p className="text-sm text-amber-700">
+                  A imagem deve ter no máximo 4MB.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Card Principal */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
           {/* Header */}
@@ -97,7 +133,11 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
           </div>
 
           {/* Formulário */}
-          <form action={cadastrarPonto} className="p-8 space-y-8">
+          <form
+            action={cadastrarPonto}
+            encType="multipart/form-data"
+            className="p-8 space-y-8"
+          >
             <ClientTimezoneOffsetField />
             {/* Informações Básicas */}
             <div className="space-y-6">
@@ -283,6 +323,22 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 />
                 <p className="mt-2 text-xs text-slate-500">
                   Esse texto aparece no botão “Ver Detalhes” na página inicial.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Adicionar imagem (opcional)
+                </label>
+                <input
+                  name="foto_ponto"
+                  type="file"
+                  accept="image/*"
+                  className="w-full p-4 rounded-2xl border border-slate-200 bg-white outline-none transition-all shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white file:font-bold hover:file:bg-blue-700"
+                />
+                <p className="mt-2 text-xs text-slate-500">
+                  Essa imagem aparecerá no botão “Ver Detalhes” da Home (máx.
+                  4MB).
                 </p>
               </div>
 

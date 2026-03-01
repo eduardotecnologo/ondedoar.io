@@ -300,6 +300,8 @@ export default async function Home(props: HomeProps) {
     { statusAutoAtivarEm: Date | null; statusAutoInativarEm: Date | null }
   >();
 
+  const fotoPontoById = new Map<string, string | null>();
+
   try {
     const timerStatusRows = await prisma.$queryRaw<
       Array<{
@@ -320,6 +322,24 @@ export default async function Home(props: HomeProps) {
     }
   } catch (error) {
     console.warn("Timer automático indisponível na Home:", error);
+  }
+
+  try {
+    const fotoRows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        foto_ponto: string | null;
+      }>
+    >`
+      SELECT id, foto_ponto
+      FROM pontos_coleta
+    `;
+
+    for (const row of fotoRows) {
+      fotoPontoById.set(row.id, row.foto_ponto);
+    }
+  } catch (error) {
+    console.warn("Fotos dos pontos indisponíveis na Home:", error);
   }
 
   // Transforma para o formato que os componentes front esperam (types/ponto.ts)
@@ -358,6 +378,7 @@ export default async function Home(props: HomeProps) {
       id: p.id,
       nome: p.nome,
       detalhes: p.descricao ?? null,
+      fotoPonto: fotoPontoById.get(p.id) ?? null,
       statusDoacao: statusAuto ?? statusBase,
       endereco: p.endereco,
       numero: p.numero,
@@ -1154,6 +1175,7 @@ export default async function Home(props: HomeProps) {
                     <PontoDetalhesButton
                       titulo={ponto.nome}
                       detalhes={ponto.detalhes}
+                      fotoPonto={ponto.fotoPonto}
                     />
                   </div>
                 </div>

@@ -11,6 +11,7 @@ export type Ponto = {
   id: string;
   nome: string;
   detalhes?: string | null;
+  fotoPonto?: string | null;
   statusDoacao?:
     | "DOANDO"
     | "DOANDO_RECEBENDO"

@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 export default function PontoDetalhesButton(props: {
   titulo: string;
   detalhes?: string | null;
+  fotoPonto?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -33,7 +34,7 @@ export default function PontoDetalhesButton(props: {
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          className="fixed inset-0 z-100 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={`Detalhes de ${props.titulo}`}
@@ -65,6 +66,14 @@ export default function PontoDetalhesButton(props: {
             </div>
 
             <div className="p-6">
+              {props.fotoPonto && (
+                <img
+                  src={props.fotoPonto}
+                  alt={`Imagem de ${props.titulo}`}
+                  className="w-full max-h-72 object-cover rounded-xl border border-slate-200 mb-4"
+                />
+              )}
+
               {detalhesLimpos ? (
                 <p className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">
                   {detalhesLimpos}
@@ -81,4 +90,3 @@ export default function PontoDetalhesButton(props: {
     </>
   );
 }
-
