@@ -13,6 +13,9 @@ ALTER TABLE pontos_coleta
   ADD COLUMN IF NOT EXISTS status_auto_ativar_em TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS status_auto_inativar_em TIMESTAMPTZ;
 
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS email_verificado_em TIMESTAMPTZ;
+
 -- 2) Garantir categorias padrão mais recentes
 INSERT INTO categorias (nome, icone)
 VALUES

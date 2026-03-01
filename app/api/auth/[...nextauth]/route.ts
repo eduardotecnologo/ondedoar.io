@@ -5,7 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 
 const credentialsProvider = CredentialsProvider({
   name: "Credentials",
@@ -31,7 +31,7 @@ const credentialsProvider = CredentialsProvider({
 
     if (!isPasswordValid) return null;
 
-    const isAdmin = isAdminEmail(user.email);
+    const isAdmin = await isVerifiedAdminEmail(user.email);
 
     return {
       id: user.id,
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
 
       const tokenEmail =
         typeof token.email === "string" ? token.email : user?.email;
-      token.isAdmin = isAdminEmail(tokenEmail);
+      token.isAdmin = await isVerifiedAdminEmail(tokenEmail);
 
       return token;
     },
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.isAdmin = isAdminEmail(session.user.email);
+        session.user.isAdmin = token.isAdmin === true;
       }
       return session;
     },

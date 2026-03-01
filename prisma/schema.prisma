@@ -11,6 +11,7 @@ model User {
   id            String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   nome          String?
   email         String?       @unique
+  email_verificado_em DateTime? @db.Timestamptz(6)
   password      String?
   image         String?
   criado_em     DateTime      @default(now()) @db.Timestamptz(6)

@@ -42,6 +42,13 @@ export default async function EsqueciSenhaPage({
             </div>
           )}
 
+          {query.error === "email_unavailable" && (
+            <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm border border-amber-100">
+              O envio de e-mail está indisponível no momento. Tente novamente em
+              instantes.
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
               E-mail da conta

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 import {
   cadastrarRuaInterditada,
   encerrarRuaInterditada,
@@ -44,7 +44,7 @@ export default async function InterdicoesPage(props: InterdicoesPageProps) {
       })
     : null;
 
-  const isAdmin = isAdminEmail(user?.email ?? null);
+  const isAdmin = await isVerifiedAdminEmail(user?.email ?? null);
 
   const interdicoesRaw = await prisma.ruaInterditada.findMany({
     where: { ativa: true },

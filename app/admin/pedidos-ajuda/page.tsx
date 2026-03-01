@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 import FlashMessage from "@/components/FlashMessage";
 import { atualizarStatusPedidoAjuda } from "@/app/actions/pedido-ajuda";
 
@@ -42,7 +42,10 @@ export default async function AdminPedidosAjudaPage(
   props: AdminPedidosPageProps,
 ) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email || !isAdminEmail(session.user.email)) {
+  if (
+    !session?.user?.email ||
+    !(await isVerifiedAdminEmail(session.user.email))
+  ) {
     redirect("/");
   }
 

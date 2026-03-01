@@ -12,7 +12,7 @@ import {
 } from "@/app/actions/admin";
 import type { Prisma } from "@prisma/client";
 import ConfirmServerActionForm from "@/components/ConfirmServerActionForm";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 
 type PontoWithRelations = Prisma.PontoColetaGetPayload<{
   select: {
@@ -84,7 +84,10 @@ export default async function AdminPage(props: AdminPageProps) {
   };
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email || !isAdminEmail(session.user.email)) {
+  if (
+    !session?.user?.email ||
+    !(await isVerifiedAdminEmail(session.user.email))
+  ) {
     redirect("/");
   }
 

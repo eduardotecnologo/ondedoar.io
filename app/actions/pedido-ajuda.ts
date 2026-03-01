@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 
 const CATEGORIAS_VALIDAS = [
   "ALIMENTOS",
@@ -94,7 +94,10 @@ export async function atualizarStatusPedidoAjuda(
   formData: FormData,
 ): Promise<void> {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email || !isAdminEmail(session.user.email)) {
+  if (
+    !session?.user?.email ||
+    !(await isVerifiedAdminEmail(session.user.email))
+  ) {
     throw new Error("Não autorizado");
   }
 

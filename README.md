@@ -121,6 +121,26 @@ Para habilitar login social com Google, configure no `.env`:
 
 Sem essas variáveis, o projeto continua funcionando com login por e-mail e senha.
 
+## Recuperação de senha por e-mail
+
+Para o fluxo de `Esqueci minha senha` enviar e-mail de redefinição, configure no `.env`:
+
+### Opção A (recomendada): Resend
+
+- `RESEND_API_KEY`
+- `RESEND_FROM` (ex.: `OndeDoar <no-reply@seu-dominio.com>`)
+
+### Opção B: SMTP
+
+- `SMTP_HOST`
+- `SMTP_PORT` (ex.: `587`)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM` (ex.: `ondedoar.io <no-reply@seu-dominio.com>`)
+- `SMTP_SECURE` (`true` para SSL direto, comum em porta `465`)
+
+Também configure `NEXTAUTH_URL` (ou `APP_URL`) com a URL pública do sistema para gerar links corretos.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

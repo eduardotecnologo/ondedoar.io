@@ -6,7 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { isAdminEmail } from "@/lib/admin";
+import { isVerifiedAdminEmail } from "@/lib/admin";
 
 export async function cadastrarRuaInterditada(
   formData: FormData,
@@ -142,7 +142,8 @@ export async function encerrarRuaInterditada(
     }
 
     const canClose =
-      interdicao.user_id === user.id || isAdminEmail(user.email ?? null);
+      interdicao.user_id === user.id ||
+      (await isVerifiedAdminEmail(user.email ?? null));
 
     if (!canClose) {
       redirect("/interdicoes?error=not_allowed");
