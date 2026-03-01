@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import CategoriaVoluntarioFields from "@/components/CategoriaVoluntarioFields";
 import UFCidadeSelect from "@/components/UFCidadeSelect";
 import ClientTimezoneOffsetField from "@/components/ClientTimezoneOffsetField";
+import PontoImagemUploadField from "@/components/PontoImagemUploadField";
 
 interface PageProps {
   searchParams?: Promise<{
@@ -326,21 +327,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                 </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Adicionar imagem (opcional)
-                </label>
-                <input
-                  name="foto_ponto"
-                  type="file"
-                  accept="image/*"
-                  className="w-full p-4 rounded-2xl border border-slate-200 bg-white outline-none transition-all shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white file:font-bold hover:file:bg-blue-700"
-                />
-                <p className="mt-2 text-xs text-slate-500">
-                  Essa imagem aparecerá no botão “Ver Detalhes” da Home (máx.
-                  4MB).
-                </p>
-              </div>
+              <PontoImagemUploadField />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
