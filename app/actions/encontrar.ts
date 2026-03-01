@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { recordObservabilityEvent } from "@/lib/observability";
 
 const FOTO_MAX_BYTES = 4 * 1024 * 1024;
 const MAX_FOTOS = 8;
@@ -72,6 +73,12 @@ export async function cadastrarPessoaEncontrar(
 ): Promise<void> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "auth_required",
+      level: "WARN",
+      message: "Tentativa de cadastro sem autenticação.",
+    });
     redirect("/login?from=encontrar-pessoas");
   }
 
@@ -132,6 +139,20 @@ export async function cadastrarPessoaEncontrar(
       }
     }
 
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "cadastro_realizado",
+      level: "INFO",
+      message: "Cadastro de pessoa desaparecida realizado com sucesso.",
+      userEmail: session.user.email,
+      metadata: {
+        cidade,
+        estado,
+        anonimo,
+        fotos: fotosDataUrls.length,
+      },
+    });
+
     revalidatePath("/encontrar-pessoas");
     redirect("/encontrar-pessoas?success=1");
   } catch (error) {
@@ -148,6 +169,18 @@ export async function cadastrarPessoaEncontrar(
     if (error instanceof Error && error.message === "photo_total_too_large") {
       redirect("/encontrar-pessoas?error=photo_total_too_large");
     }
+
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "cadastro_erro",
+      level: "ERROR",
+      message: "Falha ao cadastrar pessoa desaparecida.",
+      userEmail: session.user.email,
+      metadata: {
+        error: error instanceof Error ? error.message : "erro_desconhecido",
+      },
+    });
+
     console.error("Erro ao cadastrar pessoa desaparecida:", error);
     redirect("/encontrar-pessoas?error=save");
   }
@@ -158,6 +191,12 @@ export async function marcarPessoaComoEncontrada(
 ): Promise<void> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "auth_required",
+      level: "WARN",
+      message: "Tentativa de marcar pessoa como encontrada sem autenticação.",
+    });
     redirect("/login?from=encontrar-pessoas");
   }
 
@@ -187,10 +226,35 @@ export async function marcarPessoaComoEncontrada(
       WHERE id = ${id}::uuid
     `;
 
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "marcado_encontrado",
+      level: "INFO",
+      message: "Pessoa marcada como encontrada.",
+      userEmail: session.user.email,
+      metadata: {
+        id,
+        encontradoPorAnonimo,
+      },
+    });
+
     revalidatePath("/encontrar-pessoas");
     redirect("/encontrar-pessoas?success=found");
   } catch (error) {
     if (isRedirectError(error)) throw error;
+
+    await recordObservabilityEvent({
+      source: "encontrar_pessoas",
+      eventType: "marcado_encontrado_erro",
+      level: "ERROR",
+      message: "Falha ao marcar pessoa como encontrada.",
+      userEmail: session.user.email,
+      metadata: {
+        id,
+        error: error instanceof Error ? error.message : "erro_desconhecido",
+      },
+    });
+
     console.error("Erro ao marcar pessoa como encontrada:", error);
     redirect("/encontrar-pessoas?error=save");
   }
@@ -201,6 +265,12 @@ export async function cadastrarAnimalEncontrar(
 ): Promise<void> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "auth_required",
+      level: "WARN",
+      message: "Tentativa de cadastro sem autenticação.",
+    });
     redirect("/login?from=encontrar-animais");
   }
 
@@ -264,6 +334,21 @@ export async function cadastrarAnimalEncontrar(
       }
     }
 
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "cadastro_realizado",
+      level: "INFO",
+      message: "Cadastro de animal desaparecido realizado com sucesso.",
+      userEmail: session.user.email,
+      metadata: {
+        cidade,
+        estado,
+        especie,
+        anonimo,
+        fotos: fotosDataUrls.length,
+      },
+    });
+
     revalidatePath("/encontrar-animais");
     redirect("/encontrar-animais?success=1");
   } catch (error) {
@@ -280,6 +365,18 @@ export async function cadastrarAnimalEncontrar(
     if (error instanceof Error && error.message === "photo_total_too_large") {
       redirect("/encontrar-animais?error=photo_total_too_large");
     }
+
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "cadastro_erro",
+      level: "ERROR",
+      message: "Falha ao cadastrar animal desaparecido.",
+      userEmail: session.user.email,
+      metadata: {
+        error: error instanceof Error ? error.message : "erro_desconhecido",
+      },
+    });
+
     console.error("Erro ao cadastrar animal desaparecido:", error);
     redirect("/encontrar-animais?error=save");
   }
@@ -290,6 +387,12 @@ export async function marcarAnimalComoEncontrado(
 ): Promise<void> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "auth_required",
+      level: "WARN",
+      message: "Tentativa de marcar animal como encontrado sem autenticação.",
+    });
     redirect("/login?from=encontrar-animais");
   }
 
@@ -319,10 +422,35 @@ export async function marcarAnimalComoEncontrado(
       WHERE id = ${id}::uuid
     `;
 
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "marcado_encontrado",
+      level: "INFO",
+      message: "Animal marcado como encontrado.",
+      userEmail: session.user.email,
+      metadata: {
+        id,
+        encontradoPorAnonimo,
+      },
+    });
+
     revalidatePath("/encontrar-animais");
     redirect("/encontrar-animais?success=found");
   } catch (error) {
     if (isRedirectError(error)) throw error;
+
+    await recordObservabilityEvent({
+      source: "encontrar_animais",
+      eventType: "marcado_encontrado_erro",
+      level: "ERROR",
+      message: "Falha ao marcar animal como encontrado.",
+      userEmail: session.user.email,
+      metadata: {
+        id,
+        error: error instanceof Error ? error.message : "erro_desconhecido",
+      },
+    });
+
     console.error("Erro ao marcar animal como encontrado:", error);
     redirect("/encontrar-animais?error=save");
   }

@@ -10,6 +10,20 @@ Checklist rápido após execução:
 - validar colunas em `pontos_coleta` (`voluntario_*`, `fraldas_publico`)
 - atualizar a Home e testar filtros de categoria
 
+## Monitoramento e Observabilidade
+
+O projeto possui um MVP de observabilidade com persistência de eventos e endpoint de saúde.
+
+- Healthcheck: `GET /api/health`
+  - Retorna status do serviço, tempo de resposta e verificação de banco.
+- Dashboard admin: `/admin/observabilidade`
+  - Exibe eventos das últimas 24h, top erros por origem e últimos eventos.
+- Persistência de eventos:
+  - Tabela `observability_events` (criada no `prisma/postdeploy-checklist.sql`).
+  - Ações críticas de `encontrar` já publicam eventos de sucesso, erro e bloqueio de autenticação.
+
+Para produção, rode o `prisma/postdeploy-checklist.sql` para garantir a estrutura da tabela de observabilidade.
+
 ## SQL já executados no projeto
 
 Resumo dos SQL usados até agora (local e produção), com finalidade e como rodar.

@@ -74,6 +74,12 @@ export default function TopMenu() {
               Home
             </Link>
             <Link
+              href="/admin/observabilidade"
+              className="hover:text-blue-600 transition-colors"
+            >
+              Acessos
+            </Link>
+            <Link
               href="/pedido-ajuda"
               className="hover:text-blue-600 transition-colors"
             >
@@ -105,6 +111,13 @@ export default function TopMenu() {
               onClick={() => setIsOpen(false)}
             >
               Pedido de Ajuda
+            </Link>
+            <Link
+              href="/admin/observabilidade"
+              className="hover:text-blue-600 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Acessos
             </Link>
           </div>
         )}

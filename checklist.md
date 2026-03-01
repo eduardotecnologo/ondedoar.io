@@ -5,3 +5,5 @@
 - login com google
 - Notícias
 - Pessoas Desaparecidas - OK
+- Sistema de Estoque
+- Se liga - Boatos

@@ -208,3 +208,24 @@ CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_animal_id_idx
 
 CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_ordem_idx
   ON encontrar_animais_imagens(animal_id, ordem);
+
+-- 13) Observabilidade geral da aplicação
+CREATE TABLE IF NOT EXISTS observability_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  source TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  level TEXT NOT NULL,
+  message TEXT NOT NULL,
+  user_email TEXT,
+  metadata JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS observability_events_created_at_idx
+  ON observability_events(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS observability_events_level_idx
+  ON observability_events(level);
+
+CREATE INDEX IF NOT EXISTS observability_events_source_idx
+  ON observability_events(source);

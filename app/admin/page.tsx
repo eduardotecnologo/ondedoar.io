@@ -181,12 +181,20 @@ export default async function AdminPage(props: AdminPageProps) {
                 Gerencie todos os pontos e usuários da plataforma.
               </p>
             </div>
-            <Link
-              href="/admin/pedidos-ajuda"
-              className="inline-flex bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-colors"
-            >
-              Ver Pedidos de Ajuda
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/admin/observabilidade"
+                className="inline-flex bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition-colors"
+              >
+                Ver Observabilidade
+              </Link>
+              <Link
+                href="/admin/pedidos-ajuda"
+                className="inline-flex bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-colors"
+              >
+                Ver Pedidos de Ajuda
+              </Link>
+            </div>
           </div>
 
           {/* Filtros */}
