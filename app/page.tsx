@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import FlashMessage from "@/components/FlashMessage";
 import MapaWrapper from "@/components/MapaWrapper";
 import MapaInterdicoesWrapper from "@/components/MapaInterdicoesWrapper";
@@ -198,6 +200,12 @@ function weatherCodeLabel(code?: number): string {
 }
 
 export default async function Home(props: HomeProps) {
+  const session = await getServerSession(authOptions);
+  const email = session?.user?.email?.trim().toLowerCase();
+  const canSeeAcessos =
+    email === "edudeveloperctk@gmail.com" ||
+    email === "eduardotecnologo@hotmail.com";
+
   // Unwrap searchParams (Next pode passar como Promise)
   const searchParams = await (props.searchParams ?? {});
 
@@ -844,12 +852,14 @@ export default async function Home(props: HomeProps) {
               >
                 🚧 Riscos / Interdições
               </Link>
-              <Link
-                href="/acessos"
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-slate-200"
-              >
-                🔐 Acessos
-              </Link>
+              {canSeeAcessos && (
+                <Link
+                  href="/acessos"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-slate-200"
+                >
+                  🔐 Acessos
+                </Link>
+              )}
             </div>
 
             <HomeMobileMenu />

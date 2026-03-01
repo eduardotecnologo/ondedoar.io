@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function TopMenu() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
+  const email = session?.user?.email?.trim().toLowerCase();
+  const canSeeAcessos =
+    email === "edudeveloperctk@gmail.com" ||
+    email === "eduardotecnologo@hotmail.com";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -73,12 +79,14 @@ export default function TopMenu() {
             <Link href="/" className="hover:text-blue-600 transition-colors">
               Home
             </Link>
-            <Link
-              href="/acessos"
-              className="hover:text-blue-600 transition-colors"
-            >
-              Acessos
-            </Link>
+            {canSeeAcessos && (
+              <Link
+                href="/acessos"
+                className="hover:text-blue-600 transition-colors"
+              >
+                Acessos
+              </Link>
+            )}
             <Link
               href="/pedido-ajuda"
               className="hover:text-blue-600 transition-colors"
@@ -112,13 +120,15 @@ export default function TopMenu() {
             >
               Pedido de Ajuda
             </Link>
-            <Link
-              href="/acessos"
-              className="hover:text-blue-600 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              Acessos
-            </Link>
+            {canSeeAcessos && (
+              <Link
+                href="/acessos"
+                className="hover:text-blue-600 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Acessos
+              </Link>
+            )}
           </div>
         )}
       </nav>

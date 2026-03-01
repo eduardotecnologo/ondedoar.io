@@ -4,9 +4,15 @@ import React from "react";
 import Link from "next/link";
 import AuthButton from "@/components/AuthButton";
 import UseMyLocationButton from "@/components/UseMyLocationButton";
+import { useSession } from "next-auth/react";
 
 export default function HomeMobileMenu() {
   const [open, setOpen] = React.useState(false);
+  const { data: session } = useSession();
+  const email = session?.user?.email?.trim().toLowerCase();
+  const canSeeAcessos =
+    email === "edudeveloperctk@gmail.com" ||
+    email === "eduardotecnologo@hotmail.com";
 
   return (
     <div className="lg:hidden relative">
@@ -80,13 +86,15 @@ export default function HomeMobileMenu() {
               >
                 🚧 Riscos / Interdições
               </Link>
-              <Link
-                href="/acessos"
-                onClick={() => setOpen(false)}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold transition-all text-sm whitespace-nowrap border border-slate-200 text-center"
-              >
-                🔐 Acessos
-              </Link>
+              {canSeeAcessos && (
+                <Link
+                  href="/acessos"
+                  onClick={() => setOpen(false)}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold transition-all text-sm whitespace-nowrap border border-slate-200 text-center"
+                >
+                  🔐 Acessos
+                </Link>
+              )}
             </div>
           </div>
         </>
