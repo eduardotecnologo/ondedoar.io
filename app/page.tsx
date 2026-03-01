@@ -301,6 +301,7 @@ export default async function Home(props: HomeProps) {
   >();
 
   const fotoPontoById = new Map<string, string | null>();
+  const fotosPontoById = new Map<string, string[]>();
 
   try {
     const timerStatusRows = await prisma.$queryRaw<
@@ -342,6 +343,27 @@ export default async function Home(props: HomeProps) {
     console.warn("Fotos dos pontos indisponíveis na Home:", error);
   }
 
+  try {
+    const galeriaRows = await prisma.$queryRaw<
+      Array<{
+        ponto_id: string;
+        imagem_data: string;
+      }>
+    >`
+      SELECT ponto_id, imagem_data
+      FROM ponto_imagens
+      ORDER BY ponto_id, ordem ASC, criado_em ASC
+    `;
+
+    for (const row of galeriaRows) {
+      const current = fotosPontoById.get(row.ponto_id) ?? [];
+      current.push(row.imagem_data);
+      fotosPontoById.set(row.ponto_id, current);
+    }
+  } catch (error) {
+    console.warn("Galeria de fotos indisponível na Home:", error);
+  }
+
   // Transforma para o formato que os componentes front esperam (types/ponto.ts)
   const now = new Date();
 
@@ -379,6 +401,7 @@ export default async function Home(props: HomeProps) {
       nome: p.nome,
       detalhes: p.descricao ?? null,
       fotoPonto: fotoPontoById.get(p.id) ?? null,
+      fotosPonto: fotosPontoById.get(p.id) ?? [],
       statusDoacao: statusAuto ?? statusBase,
       endereco: p.endereco,
       numero: p.numero,
@@ -1176,6 +1199,7 @@ export default async function Home(props: HomeProps) {
                       titulo={ponto.nome}
                       detalhes={ponto.detalhes}
                       fotoPonto={ponto.fotoPonto}
+                      fotosPonto={ponto.fotosPonto}
                     />
                   </div>
                 </div>

@@ -6,6 +6,7 @@ export default function PontoDetalhesButton(props: {
   titulo: string;
   detalhes?: string | null;
   fotoPonto?: string | null;
+  fotosPonto?: string[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -13,6 +14,20 @@ export default function PontoDetalhesButton(props: {
     const d = (props.detalhes ?? "").trim();
     return d.length > 0 ? d : null;
   }, [props.detalhes]);
+
+  const fotos = useMemo(() => {
+    const galeria = (props.fotosPonto ?? []).filter(
+      (foto) => typeof foto === "string" && foto.trim().length > 0,
+    );
+
+    if (galeria.length > 0) return galeria;
+
+    if (props.fotoPonto && props.fotoPonto.trim().length > 0) {
+      return [props.fotoPonto];
+    }
+
+    return [];
+  }, [props.fotoPonto, props.fotosPonto]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -66,12 +81,21 @@ export default function PontoDetalhesButton(props: {
             </div>
 
             <div className="p-6">
-              {props.fotoPonto && (
-                <img
-                  src={props.fotoPonto}
-                  alt={`Imagem de ${props.titulo}`}
-                  className="w-full max-h-72 object-cover rounded-xl border border-slate-200 mb-4"
-                />
+              {fotos.length > 0 && (
+                <div
+                  className={`mb-4 grid gap-3 ${
+                    fotos.length > 1 ? "grid-cols-2" : "grid-cols-1"
+                  }`}
+                >
+                  {fotos.map((foto, index) => (
+                    <img
+                      key={`${foto.slice(0, 32)}-${index}`}
+                      src={foto}
+                      alt={`Imagem ${index + 1} de ${props.titulo}`}
+                      className="w-full max-h-72 object-cover rounded-xl border border-slate-200"
+                    />
+                  ))}
+                </div>
               )}
 
               {detalhesLimpos ? (

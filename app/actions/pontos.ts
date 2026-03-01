@@ -26,7 +26,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const telefone = (formData.get("telefone") as string) || "";
   const whatsapp = (formData.get("whatsapp") as string) || "";
   const website = (formData.get("website") as string) || "";
-  const fotoPonto = formData.get("foto_ponto");
+  const fotosPontoRaw = formData.getAll("foto_ponto");
   const statusAutoAtivarEmRaw =
     (formData.get("status_auto_ativar_em") as string) || "";
   const statusAutoInativarEmRaw =
@@ -146,21 +146,32 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     .filter(Boolean)
     .join("\n");
 
-  let fotoPontoDataUrl: string | null = null;
+  const fotosPonto = fotosPontoRaw.filter(
+    (item): item is File => item instanceof File && item.size > 0,
+  );
 
-  if (fotoPonto instanceof File && fotoPonto.size > 0) {
+  const maxFileSizeInBytes = 4 * 1024 * 1024;
+
+  for (const fotoPonto of fotosPonto) {
     if (!fotoPonto.type.startsWith("image/")) {
       redirect("/cadastrar?error=invalid_photo");
     }
 
-    const maxFileSizeInBytes = 4 * 1024 * 1024;
     if (fotoPonto.size > maxFileSizeInBytes) {
       redirect("/cadastrar?error=photo_too_large");
     }
-
-    const fotoBuffer = Buffer.from(await fotoPonto.arrayBuffer());
-    fotoPontoDataUrl = `data:${fotoPonto.type};base64,${fotoBuffer.toString("base64")}`;
   }
+
+  const fotosPontoDataUrls: string[] = [];
+
+  for (const fotoPonto of fotosPonto) {
+    const fotoBuffer = Buffer.from(await fotoPonto.arrayBuffer());
+    fotosPontoDataUrls.push(
+      `data:${fotoPonto.type};base64,${fotoBuffer.toString("base64")}`,
+    );
+  }
+
+  const fotoPontoDataUrl = fotosPontoDataUrls[0] ?? null;
 
   // Geocoding via Nominatim
   let latitude = 0;
@@ -283,11 +294,22 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
             foto_ponto = ${fotoPontoDataUrl}
         WHERE id = ${pontoCriado.id}::uuid
       `;
+
+      if (fotosPontoDataUrls.length > 0) {
+        await prisma.$executeRaw`
+          DELETE FROM ponto_imagens
+          WHERE ponto_id = ${pontoCriado.id}::uuid
+        `;
+
+        for (const [index, imagemData] of fotosPontoDataUrls.entries()) {
+          await prisma.$executeRaw`
+            INSERT INTO ponto_imagens (ponto_id, imagem_data, ordem)
+            VALUES (${pontoCriado.id}::uuid, ${imagemData}, ${index})
+          `;
+        }
+      }
     } catch (timerError) {
-      console.warn(
-        "Não foi possível salvar timer automático/foto do ponto:",
-        timerError,
-      );
+      console.warn("Não foi possível salvar timer/fotos do ponto:", timerError);
     }
 
     // Revalida a rota raiz e redireciona para sucesso
