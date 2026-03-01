@@ -4,4 +4,4 @@
 - clima/tempo - OK
 - login com google
 - Notícias
-- Pessoas Desaparecidas
+- Pessoas Desaparecidas - OK

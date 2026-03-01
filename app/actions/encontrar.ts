@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const FOTO_MAX_BYTES = 4 * 1024 * 1024;
 const MAX_FOTOS = 8;
@@ -68,6 +70,11 @@ async function readUploadedImagesAsDataUrls(
 export async function cadastrarPessoaEncontrar(
   formData: FormData,
 ): Promise<void> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect("/login?from=encontrar-pessoas");
+  }
+
   const nome = asText(formData.get("nome"));
   const contato = asText(formData.get("contato"));
   const cidade = asText(formData.get("cidade"));
@@ -149,6 +156,11 @@ export async function cadastrarPessoaEncontrar(
 export async function marcarPessoaComoEncontrada(
   formData: FormData,
 ): Promise<void> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect("/login?from=encontrar-pessoas");
+  }
+
   const id = asText(formData.get("id"));
   const encontradoPorNome = asText(formData.get("encontrado_por_nome"));
   const encontradoPorAnonimo = asBool(formData.get("encontrado_por_anonimo"));
@@ -187,6 +199,11 @@ export async function marcarPessoaComoEncontrada(
 export async function cadastrarAnimalEncontrar(
   formData: FormData,
 ): Promise<void> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect("/login?from=encontrar-animais");
+  }
+
   const nome = asText(formData.get("nome"));
   const contato = asText(formData.get("contato"));
   const cidade = asText(formData.get("cidade"));
@@ -271,6 +288,11 @@ export async function cadastrarAnimalEncontrar(
 export async function marcarAnimalComoEncontrado(
   formData: FormData,
 ): Promise<void> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect("/login?from=encontrar-animais");
+  }
+
   const id = asText(formData.get("id"));
   const encontradoPorNome = asText(formData.get("encontrado_por_nome"));
   const encontradoPorAnonimo = asBool(formData.get("encontrado_por_anonimo"));
