@@ -845,7 +845,7 @@ export default async function Home(props: HomeProps) {
                 🚧 Riscos / Interdições
               </Link>
               <Link
-                href="/admin/observabilidade"
+                href="/acessos"
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold transition-all text-xs whitespace-nowrap border border-slate-200"
               >
                 🔐 Acessos

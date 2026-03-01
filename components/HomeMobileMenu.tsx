@@ -81,7 +81,7 @@ export default function HomeMobileMenu() {
                 🚧 Riscos / Interdições
               </Link>
               <Link
-                href="/admin/observabilidade"
+                href="/acessos"
                 onClick={() => setOpen(false)}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold transition-all text-sm whitespace-nowrap border border-slate-200 text-center"
               >

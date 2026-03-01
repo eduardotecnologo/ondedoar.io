@@ -7,3 +7,4 @@
 - Pessoas Desaparecidas - OK
 - Sistema de Estoque
 - Se liga - Boatos
+- Criar a Categoria "Transporte"

@@ -74,7 +74,7 @@ export default function TopMenu() {
               Home
             </Link>
             <Link
-              href="/admin/observabilidade"
+              href="/acessos"
               className="hover:text-blue-600 transition-colors"
             >
               Acessos
@@ -113,7 +113,7 @@ export default function TopMenu() {
               Pedido de Ajuda
             </Link>
             <Link
-              href="/admin/observabilidade"
+              href="/acessos"
               className="hover:text-blue-600 transition-colors"
               onClick={() => setIsOpen(false)}
             >
