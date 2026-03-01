@@ -205,6 +205,7 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
     // Busca usuário no banco pelo email da sessão
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true },
     });
 
     const categoriaVoluntario = await prisma.tipoDoacao.findFirst({
