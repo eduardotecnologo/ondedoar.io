@@ -9,3 +9,6 @@
 - Se liga - Boatos
 - Voluntário de Limpeza
 - Criar a Categoria "Transporte"
+- Paginação
+- Receber um notificação a cada novo registro
+- Recolocação Profissional

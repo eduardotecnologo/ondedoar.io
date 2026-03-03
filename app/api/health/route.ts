@@ -21,6 +21,7 @@ export async function GET() {
     cadastros24h: 0,
     visitasTotal: 0,
     visitas24h: 0,
+    topPaginas24h: [] as Array<{ path: string; visitas24h: number }>,
   };
 
   try {
@@ -69,10 +70,40 @@ export async function GET() {
           COUNT(*) FILTER (WHERE created_at >= now() - interval '24 hours')::int AS visitas_24h
         FROM observability_events
         WHERE event_type = 'page_view'
+          AND NOT (
+            COALESCE((metadata->>'isBot')::boolean, false)
+            OR COALESCE(metadata->>'userAgent', '') ~* '(bot|spider|crawler|headless|facebookexternalhit|slurp|bingpreview|pingdom|uptimerobot)'
+          )
       `;
 
       metrics.visitasTotal = visitasRows[0]?.visitas_total ?? 0;
       metrics.visitas24h = visitasRows[0]?.visitas_24h ?? 0;
+
+      const topPaginasRows = await prisma.$queryRaw<
+        Array<{
+          path: string;
+          visitas_24h: number;
+        }>
+      >`
+        SELECT
+          COALESCE(metadata->>'path', '/') AS path,
+          COUNT(*)::int AS visitas_24h
+        FROM observability_events
+        WHERE event_type = 'page_view'
+          AND created_at >= now() - interval '24 hours'
+          AND NOT (
+            COALESCE((metadata->>'isBot')::boolean, false)
+            OR COALESCE(metadata->>'userAgent', '') ~* '(bot|spider|crawler|headless|facebookexternalhit|slurp|bingpreview|pingdom|uptimerobot)'
+          )
+        GROUP BY 1
+        ORDER BY visitas_24h DESC, path ASC
+        LIMIT 10
+      `;
+
+      metrics.topPaginas24h = topPaginasRows.map((item) => ({
+        path: item.path,
+        visitas24h: item.visitas_24h,
+      }));
       checks.visitTracking = "ok";
     } catch {
       checks.observabilityEvents = "error";

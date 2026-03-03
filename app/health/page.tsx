@@ -13,6 +13,7 @@ export default async function HealthPage() {
   let cadastros24h = 0;
   let visitasTotal = 0;
   let visitas24h = 0;
+  let topPaginas24h: Array<{ path: string; visitas24h: number }> = [];
 
   const requestHeaders = await headers();
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
@@ -39,6 +40,10 @@ export default async function HealthPage() {
           cadastros24h?: number;
           visitasTotal?: number;
           visitas24h?: number;
+          topPaginas24h?: Array<{
+            path?: string;
+            visitas24h?: number;
+          }>;
         };
         responseTimeMs?: number;
       };
@@ -52,6 +57,10 @@ export default async function HealthPage() {
       cadastros24h = Number(data.metrics?.cadastros24h ?? 0);
       visitasTotal = Number(data.metrics?.visitasTotal ?? 0);
       visitas24h = Number(data.metrics?.visitas24h ?? 0);
+      topPaginas24h = (data.metrics?.topPaginas24h ?? []).map((item) => ({
+        path: item.path ?? "/",
+        visitas24h: Number(item.visitas24h ?? 0),
+      }));
     }
   } catch {
     serviceStatus = "degraded";
@@ -63,6 +72,7 @@ export default async function HealthPage() {
     cadastros24h = 0;
     visitasTotal = 0;
     visitas24h = 0;
+    topPaginas24h = [];
   }
 
   return (
@@ -123,13 +133,17 @@ export default async function HealthPage() {
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-              <p className="text-xs uppercase text-slate-500">Visitas total</p>
+              <p className="text-xs uppercase text-slate-500">
+                Visitas humanas total
+              </p>
               <p className="font-extrabold text-slate-800 text-xl">
                 {visitasTotal}
               </p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-              <p className="text-xs uppercase text-slate-500">Visitas 24h</p>
+              <p className="text-xs uppercase text-slate-500">
+                Visitas humanas 24h
+              </p>
               <p className="font-extrabold text-slate-800 text-xl">
                 {visitas24h}
               </p>
@@ -157,6 +171,32 @@ export default async function HealthPage() {
             >
               Ver JSON técnico
             </a>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p className="text-xs uppercase text-slate-500">
+              Top páginas humanas (24h)
+            </p>
+
+            {topPaginas24h.length > 0 ? (
+              <ul className="mt-2 space-y-1 text-sm text-slate-700">
+                {topPaginas24h.map((item) => (
+                  <li
+                    key={item.path}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <span className="truncate font-medium">{item.path}</span>
+                    <span className="text-xs font-bold rounded-full bg-white border border-slate-200 px-2 py-0.5">
+                      {item.visitas24h}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs text-slate-500">
+                Sem visitas registradas nas últimas 24 horas.
+              </p>
+            )}
           </div>
         </div>
       </div>

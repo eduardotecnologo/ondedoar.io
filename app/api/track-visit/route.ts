@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { ensureObservabilityInfra } from "@/lib/observability";
 
+function isBotUserAgent(userAgent: string | null): boolean {
+  if (!userAgent) return false;
+  return /bot|spider|crawler|headless|facebookexternalhit|slurp|bingpreview|pingdom|uptimerobot/i.test(
+    userAgent,
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     await ensureObservabilityInfra();
@@ -16,6 +23,7 @@ export async function POST(request: NextRequest) {
         : "/";
 
     const userAgent = request.headers.get("user-agent")?.slice(0, 300) ?? null;
+    const isBot = isBotUserAgent(userAgent);
 
     await prisma.$executeRaw`
       INSERT INTO observability_events (
@@ -29,7 +37,7 @@ export async function POST(request: NextRequest) {
         'page_view',
         'INFO',
         'Visualização de página registrada.',
-        ${JSON.stringify({ path, userAgent })}::jsonb
+        ${JSON.stringify({ path, userAgent, isBot })}::jsonb
       )
     `;
 
