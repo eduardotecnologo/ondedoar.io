@@ -7,6 +7,20 @@
 
 ## Execuções
 
+### 2026-03-04 19:40 - Suíte completa (push)
+
+- Comando: `npm run test`
+- Runner: `vitest run`
+- Status: ✅ Aprovado
+- Test Files: `5 passed (5)`
+- Tests: `26 passed (26)`
+- Duração: `6.88s`
+
+#### Observações
+
+- Commit `a6bf19e`: todos os pins do mapa exibidos independente da paginação (query separada sem skip/take em `app/page.tsx`).
+- Sem falhas; stderrs são esperados.
+
 ### 2026-03-04 19:28 - Suíte completa (push)
 
 - Comando: `npm run test`

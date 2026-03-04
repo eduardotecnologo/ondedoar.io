@@ -57,8 +57,8 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                   Selecione ao menos uma categoria
                 </h3>
                 <p className="text-sm text-amber-700">
-                  Marque pelo menos um item em “O que este ponto aceita?” para
-                  concluir o cadastro.
+                  Marque pelo menos um item em "O que você está recebendo, ou
+                  doando?” para concluir o cadastro.
                 </p>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
                   Informe o tipo de fraldas
                 </h3>
                 <p className="text-sm text-amber-700">
-                  Para a categoria FRAUDAS, selecione se é para adulto ou
+                  Para a categoria FRALDAS, selecione se é para adulto ou
                   criança.
                 </p>
               </div>

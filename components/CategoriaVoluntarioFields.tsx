@@ -89,7 +89,7 @@ export default function CategoriaVoluntarioFields({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-slate-800 border-b border-slate-200 pb-3">
-        O que este ponto aceita?
+        O que você está recebendo, ou doando?
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
