@@ -72,7 +72,7 @@ export default function RootLayout({
             </div>
             <p className="max-w-6xl mx-auto mt-3 text-center text-sm text-slate-600">
               Informações sujeitas a atualização. Se você está em situação de
-              riscos, informe nos canais acima!!!
+              riscos, informe nos canais acima.
             </p>
             <p className="max-w-6xl mx-auto mt-1 text-center text-sm text-slate-600">
               © 2026 ondedoar.io - Conectando solidariedade. <br />

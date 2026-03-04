@@ -7,6 +7,20 @@
 
 ## Execuções
 
+### 2026-03-04 19:52 - Suíte completa (push)
+
+- Comando: `npm run test`
+- Runner: `vitest run`
+- Status: ✅ Aprovado
+- Test Files: `5 passed (5)`
+- Tests: `26 passed (26)`
+- Duração: `5.79s`
+
+#### Observações
+
+- Commit `82fb276`: renomear categoria `FRAUDAS` → `FRALDAS` em seed, postdeploy SQL, page.tsx e Contexto.md. Banco local atualizado via SQL.
+- Sem falhas; stderrs são esperados.
+
 ### 2026-03-04 19:47 - Suíte completa (push)
 
 - Comando: `npm run test`

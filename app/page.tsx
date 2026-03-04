@@ -1218,7 +1218,7 @@ export default async function Home(props: HomeProps) {
           <p className="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Encontre rapidamente onde doar ou onde buscar ajuda na sua cidade.
             Informação clara, ação imediata. 💛 Faça o contato no Zap do local,
-            informando sua localidade!!!
+            informando sua localidade!
           </p>
 
           <form
@@ -1391,7 +1391,7 @@ export default async function Home(props: HomeProps) {
             href="/cadastrar"
             className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-600 hover:text-white px-6 py-2 rounded-xl font-bold transition-all"
           >
-            + Cadastrar Ponto de Ajuda!!!
+            + Cadastrar Ponto
           </Link>
         </div>
 
@@ -1784,9 +1784,9 @@ export default async function Home(props: HomeProps) {
             </div>
           ) : (
             <div className="bg-white rounded-3xl border border-dashed border-slate-200 p-6 text-slate-500">
-              Nenhuma interdição ativa no momento! Esta sabendo de alguma?
-              Cadastre-se! E nos ajude a manter a comunidade informada e
-              segura!!! 🚧
+              Nenhuma interdição ativa no momento! Está sabendo de alguma?
+              Cadastre-se e nos ajude a manter a comunidade informada e segura!
+              🚧
             </div>
           )}
         </section>

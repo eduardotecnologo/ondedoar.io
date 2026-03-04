@@ -273,4 +273,32 @@ describe("cadastrarPonto", () => {
       "NEXT_REDIRECT:/cadastrar?error=1",
     );
   });
+
+  it("persiste campos de TRANSPORTE via executeRaw quando categoria TRANSPORTE é selecionada", async () => {
+    getServerSessionMock.mockResolvedValue({
+      user: { email: "user@example.com" },
+    });
+    prismaUserFindUniqueMock.mockResolvedValue({ id: "user-1" });
+    prismaPontoCreateMock.mockResolvedValue({ id: "ponto-1" });
+
+    // findFirst: voluntario=null, fraldas=null, transporte=cat-transporte
+    prismaTipoDoacaoFindFirstMock
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: "cat-transporte" });
+
+    const formData = buildValidFormData();
+    formData.delete("categorias");
+    formData.append("categorias", "cat-transporte");
+    formData.set("transporte_tipo_veiculo", "MEDIO");
+    formData.set("transporte_disponivel_em", "2026-03-10T08:00");
+
+    await expect(cadastrarPonto(formData)).rejects.toThrow(
+      "NEXT_REDIRECT:/?success=1",
+    );
+
+    expect(prismaPontoCreateMock).toHaveBeenCalledTimes(1);
+    // $executeRaw deve ter sido chamado para persistir os campos de transporte
+    expect(prismaExecuteRawMock).toHaveBeenCalledTimes(1);
+  });
 });
