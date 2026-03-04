@@ -90,6 +90,7 @@ interface HomeProps {
         geoLat?: string;
         geoLon?: string;
         success?: string;
+        page?: string;
       }>
     | {
         cidade?: string;
@@ -98,6 +99,7 @@ interface HomeProps {
         geoLat?: string;
         geoLon?: string;
         success?: string;
+        page?: string;
       };
 }
 
@@ -216,6 +218,9 @@ export default async function Home(props: HomeProps) {
   const geoLon = Number(searchParams?.geoLon);
   const hasGeoCoords = Number.isFinite(geoLat) && Number.isFinite(geoLon);
 
+  const PONTOS_POR_PAGINA = 6;
+  const paginaAtual = Math.max(1, Number(searchParams?.page ?? "1") || 1);
+
   const normalizeCategoryName = (value: string): string =>
     value
       .normalize("NFD")
@@ -241,6 +246,16 @@ export default async function Home(props: HomeProps) {
       params.set("categoriaId", categoriaId);
     }
 
+    const query = params.toString();
+    return query ? `/?${query}` : "/";
+  };
+
+  const buildPageHref = (page: number): string => {
+    const params = new URLSearchParams();
+    if (cidadeFiltro) params.set("cidade", cidadeFiltro);
+    if (categoriaFiltroId) params.set("categoriaId", categoriaFiltroId);
+    else if (categoriaFiltroNome) params.set("categoria", categoriaFiltroNome);
+    if (page > 1) params.set("page", String(page));
     const query = params.toString();
     return query ? `/?${query}` : "/";
   };
@@ -282,9 +297,10 @@ export default async function Home(props: HomeProps) {
   let dbUnavailable = false;
   let pontosRaw: PontoWithCategorias[] = [];
   let categorias: TipoDoacao[] = [];
+  let totalPontosCount: number = 0;
 
   try {
-    [pontosRaw, categorias] = await Promise.all([
+    [pontosRaw, categorias, totalPontosCount] = await Promise.all([
       prisma.pontoColeta.findMany({
         where,
         select: {
@@ -317,6 +333,8 @@ export default async function Home(props: HomeProps) {
           },
         },
         orderBy: { criado_em: "desc" },
+        skip: (paginaAtual - 1) * PONTOS_POR_PAGINA,
+        take: PONTOS_POR_PAGINA,
       }),
       prisma.tipoDoacao.findMany({
         select: {
@@ -325,6 +343,7 @@ export default async function Home(props: HomeProps) {
         },
         orderBy: { nome: "asc" },
       }),
+      prisma.pontoColeta.count({ where }),
     ]);
   } catch (error) {
     dbUnavailable = true;
@@ -541,7 +560,8 @@ export default async function Home(props: HomeProps) {
 
   const categoriaFiltro = categoriaAtiva?.nome ?? categoriaFiltroNome;
 
-  const totalPontos = pontos.length;
+  const totalPontos = totalPontosCount;
+  const totalPaginas = Math.ceil(totalPontosCount / PONTOS_POR_PAGINA);
   const totalCategorias = categoriasAtalho.length;
   const totalCidades = new Set(
     pontos
@@ -1508,6 +1528,41 @@ export default async function Home(props: HomeProps) {
             >
               Seja o primeiro a cadastrar um ponto aqui!
             </Link>
+          </div>
+        )}
+
+        {/* Paginação */}
+        {totalPaginas > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-8 mb-4 flex-wrap">
+            {paginaAtual > 1 && (
+              <Link
+                href={buildPageHref(paginaAtual - 1)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition"
+              >
+                ← Anterior
+              </Link>
+            )}
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((p) => (
+              <Link
+                key={p}
+                href={buildPageHref(p)}
+                className={`px-4 py-2 rounded-xl border text-sm font-bold transition ${
+                  p === paginaAtual
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {p}
+              </Link>
+            ))}
+            {paginaAtual < totalPaginas && (
+              <Link
+                href={buildPageHref(paginaAtual + 1)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition"
+              >
+                Próxima →
+              </Link>
+            )}
           </div>
         )}
 
