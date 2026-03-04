@@ -133,7 +133,7 @@ Itens pendentes no `checklist.md`:
 - [ ] Sistema de Estoque
 - [ ] Se Liga — Boatos
 - [ ] Voluntário de Limpeza
-- [ ] Categoria "Transporte"
+- [x] Categoria "Transporte" — **OK** (TRANSPORTE 🚛 com porte do veículo + data/hora disponível)
 - [ ] Paginação nos cards de pontos da Home — **OK** (6 por página, server-side via `?page=N`)
 - [ ] Notificação a cada novo registro
 - [ ] Recolocação Profissional

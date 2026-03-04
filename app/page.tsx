@@ -298,53 +298,80 @@ export default async function Home(props: HomeProps) {
   let pontosRaw: PontoWithCategorias[] = [];
   let categorias: TipoDoacao[] = [];
   let totalPontosCount: number = 0;
+  let pontosMapaRaw: Array<{
+    id: string;
+    nome: string;
+    status_doacao: string | null;
+    endereco: string;
+    numero: string;
+    latitude: number | null;
+    longitude: number | null;
+    telefone: string | null;
+    whatsapp: string | null;
+  }> = [];
 
   try {
-    [pontosRaw, categorias, totalPontosCount] = await Promise.all([
-      prisma.pontoColeta.findMany({
-        where,
-        select: {
-          id: true,
-          nome: true,
-          descricao: true,
-          status_doacao: true,
-          endereco: true,
-          numero: true,
-          cidade: true,
-          estado: true,
-          telefone: true,
-          whatsapp: true,
-          voluntario_especialidades: true,
-          voluntario_contato_agendamento: true,
-          voluntario_disponivel: true,
-          fraldas_publico: true,
-          latitude: true,
-          longitude: true,
-          ponto_categorias: {
-            select: {
-              categoria_id: true,
-              categorias: {
-                select: {
-                  id: true,
-                  nome: true,
+    [pontosRaw, categorias, totalPontosCount, pontosMapaRaw] =
+      await Promise.all([
+        prisma.pontoColeta.findMany({
+          where,
+          select: {
+            id: true,
+            nome: true,
+            descricao: true,
+            status_doacao: true,
+            endereco: true,
+            numero: true,
+            cidade: true,
+            estado: true,
+            telefone: true,
+            whatsapp: true,
+            voluntario_especialidades: true,
+            voluntario_contato_agendamento: true,
+            voluntario_disponivel: true,
+            fraldas_publico: true,
+            latitude: true,
+            longitude: true,
+            ponto_categorias: {
+              select: {
+                categoria_id: true,
+                categorias: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
                 },
               },
             },
           },
-        },
-        orderBy: { criado_em: "desc" },
-        skip: (paginaAtual - 1) * PONTOS_POR_PAGINA,
-        take: PONTOS_POR_PAGINA,
-      }),
-      prisma.tipoDoacao.findMany({
-        select: {
-          id: true,
-          nome: true,
-        },
-        orderBy: { nome: "asc" },
-      }),
-      prisma.pontoColeta.count({ where }),
-    ]);
+          orderBy: { criado_em: "desc" },
+          skip: (paginaAtual - 1) * PONTOS_POR_PAGINA,
+          take: PONTOS_POR_PAGINA,
+        }),
+        prisma.tipoDoacao.findMany({
+          select: {
+            id: true,
+            nome: true,
+          },
+          orderBy: { nome: "asc" },
+        }),
+        prisma.pontoColeta.count({ where }),
+        prisma.pontoColeta.findMany({
+          where,
+          select: {
+            id: true,
+            nome: true,
+            status_doacao: true,
+            endereco: true,
+            numero: true,
+            latitude: true,
+            longitude: true,
+            telefone: true,
+            whatsapp: true,
+          },
+          orderBy: { criado_em: "desc" },
+        }),
+      ]);
   } catch (error) {
     dbUnavailable = true;
     console.error("Erro ao carregar pontos/categorias na Home:", error);
@@ -480,6 +507,43 @@ export default async function Home(props: HomeProps) {
           nome: pc.categorias.nome,
         },
       })),
+    };
+  });
+
+  // Todos os pins do mapa (sem paginação — mesmos filtros de cidade/categoria)
+  const pontosParaMapa: Ponto[] = pontosMapaRaw.map((p) => {
+    const timerStatus = timerStatusById.get(p.id);
+    const statusBase =
+      p.status_doacao === "INATIVO"
+        ? "INATIVO"
+        : p.status_doacao === "ATIVO"
+          ? "ATIVO"
+          : p.status_doacao === "RECEBENDO"
+            ? "RECEBENDO"
+            : p.status_doacao === "DOANDO_RECEBENDO" ||
+                p.status_doacao === "DOANDO/RECEBENDO"
+              ? "DOANDO_RECEBENDO"
+              : "DOANDO";
+    const statusAuto =
+      timerStatus?.statusAutoInativarEm &&
+      now >= timerStatus.statusAutoInativarEm
+        ? "INATIVO"
+        : timerStatus?.statusAutoAtivarEm &&
+            now >= timerStatus.statusAutoAtivarEm
+          ? "ATIVO"
+          : null;
+    return {
+      id: p.id,
+      nome: p.nome,
+      statusDoacao: statusAuto ?? statusBase,
+      endereco: p.endereco,
+      numero: p.numero,
+      cidade: null,
+      estado: null,
+      telefone: p.telefone ?? null,
+      whatsapp: p.whatsapp ?? null,
+      latitude: typeof p.latitude === "number" ? p.latitude : 0,
+      longitude: typeof p.longitude === "number" ? p.longitude : 0,
     };
   });
 
@@ -1226,7 +1290,7 @@ export default async function Home(props: HomeProps) {
 
       <section className="max-w-6xl mx-auto px-4 -mt-16">
         <div id="mapa-pontos" className="mb-12">
-          <MapaWrapper pontos={pontos} />
+          <MapaWrapper pontos={pontosParaMapa} />
           <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs text-slate-600 shadow-sm">
             <span className="inline-block h-3 w-3 rounded-full bg-orange-500" />
             Pin laranja = ponto inativo
