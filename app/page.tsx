@@ -229,8 +229,8 @@ export default async function Home(props: HomeProps) {
 
   const getDisplayCategoryName = (name: string): string => {
     const normalized = normalizeCategoryName(name);
-    if (normalized === "FRAIUDAS" || normalized === "FRALDAS") {
-      return "FRAUDAS";
+    if (normalized === "FRAUDAS" || normalized === "FRAIUDAS") {
+      return "FRALDAS";
     }
     return name.trim();
   };

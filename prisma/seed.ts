@@ -15,7 +15,7 @@ async function main() {
     { nome: "ABRIGO ANIMAIS", icone: "🐶🐱" },
     { nome: "ABRIGO", icone: "🏠" },
     { nome: "VOLUNTARIO", icone: "🤝" },
-    { nome: "FRAUDAS", icone: "👶" },
+    { nome: "FRALDAS", icone: "👶" },
     { nome: "AGUA", icone: "💧" },
     { nome: "TRANSPORTE", icone: "🚛" },
     { nome: "HIGIENE/LIMPEZA", icone: "🧼" },

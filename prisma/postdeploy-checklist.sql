@@ -27,7 +27,7 @@ VALUES
   ('ALIMENTO ANIMAIS', 'ðŸ¾'),
   ('ELETRO DOMESTICO', 'ðŸ”Œ'),
   ('VOLUNTARIO', 'ðŸ¤'),
-  ('FRAUDAS', 'ðŸ‘¶'),
+  ('FRALDAS', '👶'),
   ('DOCUMENTOS', 'ðŸ“„'),
   ('TRANSPORTE', '🚛'),
   ('HIGIENE/LIMPEZA', 'ðŸ§¼')
@@ -59,8 +59,8 @@ SET nome = 'ALIMENTO ANIMAIS', icone = 'ðŸ¾'
 WHERE nome IN ('ALIMENTOS ANIMAIS', 'ALIMENTO_ANIMAIS');
 
 UPDATE categorias
-SET nome = 'FRAUDAS', icone = 'ðŸ‘¶'
-WHERE nome IN ('FRAIUDAS', 'FRALDAS');
+SET nome = 'FRALDAS', icone = '👶'
+WHERE nome IN ('FRAIUDAS', 'FRAUDAS');
 
 -- 4) (Opcional) Backfill: vincular pontos sem categoria em ALIMENTOS
 -- Descomente se necessÃ¡rio.
