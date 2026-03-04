@@ -1,10 +1,10 @@
--- ==========================================================
--- OndeDoar.io - Pós-deploy DB checklist (produção)
--- Execute este arquivo no banco de produção após deploys
+﻿-- ==========================================================
+-- OndeDoar.io - PÃ³s-deploy DB checklist (produÃ§Ã£o)
+-- Execute este arquivo no banco de produÃ§Ã£o apÃ³s deploys
 -- que adicionem categorias ou novos campos.
 -- ==========================================================
 
--- 1) Garantir novas colunas do fluxo Voluntário/Fraudas
+-- 1) Garantir novas colunas do fluxo VoluntÃ¡rio/Fraudas/Transporte
 ALTER TABLE pontos_coleta
   ADD COLUMN IF NOT EXISTS voluntario_especialidades TEXT,
   ADD COLUMN IF NOT EXISTS voluntario_contato_agendamento TEXT,
@@ -12,39 +12,58 @@ ALTER TABLE pontos_coleta
   ADD COLUMN IF NOT EXISTS fraldas_publico TEXT,
   ADD COLUMN IF NOT EXISTS foto_ponto TEXT,
   ADD COLUMN IF NOT EXISTS status_auto_ativar_em TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS status_auto_inativar_em TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS status_auto_inativar_em TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS transporte_tipo_veiculo TEXT,
+  ADD COLUMN IF NOT EXISTS transporte_disponivel_em TIMESTAMPTZ;
 
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS email_verificado_em TIMESTAMPTZ;
 
--- 2) Garantir categorias padrão mais recentes
+-- 2) Garantir categorias padrÃ£o mais recentes
 INSERT INTO categorias (nome, icone)
 VALUES
-  ('ABRIGO', '🏠'),
-  ('ABRIGO ANIMAIS', '🐶🐱'),
-  ('ALIMENTO ANIMAIS', '🐾'),
-  ('ELETRO DOMESTICO', '🔌'),
-  ('VOLUNTARIO', '🤝'),
-  ('FRAUDAS', '👶'),
-  ('DOCUMENTOS', '📄')
+  ('ABRIGO', 'ðŸ '),
+  ('ABRIGO ANIMAIS', 'ðŸ¶ðŸ±'),
+  ('ALIMENTO ANIMAIS', 'ðŸ¾'),
+  ('ELETRO DOMESTICO', 'ðŸ”Œ'),
+  ('VOLUNTARIO', 'ðŸ¤'),
+  ('FRAUDAS', 'ðŸ‘¶'),
+  ('DOCUMENTOS', 'ðŸ“„'),
+  ('TRANSPORTE', '🚛'),
+  ('HIGIENE/LIMPEZA', 'ðŸ§¼')
 ON CONFLICT (nome) DO UPDATE
 SET icone = EXCLUDED.icone;
 
--- 3) Corrigir variações antigas de nome
+-- 3a) Migrar categoria HIGIENE â†’ HIGIENE/LIMPEZA
+-- Remigra vÃ­nculos ponto_categorias do antigo HIGIENE para o novo HIGIENE/LIMPEZA
+INSERT INTO ponto_categorias (ponto_id, categoria_id)
+SELECT pc.ponto_id, (SELECT id FROM categorias WHERE nome = 'HIGIENE/LIMPEZA')
+FROM ponto_categorias pc
+JOIN categorias c ON c.id = pc.categoria_id AND c.nome = 'HIGIENE'
+ON CONFLICT DO NOTHING;
+
+-- Remove vÃ­nculos antigos com HIGIENE
+DELETE FROM ponto_categorias
+WHERE categoria_id = (SELECT id FROM categorias WHERE nome = 'HIGIENE');
+
+-- Remove a categoria antiga
+DELETE FROM categorias WHERE nome = 'HIGIENE';
+
+-- 3) Corrigir variaÃ§Ãµes antigas de nome
 UPDATE categorias
-SET nome = 'ABRIGO ANIMAIS', icone = '🐶🐱'
+SET nome = 'ABRIGO ANIMAIS', icone = 'ðŸ¶ðŸ±'
 WHERE nome IN ('ABRIDO ANIMAIS', 'ABRIGO_ANIMAIS');
 
 UPDATE categorias
-SET nome = 'ALIMENTO ANIMAIS', icone = '🐾'
+SET nome = 'ALIMENTO ANIMAIS', icone = 'ðŸ¾'
 WHERE nome IN ('ALIMENTOS ANIMAIS', 'ALIMENTO_ANIMAIS');
 
 UPDATE categorias
-SET nome = 'FRAUDAS', icone = '👶'
+SET nome = 'FRAUDAS', icone = 'ðŸ‘¶'
 WHERE nome IN ('FRAIUDAS', 'FRALDAS');
 
 -- 4) (Opcional) Backfill: vincular pontos sem categoria em ALIMENTOS
--- Descomente se necessário.
+-- Descomente se necessÃ¡rio.
 -- INSERT INTO ponto_categorias (ponto_id, categoria_id)
 -- SELECT p.id,
 --        c.id
@@ -55,7 +74,7 @@ WHERE nome IN ('FRAIUDAS', 'FRALDAS');
 -- )
 -- ON CONFLICT (ponto_id, categoria_id) DO NOTHING;
 
--- 5) Verificações rápidas
+-- 5) VerificaÃ§Ãµes rÃ¡pidas
 -- SELECT nome, icone FROM categorias ORDER BY nome;
 -- SELECT column_name, data_type
 -- FROM information_schema.columns
@@ -209,7 +228,7 @@ CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_animal_id_idx
 CREATE INDEX IF NOT EXISTS encontrar_animais_imagens_ordem_idx
   ON encontrar_animais_imagens(animal_id, ordem);
 
--- 13) Observabilidade geral da aplicação
+-- 13) Observabilidade geral da aplicaÃ§Ã£o
 CREATE TABLE IF NOT EXISTS observability_events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   source TEXT NOT NULL,

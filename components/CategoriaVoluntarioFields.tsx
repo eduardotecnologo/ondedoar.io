@@ -18,6 +18,10 @@ type Props = {
   fraldasDefault?: {
     publico?: string | null;
   };
+  transporteDefaults?: {
+    tipoVeiculo?: string | null;
+    disponivelEm?: string | null;
+  };
 };
 
 function normalize(value: string): string {
@@ -32,6 +36,7 @@ export default function CategoriaVoluntarioFields({
   selectedCategoriaIds = [],
   voluntarioDefaults,
   fraldasDefault,
+  transporteDefaults,
 }: Props) {
   const [selectedIds, setSelectedIds] =
     useState<string[]>(selectedCategoriaIds);
@@ -59,6 +64,16 @@ export default function CategoriaVoluntarioFields({
 
   const fraudasSelecionada =
     !!categoriaFraudasId && selectedIds.includes(categoriaFraudasId);
+
+  const categoriaTransporteId = useMemo(() => {
+    const found = categorias.find(
+      (categoria) => normalize(categoria.nome) === "TRANSPORTE",
+    );
+    return found?.id;
+  }, [categorias]);
+
+  const transporteSelecionado =
+    !!categoriaTransporteId && selectedIds.includes(categoriaTransporteId);
 
   const toggleCategoria = (categoriaId: string, checked: boolean) => {
     setSelectedIds((prev) => {
@@ -181,6 +196,52 @@ export default function CategoriaVoluntarioFields({
                 Criança
               </span>
             </label>
+          </div>
+        </div>
+      )}
+
+      {transporteSelecionado && (
+        <div className="rounded-2xl border border-green-200 bg-green-50/70 p-4 space-y-4">
+          <h3 className="text-sm font-bold text-green-800 uppercase tracking-wide">
+            Dados do Transporte
+          </h3>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Porte do veículo
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {(["PEQUENO", "MEDIO", "GRANDE"] as const).map((porte) => (
+                <label
+                  key={porte}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3"
+                >
+                  <input
+                    type="radio"
+                    name="transporte_tipo_veiculo"
+                    value={porte}
+                    defaultChecked={transporteDefaults?.tipoVeiculo === porte}
+                    required={transporteSelecionado}
+                    className="w-4 h-4 border-slate-300 text-green-600 focus:ring-green-500"
+                  />
+                  <span className="text-sm font-medium text-slate-700 capitalize">
+                    {porte.charAt(0) + porte.slice(1).toLowerCase()}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Data e hora disponível
+            </label>
+            <input
+              name="transporte_disponivel_em"
+              type="datetime-local"
+              defaultValue={transporteDefaults?.disponivelEm ?? ""}
+              className="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-green-100 focus:border-green-500 outline-none transition-all shadow-sm"
+            />
           </div>
         </div>
       )}

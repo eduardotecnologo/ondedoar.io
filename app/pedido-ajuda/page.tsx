@@ -46,7 +46,8 @@ function buildWhatsAppUrl(contato: string): string | null {
 const CATEGORIA_LABELS: Record<string, string> = {
   ALIMENTOS: "Alimentos",
   AGASALHO: "Agasalho",
-  HIGIENE: "Higiene",
+  HIGIENE: "Higiene/Limpeza",
+  "HIGIENE/LIMPEZA": "Higiene/Limpeza",
   REMEDIO: "Remédio",
   ABRIGO: "Abrigo",
   MOVEIS: "Móveis",
@@ -236,7 +237,7 @@ export default async function PedidoAjudaPage(props: PedidoAjudaPageProps) {
               >
                 <option value="ALIMENTOS">Alimentos</option>
                 <option value="AGASALHO">Agasalho</option>
-                <option value="HIGIENE">Higiene</option>
+                <option value="HIGIENE/LIMPEZA">Higiene/Limpeza</option>
                 <option value="REMEDIO">Remédio</option>
                 <option value="ABRIGO">Abrigo</option>
                 <option value="MOVEIS">Móveis</option>

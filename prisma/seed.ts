@@ -17,6 +17,8 @@ async function main() {
     { nome: "VOLUNTARIO", icone: "🤝" },
     { nome: "FRAUDAS", icone: "👶" },
     { nome: "AGUA", icone: "💧" },
+    { nome: "TRANSPORTE", icone: "🚛" },
+    { nome: "HIGIENE/LIMPEZA", icone: "🧼" },
   ];
 
   for (const tipo of tipos) {

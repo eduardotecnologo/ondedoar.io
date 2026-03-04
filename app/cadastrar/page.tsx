@@ -161,7 +161,7 @@ export default async function CadastrarPontoPage({ searchParams }: PageProps) {
           {/* Header */}
           <div className="bg-linear-to-r from-blue-600 to-blue-700 p-8 text-white">
             <h1 className="text-3xl font-bold mb-2 tracking-tight">
-              Cadastrar Ponto de Coleta
+              Cadastrar Ponto de Coleta / Serviços
             </h1>
             <p className="text-blue-100 leading-relaxed">
               Ajude a conectar quem quer doar com quem precisa receber. Todos os

@@ -7,6 +7,22 @@
 
 ## Execuções
 
+### 2026-03-04 12:52 - Suíte completa (feat: transporte)
+
+- Comando: `npm run test`
+- Runner: `vitest run`
+- Status: ✅ Aprovado
+- Test Files: `5 passed (5)`
+- Tests: `26 passed (26)`
+- Duração: `9.27s`
+
+#### Observações
+
+- Validação da feat de campos extras para categoria TRANSPORTE.
+- Novos campos: `transporte_tipo_veiculo` (Pequeno/Médio/Grande) e `transporte_disponivel_em` (datetime).
+- Campos persistidos via raw SQL, `prisma db push` aplicado no banco local.
+- Sem falhas; stderrs são esperados (logs de erro simulado nos testes de ação).
+
 ### 2026-03-03 21:07 - Suíte completa (push)
 
 - Comando: `npm run test`

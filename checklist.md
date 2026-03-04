@@ -8,7 +8,7 @@
 - Sistema de Estoque
 - Se liga - Boatos
 - Voluntário de Limpeza
-- Criar a Categoria "Transporte"
+- Criar a Categoria "Transporte" - OK
 - Paginação
 - Receber um notificação a cada novo registro
 - Recolocação Profissional

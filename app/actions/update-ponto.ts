@@ -48,6 +48,12 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
   const fraldasPublicoRaw = String(
     formData.get("fraldas_publico") || "",
   ).trim();
+  const transporteTipoVeiculoRaw = String(
+    formData.get("transporte_tipo_veiculo") || "",
+  ).trim();
+  const transporteDisponivelEmRaw = String(
+    formData.get("transporte_disponivel_em") || "",
+  ).trim();
   const categoriasRaw = formData.getAll("categorias");
 
   if (!id || !nome || !endereco || !numero || !cidade || !estado || !cep) {
@@ -211,6 +217,20 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
       redirect(`/pontos/${id}/editar?error=fraldas_publico`);
     }
 
+    const categoriaTransporte = await prisma.tipoDoacao.findFirst({
+      where: { nome: { equals: "TRANSPORTE", mode: "insensitive" } },
+      select: { id: true },
+    });
+
+    const transporteSelecionado = categoriaTransporte
+      ? categoriasIds.includes(categoriaTransporte.id)
+      : false;
+
+    const transporteTipoVeiculo = transporteTipoVeiculoRaw.toUpperCase();
+    const transporteDisponivelEm = transporteSelecionado
+      ? parseDateTimeLocal(transporteDisponivelEmRaw, safeTimezoneOffset)
+      : null;
+
     let latitude: number | null = ponto.latitude ?? null;
     let longitude: number | null = ponto.longitude ?? null;
 
@@ -271,7 +291,9 @@ export async function atualizarPonto(formData: FormData): Promise<void> {
         await tx.$executeRaw`
           UPDATE pontos_coleta
           SET status_auto_ativar_em = ${statusAutoAtivarEm},
-              status_auto_inativar_em = ${statusAutoInativarEm}
+              status_auto_inativar_em = ${statusAutoInativarEm},
+              transporte_tipo_veiculo = ${transporteSelecionado ? transporteTipoVeiculo || null : null},
+              transporte_disponivel_em = ${transporteSelecionado ? transporteDisponivelEm : null}
           WHERE id = ${id}::uuid
         `;
       } catch (timerError) {

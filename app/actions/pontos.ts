@@ -45,6 +45,10 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
   const voluntarioDisponivelRaw =
     (formData.get("voluntario_disponivel") as string) || "";
   const fraldasPublicoRaw = (formData.get("fraldas_publico") as string) || "";
+  const transporteTipoVeiculoRaw =
+    (formData.get("transporte_tipo_veiculo") as string) || "";
+  const transporteDisponivelEmRaw =
+    (formData.get("transporte_disponivel_em") as string) || "";
   const categoriasRaw = formData.getAll("categorias"); // pode ser um array de ids ou vazio
 
   // Normaliza categorias para string[]
@@ -250,6 +254,20 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
       ? categoriasIds.includes(categoriaFraudas.id)
       : false;
 
+    const categoriaTransporte = await prisma.tipoDoacao.findFirst({
+      where: { nome: { equals: "TRANSPORTE", mode: "insensitive" } },
+      select: { id: true },
+    });
+
+    const transporteSelecionado = categoriaTransporte
+      ? categoriasIds.includes(categoriaTransporte.id)
+      : false;
+
+    const transporteTipoVeiculo = transporteTipoVeiculoRaw.trim().toUpperCase();
+    const transporteDisponivelEm = transporteSelecionado
+      ? parseDateTimeLocal(transporteDisponivelEmRaw, safeTimezoneOffset)
+      : null;
+
     const fraldasPublico = fraldasPublicoRaw.trim().toUpperCase();
 
     if (
@@ -306,7 +324,9 @@ export async function cadastrarPonto(formData: FormData): Promise<void> {
         UPDATE pontos_coleta
         SET status_auto_ativar_em = ${statusAutoAtivarEm},
             status_auto_inativar_em = ${statusAutoInativarEm},
-            foto_ponto = ${fotoPontoDataUrl}
+            foto_ponto = ${fotoPontoDataUrl},
+            transporte_tipo_veiculo = ${transporteSelecionado ? transporteTipoVeiculo || null : null},
+            transporte_disponivel_em = ${transporteSelecionado ? transporteDisponivelEm : null}
         WHERE id = ${pontoCriado.id}::uuid
       `;
 

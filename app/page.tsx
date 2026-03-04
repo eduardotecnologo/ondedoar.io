@@ -1278,6 +1278,8 @@ export default async function Home(props: HomeProps) {
               FRAUDAS: "👶",
               FRALDAS: "👶",
               HIGIENE: "🧼",
+              "HIGIENE/LIMPEZA": "🧼",
+              TRANSPORTE: "🚛",
               DORMITORIO: "💤",
             };
             const emoji = emojiMap[normalizeCategoryName(displayName)] || "📦";
